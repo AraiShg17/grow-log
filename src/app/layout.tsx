@@ -5,7 +5,7 @@ import { ViewTransitions } from '@/components/ViewTransitions/ViewTransitions';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Grow Log — 植物観察アプリ',
+  title: '植物記録',
   description: '植物の育成記録とAIアドバイス',
 };
 
