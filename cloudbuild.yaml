@@ -44,17 +44,6 @@ steps:
       - --set-secrets=OPENAI_API_KEY=OPEN_AI_API_KEY:latest
       - --set-env-vars=GCP_PROJECT_ID=${PROJECT_ID},FIRESTORE_DATABASE_ID=${_FIRESTORE_DATABASE_ID},GCS_BUCKET_NAME=${_GCS_BUCKET_NAME},OPENAI_MODEL=${_OPENAI_MODEL}
 
-  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    entrypoint: gcloud
-    args:
-      - run
-      - services
-      - add-iam-policy-binding
-      - ${_SERVICE_NAME}
-      - --region=${_REGION}
-      - --member=allUsers
-      - --role=roles/run.invoker
-
 substitutions:
   _REGION: asia-northeast1
   _ARTIFACT_REPO: cloud-run-source-deploy
