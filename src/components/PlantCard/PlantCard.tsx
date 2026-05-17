@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from 'next-view-transitions';
 import { formatDate } from '@/lib/utils/formatDate';
 import type { Plant } from '@/types/plant';
 import styles from './PlantCard.module.css';
@@ -9,12 +9,14 @@ interface PlantCardProps {
 }
 
 export function PlantCard({ plant }: PlantCardProps) {
+  const photoUrl = plant.latestPhotoUrl ?? plant.firstPhotoUrl;
+
   return (
     <article className={styles.card}>
       <Link href={`/plants/${plant.id}`} className={styles.cardLink}>
         <div className={styles.imageWrap}>
           <Image
-            src={plant.firstPhotoUrl}
+            src={photoUrl}
             alt={`${plant.name}の写真`}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"

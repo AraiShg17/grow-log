@@ -4,6 +4,7 @@ export interface Plant {
   id: string;
   name: string;
   firstPhotoUrl: string;
+  latestPhotoUrl?: string;
   careGuide: string;
   createdAt: Date;
   updatedAt: Date;

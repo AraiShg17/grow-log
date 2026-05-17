@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { createPlantAction, type ActionResult } from '@/app/actions/plants';
 import { Button } from '@/components/Button/Button';
 import { LoadingOverlay } from '@/components/LoadingOverlay/LoadingOverlay';
+import { PhotoInput } from '@/components/PhotoInput/PhotoInput';
 import styles from './PlantForm.module.css';
 
 const initialState: ActionResult = { success: false };
@@ -28,16 +29,7 @@ export function PlantForm() {
           />
         </label>
 
-        <label className={styles.field}>
-          <span className={styles.label}>写真</span>
-          <input
-            name="photo"
-            type="file"
-            accept="image/*"
-            required
-            className={styles.file}
-          />
-        </label>
+        <PhotoInput />
 
         {state.error ? <p className={styles.error}>{state.error}</p> : null}
 

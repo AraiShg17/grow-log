@@ -52,3 +52,30 @@ export async function uploadPlantPhoto(
   const buffer = Buffer.from(await file.arrayBuffer());
   return uploadPlantPhotoBuffer(buffer, mimeType, folder);
 }
+
+function objectNameFromPublicUrl(url: string): string | null {
+  const bucketName = getGcsBucketName();
+  const prefix = `https://storage.googleapis.com/${bucketName}/`;
+
+  if (!url.startsWith(prefix)) {
+    return null;
+  }
+
+  return decodeURIComponent(url.slice(prefix.length));
+}
+
+export async function deleteStorageObjectByUrl(url: string): Promise<void> {
+  const objectName = objectNameFromPublicUrl(url);
+  if (!objectName) {
+    return;
+  }
+
+  await getStorage()
+    .bucket(getGcsBucketName())
+    .file(objectName)
+    .delete({ ignoreNotFound: true });
+}
+
+export async function deleteStorageObjectsByUrls(urls: string[]): Promise<void> {
+  await Promise.all(urls.map((url) => deleteStorageObjectByUrl(url)));
+}

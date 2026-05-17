@@ -1,5 +1,6 @@
-import Link from 'next/link';
+import { Link } from 'next-view-transitions';
 import { MaterialIcon } from '@/components/MaterialIcon/MaterialIcon';
+import { ThemeToggle } from '@/components/ThemeToggle/ThemeToggle';
 import { icons } from '@/icons';
 import styles from './AppHeader.module.css';
 
@@ -23,6 +24,7 @@ export function AppHeader() {
             <MaterialIcon name={icons.add} size="sm" className={styles.navIcon} />
             植物を登録
           </Link>
+          <ThemeToggle />
         </nav>
       </div>
     </header>

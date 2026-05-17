@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { PageShell } from '@/components/PageShell/PageShell';
 import { PlantDetail } from '@/components/PlantDetail/PlantDetail';
+import { PlantManagePanel } from '@/components/PlantManagePanel/PlantManagePanel';
 import { getPlant, listPlantLogs } from '@/lib/firestore/plants';
 
 interface PlantDetailPageProps {
@@ -19,7 +19,10 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
   }
 
   return (
-    <PageShell title={plant.name}>
+    <PageShell
+      title={plant.name}
+      titleContent={<PlantManagePanel plantId={plant.id} plantName={plant.name} />}
+    >
       <PlantDetail plant={plant} logs={logs} />
     </PageShell>
   );

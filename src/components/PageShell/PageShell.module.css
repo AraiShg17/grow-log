@@ -16,6 +16,22 @@
   padding-inline: var(--space-5);
 }
 
+.sectionInner > a {
+  display: inline-flex;
+  width: fit-content;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-strong);
+  color: var(--color-text);
+  font-weight: 600;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease,
+    transform 200ms ease;
+}
+
 .pageHeader {
   display: flex;
   flex-wrap: wrap;
@@ -40,4 +56,45 @@
 .actions {
   display: flex;
   gap: var(--space-3);
+}
+
+.actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-strong);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease,
+    transform 200ms ease;
+}
+
+.sectionInner > a:focus-visible,
+.actions a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sectionInner > a:hover,
+  .actions a:hover {
+    background-color: var(--color-surface);
+    border-color: color-mix(in oklab, var(--color-accent) 56%, var(--color-border));
+    color: var(--color-accent);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .sectionInner > a:active,
+  .actions a:active {
+    transform: scale(0.97);
+    background-color: var(--color-surface);
+  }
 }

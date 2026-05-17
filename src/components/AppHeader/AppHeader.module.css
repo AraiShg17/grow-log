@@ -27,10 +27,16 @@
   gap: var(--space-3);
   font-weight: 700;
   letter-spacing: 0.02em;
+  transition:
+    color 200ms ease,
+    transform 200ms ease;
 }
 
 .brandIcon {
   color: var(--color-accent);
+  transition:
+    color 200ms ease,
+    transform 200ms ease;
 }
 
 .nav {
@@ -43,35 +49,95 @@
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   color: var(--color-text-muted);
-}
-
-.navLink:hover {
-  color: var(--color-text);
-  background: var(--color-surface);
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    transform 200ms ease;
 }
 
 .navLinkPrimary {
+  --interactive-gradient-from: #b8efbe;
+  --interactive-gradient-to: #7bcf75;
+
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
   border-radius: 999px;
-  background: linear-gradient(135deg in oklab, var(--color-accent) 0%, #3d9b45 100%);
+  background-image: linear-gradient(
+    135deg in oklab,
+    var(--interactive-gradient-from) 0%,
+    var(--interactive-gradient-to) 100%
+  );
   color: #0b120c;
   font-weight: 600;
+  transition:
+    --interactive-gradient-from 200ms ease,
+    --interactive-gradient-to 200ms ease,
+    filter 200ms ease,
+    transform 200ms ease;
 }
 
 .navIcon {
   color: inherit;
 }
 
-.navLinkPrimary:hover {
-  filter: brightness(1.05);
+.brand:focus-visible,
+.navLink:focus-visible,
+.navLinkPrimary:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .brand:hover {
+    color: var(--color-accent);
+  }
+
+  .brand:hover .brandIcon {
+    color: color-mix(in oklab, var(--color-accent) 84%, #ffffff);
+  }
+
+  .navLink:hover {
+    color: var(--color-text);
+    background-color: var(--color-surface);
+  }
+
+  .navLinkPrimary:hover {
+    --interactive-gradient-from: #cef5d2;
+    --interactive-gradient-to: #8fdd88;
+
+    filter: brightness(1.06);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .brand:active,
+  .navLink:active,
+  .navLinkPrimary:active {
+    transform: scale(0.97);
+  }
+
+  .navLink:active {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .navLinkPrimary:active {
+    --interactive-gradient-from: #9ee89c;
+    --interactive-gradient-to: #6ac56a;
+
+    filter: brightness(0.96);
+  }
 }
 
 @media (max-width: 767px) {
   .headerInner {
     padding-inline: var(--space-4);
+  }
+
+  .nav {
+    gap: var(--space-2);
   }
 
   .navLink {

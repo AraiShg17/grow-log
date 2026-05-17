@@ -1,16 +1,45 @@
+@property --interactive-gradient-from {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #b8efbe;
+}
+
+@property --interactive-gradient-to {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #7bcf75;
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: fade-out 0.25s cubic-bezier(0.4, 0, 1, 1);
+}
+
+::view-transition-new(root) {
+  animation: fade-in 0.25s cubic-bezier(0, 0, 0.2, 1);
+}
+
 :root {
   interpolate-size: allow-keywords;
 
-  --color-bg: #0f1410;
-  --color-bg-elevated: #1a221c;
-  --color-surface: color-mix(in oklab, #ffffff 8%, transparent);
-  --color-surface-strong: color-mix(in oklab, #ffffff 14%, transparent);
-  --color-text: #f2f7f3;
-  --color-text-muted: #a8b5ac;
-  --color-accent: #7dd87a;
-  --color-accent-strong: #4fbf4c;
-  --color-border: color-mix(in oklab, #ffffff 18%, transparent);
-  --color-danger: #ff8f8f;
+  --color-bg: #ffffff;
+  --color-bg-elevated: #ffffff;
+  --color-surface: color-mix(in oklab, #ffffff 82%, transparent);
+  --color-surface-strong: color-mix(in oklab, #ffffff 94%, transparent);
+  --color-text: #172019;
+  --color-text-muted: #627064;
+  --color-accent: #52b858;
+  --color-accent-strong: #3f9f46;
+  --color-border: color-mix(in oklab, #172019 16%, transparent);
+  --color-danger: #b73d3d;
+  --color-hero-start: #ffffff;
+  --color-hero-end: #ffffff;
+
+  /* 背景画像をかなり淡くする（上に重ねる色） */
+  --bg-image-wash: color-mix(in oklab, #ffffff 70%, transparent);
 
   --font-mono: ui-monospace, monospace;
 
@@ -31,6 +60,23 @@
   --header-height: 4rem;
 }
 
+:root[data-theme='dark'] {
+  --color-bg: #0f1410;
+  --color-bg-elevated: #1a221c;
+  --color-surface: color-mix(in oklab, #ffffff 8%, transparent);
+  --color-surface-strong: color-mix(in oklab, #ffffff 14%, transparent);
+  --color-text: #f2f7f3;
+  --color-text-muted: #a8b5ac;
+  --color-accent: #7dd87a;
+  --color-accent-strong: #4fbf4c;
+  --color-border: color-mix(in oklab, #ffffff 18%, transparent);
+  --color-danger: #ff8f8f;
+  --color-hero-start: #2a4a32;
+  --color-hero-end: #1f3d2b;
+
+  --bg-image-wash: color-mix(in oklab, #0f1410 88%, transparent);
+}
+
 *,
 *::before,
 *::after {
@@ -38,20 +84,55 @@
 }
 
 html {
+  color-scheme: light;
+  background-color: var(--color-bg);
+}
+
+html[data-theme='dark'] {
   color-scheme: dark;
 }
 
 body {
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
   margin: 0;
   min-height: 100dvh;
   font-family:
     'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, sans-serif;
   color: var(--color-text);
-  background:
-    radial-gradient(120% 80% at 10% 0%, #2a4a32 0%, transparent 55%),
-    radial-gradient(90% 60% at 90% 10%, #1f3d2b 0%, transparent 50%), var(--color-bg);
+  background-color: transparent;
   text-autospace: normal;
   -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: auto 0 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--bg-image-wash), var(--bg-image-wash)), url('/images/bg.png');
+  background-position:
+    center bottom,
+    center bottom;
+  background-size:
+    100% auto,
+    100% auto;
+  background-repeat: no-repeat, no-repeat;
+  /* 上ほど消える（transparent の補間でグレー化しないようアルファで指定） */
+  mask-image: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0) 0%,
+    rgb(255 255 255 / 1) 60%,
+    rgb(255 255 255 / 1) 100%
+  );
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  mask-position: 0 0;
+  mask-type: alpha;
+  height: 55vw;
 }
 
 h1,
@@ -63,6 +144,13 @@ h3 {
 a {
   color: inherit;
   text-decoration: none;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease,
+    filter 200ms ease,
+    opacity 200ms ease,
+    transform 200ms ease;
 }
 
 img {
@@ -98,6 +186,11 @@ main {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
   *,
   *::before,
   *::after {
@@ -105,5 +198,25 @@ main {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }

@@ -15,15 +15,28 @@ interface PlantDetailProps {
 }
 
 export function PlantDetail({ plant, logs }: PlantDetailProps) {
-  const timelineLogs: TimelineLog[] = logs.map((log) => ({
-    id: log.id,
-    photoUrl: log.photoUrl,
-    memo: log.memo,
-    aiAdvice: log.aiAdvice,
-    observedAtIso: log.observedAt.toISOString(),
-    dateLabel: formatDate(log.observedAt),
-    dateTimeLabel: formatDateTime(log.observedAt),
-  }));
+  const timelineLogs: TimelineLog[] = [
+    {
+      id: `${plant.id}-initial`,
+      photoUrl: plant.firstPhotoUrl,
+      memo: '植物を登録しました。',
+      aiAdvice: null,
+      observedAtIso: plant.createdAt.toISOString(),
+      dateLabel: formatDate(plant.createdAt),
+      dateTimeLabel: formatDateTime(plant.createdAt),
+      detailLabel: null,
+    },
+    ...logs.map((log) => ({
+      id: log.id,
+      photoUrl: log.photoUrl,
+      memo: log.memo,
+      aiAdvice: log.aiAdvice,
+      observedAtIso: log.observedAt.toISOString(),
+      dateLabel: formatDate(log.observedAt),
+      dateTimeLabel: formatDateTime(log.observedAt),
+      detailLabel: 'アドバイスの詳細を見る',
+    })),
+  ];
   const addLogHref = `/plants/${plant.id}/logs/new`;
 
   return (

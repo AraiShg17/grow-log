@@ -12,6 +12,12 @@ describe('parseCompactSections', () => {
     const result = parseCompactSections(content);
     expect(result.summary).toContain('水は控えめ');
     expect(result.detail).toContain('週1回');
+    expect(result.detailSections).toEqual([
+      {
+        title: '水やり',
+        content: '週1回',
+      },
+    ]);
   });
 
   it('returns full content when no sections', () => {
@@ -19,5 +25,6 @@ describe('parseCompactSections', () => {
     const result = parseCompactSections(content);
     expect(result.summary).toBe(content);
     expect(result.detail).toBeNull();
+    expect(result.detailSections).toEqual([]);
   });
 });

@@ -1,14 +1,15 @@
-import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp, type Query } from 'firebase-admin/firestore';
 import { getDb } from '@/lib/firebase/admin';
 import type { Plant, PlantDocument, PlantLog, PlantLogDocument } from '@/types/plant';
 
 const PLANTS_COLLECTION = 'plants';
 
-function toPlant(id: string, data: PlantDocument): Plant {
+function toPlant(id: string, data: PlantDocument, latestPhotoUrl?: string): Plant {
   return {
     id,
     name: data.name,
     firstPhotoUrl: data.firstPhotoUrl,
+    latestPhotoUrl,
     careGuide: data.careGuide,
     createdAt: data.createdAt.toDate(),
     updatedAt: data.updatedAt.toDate(),
@@ -32,7 +33,20 @@ export async function listPlants(): Promise<Plant[]> {
     .orderBy('updatedAt', 'desc')
     .get();
 
-  return snapshot.docs.map((doc) => toPlant(doc.id, doc.data() as PlantDocument));
+  return Promise.all(
+    snapshot.docs.map(async (doc) => {
+      const latestLogSnapshot = await doc.ref
+        .collection('logs')
+        .orderBy('observedAt', 'desc')
+        .limit(1)
+        .get();
+      const latestLog = latestLogSnapshot.docs[0]?.data() as
+        | PlantLogDocument
+        | undefined;
+
+      return toPlant(doc.id, doc.data() as PlantDocument, latestLog?.photoUrl);
+    }),
+  );
 }
 
 export async function getPlant(plantId: string): Promise<Plant | null> {
@@ -60,14 +74,35 @@ export async function createPlant(input: {
   return ref.id;
 }
 
+export async function updatePlant(
+  plantId: string,
+  input: {
+    name: string;
+  },
+): Promise<void> {
+  const data: {
+    name: string;
+    updatedAt: FieldValue;
+  } = {
+    name: input.name,
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+
+  await getDb().collection(PLANTS_COLLECTION).doc(plantId).update(data);
+}
+
 export async function listPlantLogs(plantId: string, limit = 20): Promise<PlantLog[]> {
-  const snapshot = await getDb()
+  let query: Query = getDb()
     .collection(PLANTS_COLLECTION)
     .doc(plantId)
     .collection('logs')
-    .orderBy('observedAt', 'desc')
-    .limit(limit)
-    .get();
+    .orderBy('observedAt', 'desc');
+
+  if (limit > 0) {
+    query = query.limit(limit);
+  }
+
+  const snapshot = await query.get();
 
   return snapshot.docs.map((doc) => toPlantLog(doc.id, doc.data() as PlantLogDocument));
 }
@@ -99,4 +134,37 @@ export async function createPlantLog(
 
   await batch.commit();
   return logRef.id;
+}
+
+export async function deletePlantWithLogs(plantId: string): Promise<void> {
+  const db = getDb();
+  const plantRef = db.collection(PLANTS_COLLECTION).doc(plantId);
+  const logsSnapshot = await plantRef.collection('logs').get();
+
+  let batch = db.batch();
+  let operationCount = 0;
+
+  async function commitIfNeeded() {
+    if (operationCount === 0) {
+      return;
+    }
+
+    await batch.commit();
+    batch = db.batch();
+    operationCount = 0;
+  }
+
+  for (const logDoc of logsSnapshot.docs) {
+    batch.delete(logDoc.ref);
+    operationCount += 1;
+
+    if (operationCount >= 450) {
+      await commitIfNeeded();
+    }
+  }
+
+  batch.delete(plantRef);
+  operationCount += 1;
+
+  await commitIfNeeded();
 }

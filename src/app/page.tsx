@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from 'next-view-transitions';
 import { PageShell } from '@/components/PageShell/PageShell';
 import { PlantCard } from '@/components/PlantCard/PlantCard';
 import { listPlants } from '@/lib/firestore/plants';

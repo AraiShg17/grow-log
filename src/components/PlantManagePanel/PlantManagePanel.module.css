@@ -1,0 +1,137 @@
+.panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: stretch;
+  width: -webkit-fill-available;
+}
+
+.title {
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  line-height: 1.15;
+}
+
+.titleForm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  flex: 1;
+}
+
+.actions {
+  flex-shrink: 0;
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: var(--color-surface-strong);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease,
+    filter 200ms ease;
+}
+
+.iconButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.iconButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.dangerButton {
+  color: var(--color-danger);
+}
+
+.titleInput {
+  min-width: 0;
+  max-width: 34rem;
+  width: stretch;
+  width: -webkit-fill-available;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.titleInput:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--color-danger);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .iconButton:hover {
+    background-color: var(--color-surface);
+    border-color: color-mix(in oklab, var(--color-accent) 56%, var(--color-border));
+    color: var(--color-accent);
+  }
+
+  .dangerButton:hover {
+    border-color: color-mix(in oklab, var(--color-danger) 56%, var(--color-border));
+    color: var(--color-danger);
+  }
+
+  .titleInput:hover {
+    border-color: color-mix(in oklab, var(--color-accent) 52%, var(--color-border));
+    background-color: color-mix(in oklab, var(--color-bg-elevated) 86%, #ffffff);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .iconButton:active {
+    background-color: var(--color-surface);
+    filter: brightness(0.96);
+  }
+
+  .titleInput:active {
+    border-color: color-mix(in oklab, var(--color-accent) 52%, var(--color-border));
+    background-color: color-mix(in oklab, var(--color-bg-elevated) 92%, #ffffff);
+  }
+}
+
+@media (max-width: 767px) {
+  .panel {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .titleForm {
+    flex-basis: 100%;
+    order: 2;
+  }
+
+  .actions {
+    margin-left: auto;
+  }
+}

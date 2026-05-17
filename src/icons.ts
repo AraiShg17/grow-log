@@ -11,6 +11,12 @@ export const icons = {
   tempPreferencesEco: 'temp_preferences_eco',
   add: 'add',
   photoCamera: 'photo_camera',
+  darkMode: 'dark_mode',
+  lightMode: 'light_mode',
+  edit: 'edit',
+  delete: 'delete',
+  check: 'check',
+  close: 'close',
 } as const;
 
 export type IconName = (typeof icons)[keyof typeof icons];

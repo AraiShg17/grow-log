@@ -1,0 +1,60 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: var(--color-surface-strong);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease,
+    filter 200ms ease;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.viewport {
+  display: block;
+  width: 1.5rem;
+  overflow: hidden;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  transition: transform 220ms ease;
+}
+
+.track[data-theme='dark'] {
+  transform: translateX(-1.5rem);
+}
+
+.icon {
+  flex: 0 0 1.5rem;
+  color: var(--color-accent);
+  transition: color 200ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    background-color: var(--color-surface);
+    border-color: color-mix(in oklab, var(--color-accent) 56%, var(--color-border));
+    color: var(--color-accent);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .button:active {
+    background-color: var(--color-surface);
+    filter: brightness(0.96);
+  }
+}

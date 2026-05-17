@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from 'next-view-transitions';
 import { PageShell } from '@/components/PageShell/PageShell';
 import { LogForm } from '@/components/LogForm/LogForm';
 import { getPlant } from '@/lib/firestore/plants';
@@ -18,5 +18,12 @@ export default async function NewLogPage({ params }: NewLogPageProps) {
     notFound();
   }
 
-  return <LogForm plantId={plantId} />;
+  return (
+    <PageShell
+      title="観察記録を追加"
+      actions={<Link href={`/plants/${plantId}`}>詳細へ戻る</Link>}
+    >
+      <LogForm plantId={plantId} />
+    </PageShell>
+  );
 }

@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { createPlantLogAction, type ActionResult } from '@/app/actions/plants';
 import { Button } from '@/components/Button/Button';
 import { LoadingOverlay } from '@/components/LoadingOverlay/LoadingOverlay';
+import { PhotoInput } from '@/components/PhotoInput/PhotoInput';
 import styles from './LogForm.module.css';
 
 const initialState: ActionResult = { success: false };
@@ -16,8 +17,6 @@ export function LogForm({ plantId }: LogFormProps) {
   const action = createPlantLogAction.bind(null, plantId);
   const [state, formAction, pending] = useActionState(action, initialState);
 
-  const today = new Date().toISOString().slice(0, 16);
-
   return (
     <>
       <LoadingOverlay
@@ -25,26 +24,7 @@ export function LogForm({ plantId }: LogFormProps) {
         message="写真をアップロードして AI がアドバイスを作成しています…"
       />
       <form action={formAction} className={styles.form}>
-        <label className={styles.field}>
-          <span className={styles.label}>観察日時</span>
-          <input
-            name="observedAt"
-            type="datetime-local"
-            defaultValue={today}
-            className={styles.input}
-          />
-        </label>
-
-        <label className={styles.field}>
-          <span className={styles.label}>写真</span>
-          <input
-            name="photo"
-            type="file"
-            accept="image/*"
-            required
-            className={styles.file}
-          />
-        </label>
+        <PhotoInput />
 
         <label className={styles.field}>
           <span className={styles.label}>メモ</span>
