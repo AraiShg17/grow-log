@@ -1,8 +1,9 @@
 'use client';
 
-import { type ChangeEvent, type DragEvent, useRef, useState } from 'react';
+import { type ChangeEvent, type DragEvent, useCallback, useRef, useState } from 'react';
 import { MaterialIcon } from '@/components/MaterialIcon/MaterialIcon';
 import { icons } from '@/icons';
+import { compressImageForUpload } from '@/lib/images/compressImageForUpload';
 import styles from './PhotoInput.module.css';
 
 interface PhotoInputProps {
@@ -18,17 +19,40 @@ export function PhotoInput({
 }: PhotoInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState('');
+  const [compressing, setCompressing] = useState(false);
+
+  const assignToInput = useCallback(async (file: File) => {
+    if (!inputRef.current) {
+      return;
+    }
+
+    setCompressing(true);
+    try {
+      const ready = await compressImageForUpload(file);
+      const files = new DataTransfer();
+      files.items.add(ready);
+      inputRef.current.files = files.files;
+      setFileName(ready.name);
+    } finally {
+      setCompressing(false);
+    }
+  }, []);
 
   function handleDrag(event: DragEvent<HTMLLabelElement>) {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'copy';
   }
 
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    setFileName(event.target.files?.[0]?.name ?? '');
+  async function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setFileName('');
+      return;
+    }
+    await assignToInput(file);
   }
 
-  function handleDrop(event: DragEvent<HTMLLabelElement>) {
+  async function handleDrop(event: DragEvent<HTMLLabelElement>) {
     event.preventDefault();
 
     const file = Array.from(event.dataTransfer.files).find((item) =>
@@ -39,19 +63,16 @@ export function PhotoInput({
       return;
     }
 
-    const files = new DataTransfer();
-    files.items.add(file);
-    inputRef.current.files = files.files;
-    setFileName(file.name);
-    inputRef.current.dispatchEvent(new Event('change', { bubbles: true }));
+    await assignToInput(file);
   }
 
   return (
     <label
-      className={styles.dropzone}
+      className={[styles.dropzone, compressing ? styles.dropzoneBusy : ''].filter(Boolean).join(' ')}
       onDragEnter={handleDrag}
       onDragOver={handleDrag}
       onDrop={handleDrop}
+      aria-busy={compressing || undefined}
     >
       <input
         ref={inputRef}
@@ -63,7 +84,9 @@ export function PhotoInput({
         onChange={handleChange}
       />
       <MaterialIcon name={icons.photoCamera} size="lg" className={styles.icon} />
-      <span className={styles.text}>{fileName || text}</span>
+      <span className={styles.text}>
+        {compressing ? '送信用に画像を準備しています…' : fileName || text}
+      </span>
     </label>
   );
 }

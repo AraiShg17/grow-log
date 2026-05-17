@@ -21,6 +21,12 @@
   outline-offset: 3px;
 }
 
+.dropzoneBusy {
+  cursor: wait;
+  pointer-events: none;
+  opacity: 0.88;
+}
+
 .file {
   position: absolute;
   inline-size: 1px;

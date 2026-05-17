@@ -2,6 +2,12 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  /** 植物写真（特にスマホの原寸）を Server Action の FormData で送るため、デフォルト 1MB より大きくする */
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '15mb',
+    },
+  },
   images: {
     remotePatterns: [
       {
