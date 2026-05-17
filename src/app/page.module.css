@@ -1,0 +1,29 @@
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+
+.empty {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-7);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--color-border);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.newLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 999px;
+  background: linear-gradient(135deg in oklab, var(--color-accent) 0%, #3d9b45 100%);
+  color: #0b120c;
+  font-weight: 600;
+}

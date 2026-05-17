@@ -1,0 +1,28 @@
+.container {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.detailGrid {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.carePanel {
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+@media (min-width: 1024px) {
+  .detailGrid {
+    grid-template-columns: minmax(0, 1.3fr) minmax(18rem, 0.7fr);
+    align-items: start;
+  }
+
+  .carePanel {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+  }
+}

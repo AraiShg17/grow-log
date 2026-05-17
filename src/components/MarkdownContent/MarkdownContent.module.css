@@ -1,0 +1,20 @@
+.content {
+  display: grid;
+  gap: var(--space-4);
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+.heading {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.paragraph,
+.list {
+  margin: 0;
+}
+
+.list {
+  padding-left: 1.25rem;
+}

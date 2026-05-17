@@ -1,0 +1,43 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: 0 var(--space-5);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.button:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.primary {
+  background: linear-gradient(135deg in oklab, var(--color-accent) 0%, #3d9b45 100%);
+  color: #0b120c;
+  font-weight: 600;
+}
+
+.secondary {
+  background: var(--color-surface-strong);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.fullWidth {
+  width: stretch;
+  width: -webkit-fill-available;
+}
