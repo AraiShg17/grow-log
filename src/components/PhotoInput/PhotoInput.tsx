@@ -68,7 +68,9 @@ export function PhotoInput({
 
   return (
     <label
-      className={[styles.dropzone, compressing ? styles.dropzoneBusy : ''].filter(Boolean).join(' ')}
+      className={[styles.dropzone, compressing ? styles.dropzoneBusy : '']
+        .filter(Boolean)
+        .join(' ')}
       onDragEnter={handleDrag}
       onDragOver={handleDrag}
       onDrop={handleDrop}
