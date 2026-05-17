@@ -8,7 +8,11 @@ export function AppHeader() {
     <header className={styles.header}>
       <div className={styles.headerInner}>
         <Link href="/" className={styles.brand}>
-          <MaterialIcon name={icons.pottedPlant} size="lg" className={styles.brandIcon} />
+          <MaterialIcon
+            name={icons.pottedPlant}
+            size="lg"
+            className={styles.brandIcon}
+          />
           Grow Log
         </Link>
         <nav className={styles.nav} aria-label="メイン">

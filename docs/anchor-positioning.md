@@ -112,7 +112,7 @@ tooltip.style.left = `${rect.left}px`;
 .tooltip {
   position: fixed;
   position-anchor: --button-anchor;
-  
+
   /* アンカーの上に配置 */
   bottom: calc(anchor(top) + 8px);
   left: anchor(left);
@@ -142,7 +142,7 @@ tooltip.style.left = `${rect.left}px`;
   position: fixed;
   position-anchor: --chat-fab-anchor;
   inset: unset;
-  
+
   /* FABボタンの上に、右端を揃えて配置 */
   bottom: calc(anchor(top) + var(--space-2));
   right: anchor(right);
@@ -244,12 +244,12 @@ anchor(<anchor-side>, <fallback>)
 .tooltip {
   position: fixed;
   position-anchor: --help-anchor;
-  
+
   /* ボタンの上に中央揃えで配置 */
   bottom: calc(anchor(top) + 8px);
   left: anchor(center);
   translate: -50% 0;
-  
+
   /* スタイル */
   background: var(--color-surface);
   padding: var(--space-2);
@@ -286,11 +286,11 @@ anchor(<anchor-side>, <fallback>)
   position: fixed;
   position-anchor: --menu-anchor;
   inset: unset;
-  
+
   /* ボタンの下に、左端を揃えて配置 */
   top: calc(anchor(bottom) + 4px);
   left: anchor(left);
-  
+
   /* スタイル */
   min-width: anchor-size(width); /* アンカーと同じ幅 */
   background: var(--color-surface);
@@ -322,11 +322,11 @@ anchor(<anchor-side>, <fallback>)
   position: fixed;
   position-anchor: --chat-fab-anchor;
   inset: unset;
-  
+
   /* FABボタンの上に、右端を揃えて配置 */
   bottom: calc(anchor(top) + var(--space-2));
   right: anchor(right);
-  
+
   /* サイズ */
   width: min(90vw, 480px);
   max-height: min(80vh, 600px);
@@ -385,7 +385,7 @@ anchor(<anchor-side>, <fallback>)
 /* anchor()関数の第2引数にフォールバック値を指定 */
 .tooltip {
   bottom: anchor(top, 100px); /* アンカーがない場合は100px */
-  left: anchor(left, 20px);   /* アンカーがない場合は20px */
+  left: anchor(left, 20px); /* アンカーがない場合は20px */
 }
 ```
 
@@ -399,7 +399,7 @@ anchor(<anchor-side>, <fallback>)
   bottom: calc(anchor(top) + 8px);
   left: anchor(center);
   translate: -50% 0;
-  
+
   /* 画面外にはみ出す場合は反転 */
   position-try-fallbacks: flip-block, flip-inline;
 }
@@ -423,7 +423,7 @@ anchor(<anchor-side>, <fallback>)
   position-anchor: --button-anchor;
   bottom: calc(anchor(top) + 8px);
   right: anchor(right);
-  
+
   position-try-fallbacks: --bottom-left, flip-block;
 }
 ```

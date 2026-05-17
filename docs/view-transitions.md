@@ -39,11 +39,7 @@ export function ViewTransitions({ children }: { children: React.ReactNode }) {
 ```tsx
 import { ViewTransitions } from '@/components/ViewTransitions/ViewTransitions';
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
       <body>
@@ -93,14 +89,16 @@ import { Link } from 'next-view-transitions';
 **重要なルール**:
 
 1. **内部リンクは必ず`next-view-transitions`のLinkを使用**
+
    ```tsx
    import { Link } from 'next-view-transitions';
-   
+
    <Link href="/about">About</Link>
    <Link href="/works/my-project">View Project</Link>
    ```
 
 2. **外部リンクは通常の`<a>`タグを使用**
+
    ```tsx
    <a href="https://example.com" target="_blank" rel="noopener noreferrer">
      External Link
@@ -108,6 +106,7 @@ import { Link } from 'next-view-transitions';
    ```
 
 3. **ダウンロードリンクは通常の`<a>`タグを使用**
+
    ```tsx
    <a href="/files/document.pdf" download>
      Download PDF
@@ -115,20 +114,21 @@ import { Link } from 'next-view-transitions';
    ```
 
 4. **プログラムによるナビゲーション**
+
    ```tsx
    'use client';
-   
+
    import { useRouter } from 'next/navigation';
-   
+
    export function BackButton() {
      const router = useRouter();
-     
+
      const handleClick = () => {
        router.back(); // View Transitionsは自動的に適用される
        // または
        router.push('/'); // View Transitionsは自動的に適用される
      };
-     
+
      return <button onClick={handleClick}>戻る</button>;
    }
    ```
@@ -336,10 +336,11 @@ import { Link } from 'next-view-transitions';
    - アニメーション名が正しいか
 
 5. **インポート文を確認**
+
    ```tsx
    // ❌ 間違い
    import Link from 'next/link';
-   
+
    // ✅ 正しい
    import { Link } from 'next-view-transitions';
    ```
@@ -347,6 +348,7 @@ import { Link } from 'next-view-transitions';
 ### パフォーマンス問題
 
 1. **アニメーション時間を短縮**
+
    ```css
    ::view-transition-old(root),
    ::view-transition-new(root) {

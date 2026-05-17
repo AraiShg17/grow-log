@@ -154,11 +154,11 @@ overflow: clip;
   inset: 0;
   justify-content: safe center;
   align-items: safe center;
-  
+
   isolation: isolate;
   contain: paint;
   overflow: auto;
-  
+
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }

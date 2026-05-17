@@ -17,18 +17,18 @@ cp .env.example .env.local
 
 ## GCP プロジェクト
 
-| 項目 | 値 |
-|------|-----|
-| プロジェクト ID | `home-items-app` |
-| プロジェクト番号 | `714015956955` |
+| 項目             | 値               |
+| ---------------- | ---------------- |
+| プロジェクト ID  | `home-items-app` |
+| プロジェクト番号 | `714015956955`   |
 
 ## Secret Manager に登録するもの（MVP）
 
-| Secret Name | 用途 |
-|-------------|------|
-| Secret Manager 名 | Cloud Run 環境変数 | 用途 |
-|-------------------|-------------------|------|
-| `OPEN_AI_API_KEY` | `OPENAI_API_KEY` | OpenAI API キー（**秘密情報**） |
+| Secret Name         | 用途                |
+| ------------------- | ------------------- | ------------------------------- |
+| Secret Manager 名   | Cloud Run 環境変数  | 用途                            |
+| ------------------- | ------------------- | ------                          |
+| `OPEN_AI_API_KEY`   | `OPENAI_API_KEY`    | OpenAI API キー（**秘密情報**） |
 
 OpenAI キーのリソースパス: `projects/714015956955/secrets/OPEN_AI_API_KEY`
 
@@ -38,11 +38,11 @@ OpenAI キーのリソースパス: `projects/714015956955/secrets/OPEN_AI_API_K
 
 バケット名・Firestore DB ID・プロジェクト ID は **非秘密** のため、`cloudbuild.yaml` の `substitutions` / `--set-env-vars` で渡します。
 
-| 環境変数 | 例 | 設定場所 |
-|---------|-----|---------|
-| `GCS_BUCKET_NAME` | `home-items-app-grow-log-photos` | `_GCS_BUCKET_NAME`（Cloud Build） |
-| `FIRESTORE_DATABASE_ID` | `grow-log-db` | `_FIRESTORE_DATABASE_ID` |
-| `GCP_PROJECT_ID` | `home-items-app` | `${PROJECT_ID}` |
+| 環境変数                | 例                               | 設定場所                          |
+| ----------------------- | -------------------------------- | --------------------------------- |
+| `GCS_BUCKET_NAME`       | `home-items-app-grow-log-photos` | `_GCS_BUCKET_NAME`（Cloud Build） |
+| `FIRESTORE_DATABASE_ID` | `grow-log-db`                    | `_FIRESTORE_DATABASE_ID`          |
+| `GCP_PROJECT_ID`        | `home-items-app`                 | `${PROJECT_ID}`                   |
 
 ### OpenAI シークレットの作成例（未作成の場合）
 

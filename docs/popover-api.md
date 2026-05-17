@@ -41,7 +41,7 @@ useEffect(() => {
   if (!isOpen || !panelRef.current) return;
 
   const focusableElements = panelRef.current.querySelectorAll<HTMLElement>(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
   );
 
   const firstElement = focusableElements[0];
@@ -64,9 +64,7 @@ useEffect(() => {
 }, [isOpen, messages]);
 
 // ✅ Popover API - 自動でフォーカストラップ
-<div popover="auto">
-  {/* ブラウザが自動的にフォーカスを管理 */}
-</div>
+<div popover="auto">{/* ブラウザが自動的にフォーカスを管理 */}</div>;
 ```
 
 ### 2. Escapeキーで自動的に閉じる
@@ -85,9 +83,7 @@ useEffect(() => {
 }, [isOpen, onClose]);
 
 // ✅ Popover API - 自動でEscapeキーに対応
-<div popover="auto">
-  {/* Escapeキーで自動的に閉じる */}
-</div>
+<div popover="auto">{/* Escapeキーで自動的に閉じる */}</div>;
 ```
 
 ### 3. Top Layer（最上位レイヤー）
@@ -190,7 +186,7 @@ useEffect(() => {
   padding: 0;
   margin: 0;
   box-shadow: 0 8px 32px var(--shadow-xl);
-  
+
   /* 中央配置 */
   position: fixed;
   inset: unset;
@@ -215,7 +211,7 @@ useEffect(() => {
     scale 0.3s cubic-bezier(0.16, 1, 0.3, 1),
     overlay 0.3s ease allow-discrete,
     display 0.3s ease allow-discrete;
-  
+
   @starting-style {
     opacity: 0;
     scale: 0.95;
@@ -233,7 +229,7 @@ useEffect(() => {
     opacity 0.3s ease,
     overlay 0.3s ease allow-discrete,
     display 0.3s ease allow-discrete;
-  
+
   @starting-style {
     opacity: 0;
   }
@@ -249,13 +245,13 @@ useEffect(() => {
   .modal[popover]::backdrop {
     transition: none;
   }
-  
+
   @starting-style {
     .modal[popover]:popover-open {
       opacity: 1;
       scale: 1;
     }
-    
+
     .modal[popover]:popover-open::backdrop {
       opacity: 1;
     }
@@ -401,7 +397,7 @@ const togglePopover = () => {
     scale 0.3s cubic-bezier(0.16, 1, 0.3, 1),
     overlay 0.3s ease allow-discrete,
     display 0.3s ease allow-discrete;
-  
+
   @starting-style {
     opacity: 0;
     scale: 0.95;
@@ -425,7 +421,7 @@ const togglePopover = () => {
     translate 0.3s cubic-bezier(0.16, 1, 0.3, 1),
     overlay 0.3s ease allow-discrete,
     display 0.3s ease allow-discrete;
-  
+
   @starting-style {
     opacity: 0;
     translate: 0 100%;
@@ -449,7 +445,7 @@ const togglePopover = () => {
     translate 0.3s cubic-bezier(0.16, 1, 0.3, 1),
     overlay 0.3s ease allow-discrete,
     display 0.3s ease allow-discrete;
-  
+
   @starting-style {
     opacity: 0;
     translate: 100% 0;
@@ -502,7 +498,7 @@ const togglePopover = () => {
   .modal {
     display: none;
   }
-  
+
   .modal.is-open {
     display: flex;
   }
@@ -520,13 +516,14 @@ const togglePopover = () => {
 ### アニメーションが動作しない
 
 1. **手動のdisplay制御を削除**（最重要）
+
    ```css
    /* ❌ 間違い - この記述を削除する */
    .modal:not(:popover-open) {
      display: none;
      pointer-events: none;
    }
-   
+
    /* ✅ 正しい - Popover APIに任せる */
    .modal[popover] {
      animation: modalFadeIn 0.3s backwards;
@@ -542,12 +539,13 @@ const togglePopover = () => {
    - 開発者ツールのコンソールにエラーが出ていないか
 
 4. **セレクタの確認**
+
    ```css
    /* ✅ 正しい */
    .modal[popover] {
      animation: modalFadeIn 0.3s backwards;
    }
-   
+
    /* ❌ 間違い */
    .modal:popover-open {
      animation: modalFadeIn 0.3s backwards;
@@ -615,7 +613,8 @@ const togglePopover = () => {
 
 /* ❌ 非推奨 - アニメーションなし */
 .modal[popover] {
-  /* アニメーションがないと、突然表示される */}
+  /* アニメーションがないと、突然表示される */
+}
 ```
 
 ### 3. モーション削減対応
@@ -627,7 +626,7 @@ const togglePopover = () => {
   .modal[popover]::backdrop {
     transition: none;
   }
-  
+
   @starting-style {
     .modal[popover]:popover-open {
       opacity: 1;

@@ -25,36 +25,42 @@ export function LogForm({ plantId }: LogFormProps) {
         message="写真をアップロードして AI がアドバイスを作成しています…"
       />
       <form action={formAction} className={styles.form}>
-      <label className={styles.field}>
-        <span className={styles.label}>観察日時</span>
-        <input
-          name="observedAt"
-          type="datetime-local"
-          defaultValue={today}
-          className={styles.input}
-        />
-      </label>
+        <label className={styles.field}>
+          <span className={styles.label}>観察日時</span>
+          <input
+            name="observedAt"
+            type="datetime-local"
+            defaultValue={today}
+            className={styles.input}
+          />
+        </label>
 
-      <label className={styles.field}>
-        <span className={styles.label}>写真</span>
-        <input name="photo" type="file" accept="image/*" required className={styles.file} />
-      </label>
+        <label className={styles.field}>
+          <span className={styles.label}>写真</span>
+          <input
+            name="photo"
+            type="file"
+            accept="image/*"
+            required
+            className={styles.file}
+          />
+        </label>
 
-      <label className={styles.field}>
-        <span className={styles.label}>メモ</span>
-        <textarea
-          name="memo"
-          rows={4}
-          className={styles.textarea}
-          placeholder="葉の色、土の乾き具合など"
-        />
-      </label>
+        <label className={styles.field}>
+          <span className={styles.label}>メモ</span>
+          <textarea
+            name="memo"
+            rows={4}
+            className={styles.textarea}
+            placeholder="葉の色、土の乾き具合など"
+          />
+        </label>
 
-      {state.error ? <p className={styles.error}>{state.error}</p> : null}
+        {state.error ? <p className={styles.error}>{state.error}</p> : null}
 
-      <Button type="submit" disabled={pending} fullWidth>
-        {pending ? 'AIアドバイスを生成中…' : '記録を保存'}
-      </Button>
+        <Button type="submit" disabled={pending} fullWidth>
+          {pending ? 'AIアドバイスを生成中…' : '記録を保存'}
+        </Button>
       </form>
     </>
   );

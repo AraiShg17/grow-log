@@ -46,5 +46,7 @@ export async function generateCareGuide(input: {
     ],
   });
 
-  return response.choices[0]?.message?.content?.trim() ?? '育成方法を生成できませんでした。';
+  return (
+    response.choices[0]?.message?.content?.trim() ?? '育成方法を生成できませんでした。'
+  );
 }

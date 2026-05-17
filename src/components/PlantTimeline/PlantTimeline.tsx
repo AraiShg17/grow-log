@@ -80,7 +80,9 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
                     onClick={() => setSelectedLogId(log.id)}
                   >
                     <span className={styles.dateLabel}>{log.dateLabel}</span>
-                    {log.memo ? <span className={styles.memoPreview}>{log.memo}</span> : null}
+                    {log.memo ? (
+                      <span className={styles.memoPreview}>{log.memo}</span>
+                    ) : null}
                   </button>
                 </li>
               );
@@ -99,10 +101,15 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
                 />
               </div>
               <div className={styles.detailBody}>
-                <time className={styles.detailDate} dateTime={selectedLog.observedAtIso}>
+                <time
+                  className={styles.detailDate}
+                  dateTime={selectedLog.observedAtIso}
+                >
                   {selectedLog.dateTimeLabel}
                 </time>
-                {selectedLog.memo ? <p className={styles.memo}>{selectedLog.memo}</p> : null}
+                {selectedLog.memo ? (
+                  <p className={styles.memo}>{selectedLog.memo}</p>
+                ) : null}
                 <CompactMarkdownContent
                   content={selectedLog.aiAdvice}
                   detailLabel="アドバイスの詳細を見る"

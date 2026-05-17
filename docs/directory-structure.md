@@ -65,6 +65,7 @@
 ```
 
 **ポイント**:
+
 - コンポーネントに必要なすべてのコードを **同じコンポーネントフォルダに集約** する
 - `api/` や `hooks/` フォルダは、そのコンポーネント専用のものがある場合のみ作成する
 - 型定義が複雑な場合は `types.ts` を作成し、シンプルな場合はコンポーネントファイル内に定義する
@@ -92,6 +93,7 @@
 ```
 
 **判断基準**:
+
 - **汎用的**: 複数の場所で使われる、デザインシステム的なコンポーネント → `components/` 直下
 - **固有的**: 特定の画面や機能に紐づくコンポーネント → `components/` 直下（同じ扱い）
 
@@ -117,6 +119,7 @@
 ```
 
 **ポイント**:
+
 - データベース、ストレージ、認証などのインフラ層は `lib/` に配置
 - 複数のコンポーネントで使用される汎用的なユーティリティ関数も `lib/utils/` に配置
 - グローバルな型定義は `lib/types.ts` に配置
@@ -230,37 +233,37 @@ grow-log/
 
 ```typescript
 // ✅ 正しい - コンポーネント専用のAPI
-app/actions/plants.ts           // 複数ページで使う Server Actions
+app / actions / plants.ts; // 複数ページで使う Server Actions
 
 // ✅ 正しい - サービス層
-lib/firestore/plants.ts
+lib / firestore / plants.ts;
 
 // ❌ 間違い - コンポーネント専用なのにトップレベル
-api/createPlant.ts
+api / createPlant.ts;
 ```
 
 ### 3. Hooksの配置
 
 ```typescript
 // ✅ 正しい - コンポーネント専用のHook
-components/PlantForm/hooks/usePlantForm.ts
+components / PlantForm / hooks / usePlantForm.ts;
 
 // ✅ 正しい - 複数コンポーネントで使う Hook
-lib/hooks/useMediaQuery.ts
+lib / hooks / useMediaQuery.ts;
 
 // ❌ 間違い
-hooks/usePlantForm.ts
+hooks / usePlantForm.ts;
 ```
 
 ### 4. 型定義の配置
 
 ```typescript
 // ✅ 正しい - コンポーネント専用の型
-src/types/plant.ts
+src / types / plant.ts;
 
 // ✅ 正しい - コンポーネント専用（複雑な場合）
-components/PlantForm/types.ts
+components / PlantForm / types.ts;
 
 // ❌ 間違い
-types/plantFormOnly.ts
+types / plantFormOnly.ts;
 ```

@@ -59,11 +59,11 @@ npm run test:coverage
 
 ### Project
 
-| 項目 | 値 |
-|------|-----|
-| プロジェクト名 | home-items-app |
-| プロジェクト ID | `home-items-app` |
-| プロジェクト番号 | `714015956955` |
+| 項目             | 値               |
+| ---------------- | ---------------- |
+| プロジェクト名   | home-items-app   |
+| プロジェクト ID  | `home-items-app` |
+| プロジェクト番号 | `714015956955`   |
 
 ### 利用サービス
 
@@ -87,11 +87,11 @@ npm run test:coverage
 
 ### Cloud Run（想定）
 
-| 項目 | 値 |
-|------|-----|
-| リージョン | `asia-northeast1` |
-| サービス名 | `grow-log-web`（`cloudbuild.yaml` の `_SERVICE_NAME`） |
-| Artifact Registry | `grow-log` リポジトリ |
+| 項目              | 値                                                     |
+| ----------------- | ------------------------------------------------------ |
+| リージョン        | `asia-northeast1`                                      |
+| サービス名        | `grow-log-web`（`cloudbuild.yaml` の `_SERVICE_NAME`） |
+| Artifact Registry | `grow-log` リポジトリ                                  |
 
 ## Browser Support
 

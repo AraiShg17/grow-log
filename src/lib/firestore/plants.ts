@@ -49,15 +49,13 @@ export async function createPlant(input: {
   careGuide: string;
 }): Promise<string> {
   const now = FieldValue.serverTimestamp();
-  const ref = await getDb()
-    .collection(PLANTS_COLLECTION)
-    .add({
-      name: input.name,
-      firstPhotoUrl: input.firstPhotoUrl,
-      careGuide: input.careGuide,
-      createdAt: now,
-      updatedAt: now,
-    });
+  const ref = await getDb().collection(PLANTS_COLLECTION).add({
+    name: input.name,
+    firstPhotoUrl: input.firstPhotoUrl,
+    careGuide: input.careGuide,
+    createdAt: now,
+    updatedAt: now,
+  });
 
   return ref.id;
 }

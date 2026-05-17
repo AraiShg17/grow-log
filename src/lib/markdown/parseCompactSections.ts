@@ -17,10 +17,7 @@ export function parseCompactSections(content: string): CompactSections {
 
   if (summaryMatch && detailMatch && detailMatch.index > summaryMatch.index) {
     const summary = content
-      .slice(
-        summaryMatch.index + summaryMatch[0].length,
-        detailMatch.index,
-      )
+      .slice(summaryMatch.index + summaryMatch[0].length, detailMatch.index)
       .trim();
     const detail = sliceAfterHeading(content, detailMatch.index).trim();
     return { summary, detail: detail || null };

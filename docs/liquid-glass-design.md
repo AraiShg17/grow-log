@@ -162,9 +162,7 @@ export function LiquidGlassComponent() {
       />
 
       {/* コンテンツレイヤー（フィルター適用なし） */}
-      <div className={styles.content}>
-        {/* コンテンツ */}
-      </div>
+      <div className={styles.content}>{/* コンテンツ */}</div>
     </div>
   );
 }
@@ -299,13 +297,19 @@ backdrop-filter: blur(12px) saturate(150%);
 ```tsx
 // ❌ 非推奨 - feTurbulence + feDisplacementMap の直接適用
 <filter id={filterId}>
-  <feTurbulence type="fractalNoise" baseFrequency="0.01 0.01" numOctaves="3" result="noise" />
+  <feTurbulence
+    type="fractalNoise"
+    baseFrequency="0.01 0.01"
+    numOctaves="3"
+    result="noise"
+  />
   <feGaussianBlur in="noise" stdDeviation="10" result="blur" />
   <feDisplacementMap in="SourceGraphic" in2="blur" scale="20" />
 </filter>
 ```
 
 **問題点**:
+
 - コンテンツ全体が歪んでテキストが読みにくい
 - 位置がズレて配置が崩れる
 - 背景とコンテンツの分離ができない
@@ -410,7 +414,10 @@ backdrop-filter: blur(12px) saturate(150%);
 ```tsx
 <header className={styles.header}>
   <svg>{/* フィルター定義 */}</svg>
-  <div className={styles.liquidGlassBackground} style={{ filter: `url(#${filterId})` }} />
+  <div
+    className={styles.liquidGlassBackground}
+    style={{ filter: `url(#${filterId})` }}
+  />
   <div className={styles.headerInner}>
     <nav>{/* ナビゲーション */}</nav>
   </div>
@@ -421,7 +428,10 @@ backdrop-filter: blur(12px) saturate(150%);
 
 ```tsx
 <button className={styles.liquidGlassButton}>
-  <div className={styles.liquidGlassBackground} style={{ filter: `url(#${filterId})` }} />
+  <div
+    className={styles.liquidGlassBackground}
+    style={{ filter: `url(#${filterId})` }}
+  />
   <span className={styles.buttonText}>クリック</span>
 </button>
 ```
@@ -430,7 +440,10 @@ backdrop-filter: blur(12px) saturate(150%);
 
 ```tsx
 <div className={styles.liquidGlassCard}>
-  <div className={styles.liquidGlassBackground} style={{ filter: `url(#${filterId})` }} />
+  <div
+    className={styles.liquidGlassBackground}
+    style={{ filter: `url(#${filterId})` }}
+  />
   <div className={styles.cardContent}>
     <h3>タイトル</h3>
     <p>説明文</p>

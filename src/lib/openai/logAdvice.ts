@@ -69,5 +69,8 @@ ${formatPastLogs(input.pastLogs)}
     ],
   });
 
-  return response.choices[0]?.message?.content?.trim() ?? 'アドバイスを生成できませんでした。';
+  return (
+    response.choices[0]?.message?.content?.trim() ??
+    'アドバイスを生成できませんでした。'
+  );
 }

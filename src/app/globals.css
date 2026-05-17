@@ -44,13 +44,12 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui,
-    sans-serif;
+  font-family:
+    'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, sans-serif;
   color: var(--color-text);
   background:
     radial-gradient(120% 80% at 10% 0%, #2a4a32 0%, transparent 55%),
-    radial-gradient(90% 60% at 90% 10%, #1f3d2b 0%, transparent 50%),
-    var(--color-bg);
+    radial-gradient(90% 60% at 90% 10%, #1f3d2b 0%, transparent 50%), var(--color-bg);
   text-autospace: normal;
   -webkit-font-smoothing: antialiased;
 }

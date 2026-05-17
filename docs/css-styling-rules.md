@@ -8,13 +8,13 @@ CSS Modules のスタイリング詳細ガイドです。**クラス名は camel
 
 ## 関連ドキュメント（重複回避）
 
-| トピック | 参照先 |
-|---------|--------|
-| レイアウト安全性（safe center、isolation） | [css-layout-rules.md](./css-layout-rules.md) |
-| Container / Section / Inner | [structure.md](./structure.md) |
-| Liquid Glass | [liquid-glass-design.md](./liquid-glass-design.md) |
-| View Transitions | [view-transitions.md](./view-transitions.md) |
-| `<dialog>` / Popover | [dialog-element.md](./dialog-element.md), [popover-api.md](./popover-api.md) |
+| トピック                                   | 参照先                                                                       |
+| ------------------------------------------ | ---------------------------------------------------------------------------- |
+| レイアウト安全性（safe center、isolation） | [css-layout-rules.md](./css-layout-rules.md)                                 |
+| Container / Section / Inner                | [structure.md](./structure.md)                                               |
+| Liquid Glass                               | [liquid-glass-design.md](./liquid-glass-design.md)                           |
+| View Transitions                           | [view-transitions.md](./view-transitions.md)                                 |
+| `<dialog>` / Popover                       | [dialog-element.md](./dialog-element.md), [popover-api.md](./popover-api.md) |
 
 ## ⚠️ 使用ガイドライン
 
@@ -25,6 +25,7 @@ CSS Modules のスタイリング詳細ガイドです。**クラス名は camel
 - 💡 プロジェクトの要件に応じて、適切な機能を選択してください
 
 **例**：
+
 - `@property`を使う場合 → このガイドラインに従って実装
 - `calc-size()`を使う場合 → このガイドラインに従って実装
 - 文字詰めを使う場合 → このガイドラインに従って実装
@@ -66,6 +67,7 @@ CSS Modules のスタイリング詳細ガイドです。**クラス名は camel
 **目的**: `height: auto`や`width: auto`などの固有サイズキーワードをアニメーション可能にする
 
 **効果**:
+
 - アコーディオンやドロップダウンなどの可変高さ要素のアニメーションが可能になる
 - `calc-size()`関数と組み合わせることで、より柔軟なアニメーションが実現できる
 
@@ -83,11 +85,13 @@ body {
 **目的**: 日本語と英語（ラテン文字）の間に自動的にスペースを挿入
 
 **効果**:
+
 - 手動でスペースを入れる必要がなくなる
 - メンテナンス性が向上（スペースの入れ忘れを防ぐ）
 - 自然な読みやすさを実現
 
 **例**:
+
 ```html
 <!-- 自動的にスペースが挿入される -->
 <p>これはReactで作られたアプリケーションです。</p>
@@ -108,11 +112,13 @@ body {
 **目的**: テキストボックスの余白をトリミングして、より正確な配置を実現
 
 **効果**:
+
 - 行頭と行末の余白を削除し、デザインの精度を向上
 - キャップハイト（大文字の高さ）とベースライン（文字の下端）を基準にトリミング
 - アイコンとテキストの垂直方向の配置が正確になる
 
 **パラメータ**:
+
 - `trim-both`: 行頭と行末の両方をトリミング
 - `cap`: キャップハイト（大文字の高さ）を基準
 - `alphabetic`: ベースライン（文字の下端）を基準
@@ -131,16 +137,19 @@ img {
 **目的**: 画像の下に不要な余白が発生するのを防ぐ
 
 **効果**:
+
 - `img` 要素はデフォルトで `vertical-align: baseline` が適用されており、ベースライン下の余白（descender space）が発生する
 - `vertical-align: top` を設定することで、この余白を削除
 - レイアウトが崩れにくくなる
 
 **理由**:
+
 - `img` はインライン要素として扱われるため、テキストのベースラインに揃えられる
 - これにより、画像の下に約3-5pxの余白が発生する
 - `vertical-align: top` で画像を上端に揃えることで、この問題を解決
 
 **代替案**:
+
 - `display: block` を設定する方法もあるが、インライン配置が必要な場合に使えない
 - `vertical-align: top` はインライン配置を維持しつつ、余白を削除できる
 
@@ -154,7 +163,7 @@ img {
 :root {
   /* 固有サイズの設定キーワードをアニメーション可能にする */
   interpolate-size: allow-keywords;
-  
+
   /* その他のCSS変数 */
   --color-primary: oklch(60% 0.15 250);
   /* ... */
@@ -167,10 +176,10 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
+
   /* 日本語と英語の間に自動でスペースを挿入 */
   text-autospace: normal;
-  
+
   /* テキストボックスのトリミング（行頭・行末の余白を削除） */
   text-box: trim-both cap alphabetic;
 }
@@ -317,15 +326,15 @@ img {
 .button {
   background: var(--color-primary);
   transition: background 0.2s ease;
-  
+
   &:hover {
     background: color-mix(in oklab, var(--color-primary) 60%, transparent);
   }
-  
+
   &:active {
     background: color-mix(in oklab, var(--color-primary) 80%, transparent);
   }
-  
+
   &:disabled {
     background: color-mix(in oklab, var(--color-primary) 30%, transparent);
   }
@@ -373,7 +382,7 @@ img {
 
 .button {
   background: var(--color-primary);
-  
+
   &:hover {
     background: color-mix(in oklab, var(--color-primary) 80%, transparent);
   }
@@ -408,6 +417,7 @@ img {
 ```
 
 **理由**:
+
 - oklabは知覚的に均等な色空間で、より自然な色の混合が可能
 - グラデーションでも一貫してoklab色空間を使用するため統一性がある
 - 将来的にブラウザサポートが向上した際の標準となる
@@ -468,8 +478,9 @@ img {
 
 ```css
 /* フォントファミリー */
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+font-family:
+  -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+  'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 
 /* フォントスムージング */
 -webkit-font-smoothing: antialiased;
@@ -483,18 +494,21 @@ text-box: trim-both cap alphabetic;
 ```
 
 **text-autospace（必須）**:
+
 - 日本語と英語（ラテン文字）の間に自動的にスペースを挿入
 - `normal`: 自動スペース挿入を有効化（推奨）
 - `no-autospace`: 自動スペース挿入を無効化
 - グローバル（`body`）に設定することで、プロジェクト全体で適用
 
 **text-box（必須）**:
+
 - テキストボックスの余白をトリミングして、より正確な配置を実現
 - `trim-both`: 行頭と行末の両方をトリミング
 - `cap alphabetic`: キャップハイト（大文字の高さ）とベースライン（文字の下端）を基準にトリミング
 - グローバル（`body`）に設定することで、プロジェクト全体で適用
 
 **ブラウザサポート**:
+
 - `text-autospace`: Chrome 123+, Safari 17.4+
 - `text-box`: Chrome 131+（実験的機能）
 - 非対応ブラウザでは無視されるため、プログレッシブエンハンスメントとして安全に使用可能
@@ -576,7 +590,7 @@ text-box: trim-both cap alphabetic;
 }
 
 .modal {
-  transition: 
+  transition:
     opacity var(--duration-default) var(--ease-smooth),
     transform var(--duration-default) var(--ease-smooth);
 }
@@ -602,7 +616,7 @@ text-box: trim-both cap alphabetic;
 .button {
   background-position-x: var(--bg-x);
   transition: --bg-x var(--transition-default);
-  
+
   &:hover {
     --bg-x: 100%;
   }
@@ -612,7 +626,7 @@ text-box: trim-both cap alphabetic;
 .button {
   --bg-x: 0%;
   transition: --bg-x var(--transition-default); /* 動作しない */
-  
+
   &:hover {
     --bg-x: 100%;
   }
@@ -633,12 +647,12 @@ text-box: trim-both cap alphabetic;
 
 :root {
   --theme-color: oklch(60% 0.15 250);
-  
+
   /* color-mix()で派生色を作成 */
   --theme-bg-subtle: color-mix(in oklab, var(--theme-color) 5%, transparent);
   --theme-bg-muted: color-mix(in oklab, var(--theme-color) 10%, transparent);
   --theme-border: color-mix(in oklab, var(--theme-color) 30%, transparent);
-  
+
   /* --theme-colorのトランジション */
   transition: --theme-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -647,6 +661,7 @@ text-box: trim-both cap alphabetic;
 ```
 
 **重要なポイント**:
+
 - `@property`で定義した変数のみ`transition`可能
 - `color-mix()`で作った派生色は、元の変数がアニメーションすれば自動的にアニメーション
 - `inherits: true`にすると、子要素でも使用可能
@@ -675,7 +690,7 @@ text-box: trim-both cap alphabetic;
   transition:
     --color-start var(--transition-default),
     --color-end var(--transition-default);
-  
+
   &:hover {
     --color-start: #f97316;
     --color-end: #ec4899;
@@ -746,6 +761,7 @@ text-box: trim-both cap alphabetic;
 ```
 
 **重要なポイント**:
+
 - `height: auto`や`width: auto`などの固有サイズキーワードをアニメーション可能にする
 - アコーディオンやドロップダウンなどの可変高さ要素のアニメーションに必須
 - グローバルに設定することで、プロジェクト全体で恩恵を受ける
@@ -926,15 +942,15 @@ body {
   @media (width >= 480px) {
     --sm: true;
   }
-  
+
   @media (width >= 768px) {
     --md: true;
   }
-  
+
   @media (width >= 1024px) {
     --lg: true;
   }
-  
+
   @media (width >= 1280px) {
     --xl: true;
   }
@@ -950,15 +966,15 @@ body {
   @media (width >= 480px) {
     --sm: true;
   }
-  
+
   @media (width >= 768px) {
     --md: true;
   }
-  
+
   @media (width >= 1024px) {
     --lg: true;
   }
-  
+
   @media (width >= 1280px) {
     --xl: true;
   }
@@ -992,11 +1008,13 @@ body {
 ```
 
 **コンテナ定義のルール**:
+
 - **Page/Layout Module**: ページやレイアウトの最上位要素に`container-type: inline-size`を設定
 - **Component Module**: 必要に応じてコンポーネント内でもコンテナを定義可能
 - **命名規則**: `container-name`は明確な名前を使用（`page-main`, `section-content`など）
 
 **実装例**:
+
 ```css
 /* app/about/page.module.css */
 .container {
@@ -1007,7 +1025,7 @@ body {
 
 .section {
   padding-block: var(--space-12);
-  
+
   @container style(--md: true) {
     padding-block: var(--space-16);
   }
@@ -1104,7 +1122,7 @@ body {
     display: flex;
     gap: var(--space-4);
   }
-  
+
   .mobileMenuButton {
     display: none;
   }
@@ -1175,6 +1193,7 @@ body {
 ```
 
 **理由**:
+
 1. **可読性**: 関連するスタイルが1箇所にまとまる
 2. **保守性**: クラスを削除する際に関連するブレイクポイントも一緒に削除できる
 3. **一貫性**: 疑似クラス・疑似要素・メディアクエリと同じネストルールを適用
@@ -1260,6 +1279,7 @@ body {
 ```
 
 **ブレークポイント**:
+
 - `--sm: true`: 480px以上（小さいタブレット）
 - `--md: true`: 768px以上（タブレット）
 - `--lg: true`: 1024px以上（デスクトップ）
@@ -1267,6 +1287,7 @@ body {
 - デフォルト: モバイル（479px以下）
 
 **理由**:
+
 1. **一貫性**: プロジェクト全体で同じ方向を使用
 2. **モバイルファースト**: 基本スタイルをモバイル向けに書き、大きい画面向けに調整
 3. **パフォーマンス**: 不要なスタイルを読み込まない
@@ -1377,7 +1398,7 @@ body {
   @media (width < 768px) {
     display: block;
   }
-  
+
   @media (width >= 768px) {
     display: none;
   }
@@ -1477,7 +1498,7 @@ body {
   .worksGrid {
     grid-template-columns: 1fr;
   }
-  
+
   @container (width > 600px) {
     .worksGrid {
       grid-template-columns: repeat(2, 1fr);
@@ -1614,12 +1635,14 @@ body {
 ```
 
 **理由**:
+
 1. **ユーザーの期待を裏切らない**: ホバー効果があると「クリックできる」と期待させる
 2. **混乱を避ける**: 機能がないのに反応すると、ユーザーを混乱させる
 3. **アクセシビリティ**: スクリーンリーダーユーザーにとって、視覚的なフィードバックだけでは意味がない
 4. **UX原則**: インタラクティブ性を示唆する視覚効果は、実際にインタラクティブな要素にのみ使用する
 
 **例外**:
+
 - カード全体がリンクの場合は、カードにホバー効果を付けてもよい
 - ツールチップを表示する要素は、ホバー効果を付けてもよい
 
@@ -1738,7 +1761,7 @@ body {
 .customColorPicker {
   /* label要素のスタイル */
   cursor: pointer;
-  
+
   /* input要素は opacity: 0 で非表示 */
   /* フォーカススタイルが定義されていない */
 }
@@ -1864,7 +1887,9 @@ body {
 a {
   color: inherit;
   text-decoration: none;
-  transition: color 0.2s ease, opacity 0.2s ease;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 a:hover {
@@ -1932,34 +1957,34 @@ a:focus-visible {
   background: var(--color-primary);
   padding: var(--space-2) var(--space-4);
   transition: all 0.2s;
-  
+
   &:hover {
     background: var(--color-primary-hover);
     transform: translateY(-2px);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
-  
+
   &:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   @media (width < 768px) {
     padding: var(--space-2) var(--space-3);
     font-size: 0.875rem;
   }
-  
+
   @media (prefers-reduced-motion: reduce) {
     transition: none;
-    
+
     &:hover {
       transform: none;
     }
@@ -1991,6 +2016,7 @@ a:focus-visible {
 ```
 
 **メリット**:
+
 - 関連するスタイルが1箇所にまとまり、可読性が向上
 - メンテナンスが容易（クラスを削除する際に関連スタイルも一緒に削除できる）
 - コードの重複が減る
@@ -2127,7 +2153,6 @@ a:focus-visible {
 2. 状態スタイル（:hover, :focus等）
 3. レスポンシブスタイル
 
-
 ## 📐 CSS記述順序ルール
 
 ### クラスの記述順序
@@ -2241,6 +2266,7 @@ a:focus-visible {
 ```
 
 **メリット**:
+
 - 同じクラスのスタイルが1箇所にまとまり、メンテナンスしやすい
 - クラスを探すときに、関連するメディアクエリもすぐに見つかる
 - クラスを削除するときに、関連するメディアクエリも一緒に削除できる
@@ -2249,7 +2275,7 @@ a:focus-visible {
 
 ### BEMの基本
 
-**Block__Element--Modifier** の形式でクラス名を付ける。
+**Block\_\_Element--Modifier** の形式でクラス名を付ける。
 
 - **Block**: 独立したコンポーネント（`.card`, `.button`, `.header`）
 - **Element**: Blockの一部（`.card__title`, `.button__icon`）
@@ -2260,6 +2286,7 @@ a:focus-visible {
 **Block名 = ファイル名 = コンポーネント名**
 
 この原則により、以下のメリットがあります：
+
 - ファイル名からBlock名を予測できる
 - クラス名からどのファイルを修正すればいいか予測できる
 - コードの可読性と保守性が向上
@@ -2289,20 +2316,31 @@ a:focus-visible {
 
 ```css
 /* ✅ 正しい - 親に依存する要素 */
-.chatPanel { }
-.chatPanel__backdrop { }          /* パネルの背景 */
+.chatPanel {
+}
+.chatPanel__backdrop {
+} /* パネルの背景 */
 
-.chatPanelHeader { }              /* 独立したサブコンポーネント */
-.chatPanelHeader__title { }       /* ヘッダーのタイトル */
-.chatPanelHeader__closeButton { } /* ヘッダーの閉じるボタン */
+.chatPanelHeader {
+} /* 独立したサブコンポーネント */
+.chatPanelHeader__title {
+} /* ヘッダーのタイトル */
+.chatPanelHeader__closeButton {
+} /* ヘッダーの閉じるボタン */
 
-.chatPanelForm { }                /* 独立したサブコンポーネント */
-.chatPanelForm__input { }         /* フォームの入力欄 */
-.chatPanelForm__sendButton { }    /* フォームの送信ボタン */
+.chatPanelForm {
+} /* 独立したサブコンポーネント */
+.chatPanelForm__input {
+} /* フォームの入力欄 */
+.chatPanelForm__sendButton {
+} /* フォームの送信ボタン */
 
-.chatPanelMessage { }             /* 独立したサブコンポーネント */
-.chatPanelMessage__content { }    /* メッセージの内容 */
-.chatPanelMessage__time { }       /* メッセージの時刻 */
+.chatPanelMessage {
+} /* 独立したサブコンポーネント */
+.chatPanelMessage__content {
+} /* メッセージの内容 */
+.chatPanelMessage__time {
+} /* メッセージの時刻 */
 ```
 
 #### 2. `blockElement` (camelCase): 独立したサブコンポーネント
@@ -2311,10 +2349,14 @@ a:focus-visible {
 
 ```css
 /* ✅ 正しい - 独立したサブコンポーネント */
-.chatPanel { }
-.chatPanelHeader { }    /* ヘッダーは独立したコンポーネント */
-.chatPanelMessages { }  /* メッセージエリアは独立したコンポーネント */
-.chatPanelForm { }      /* フォームは独立したコンポーネント */
+.chatPanel {
+}
+.chatPanelHeader {
+} /* ヘッダーは独立したコンポーネント */
+.chatPanelMessages {
+} /* メッセージエリアは独立したコンポーネント */
+.chatPanelForm {
+} /* フォームは独立したコンポーネント */
 ```
 
 #### 3. `block--modifier` (ハイフン2つ): バリエーション
@@ -2323,45 +2365,72 @@ BlockやElementの状態やバリエーションを表現。
 
 ```css
 /* ✅ 正しい - Modifierの使用 */
-.chatPanelMessage { }
-.chatPanelMessage--user { }       /* ユーザーメッセージ */
-.chatPanelMessage--assistant { }  /* アシスタントメッセージ */
+.chatPanelMessage {
+}
+.chatPanelMessage--user {
+} /* ユーザーメッセージ */
+.chatPanelMessage--assistant {
+} /* アシスタントメッセージ */
 
-.button { }
-.button--primary { }              /* プライマリボタン */
-.button--secondary { }            /* セカンダリボタン */
+.button {
+}
+.button--primary {
+} /* プライマリボタン */
+.button--secondary {
+} /* セカンダリボタン */
 ```
 
 ### 実装例の比較
 
 ```css
 /* ❌ 間違い - すべてBlockとして扱っている */
-.chatPanel { }
-.chatPanelHeader { }
-.chatPanelHeaderTitle { }
-.chatPanelHeaderCloseButton { }
-.chatPanelMessages { }
-.chatPanelMessagesEmpty { }
-.chatPanelMessage { }
-.chatPanelMessageContent { }
-.chatPanelMessageTime { }
+.chatPanel {
+}
+.chatPanelHeader {
+}
+.chatPanelHeaderTitle {
+}
+.chatPanelHeaderCloseButton {
+}
+.chatPanelMessages {
+}
+.chatPanelMessagesEmpty {
+}
+.chatPanelMessage {
+}
+.chatPanelMessageContent {
+}
+.chatPanelMessageTime {
+}
 
 /* ✅ 正しい - 依存関係を明確に表現 */
-.chatPanel { }
-.chatPanel__backdrop { }
+.chatPanel {
+}
+.chatPanel__backdrop {
+}
 
-.chatPanelHeader { }              /* 独立したサブコンポーネント */
-.chatPanelHeader__title { }       /* ヘッダーに依存 */
-.chatPanelHeader__closeButton { } /* ヘッダーに依存 */
+.chatPanelHeader {
+} /* 独立したサブコンポーネント */
+.chatPanelHeader__title {
+} /* ヘッダーに依存 */
+.chatPanelHeader__closeButton {
+} /* ヘッダーに依存 */
 
-.chatPanelMessages { }            /* 独立したサブコンポーネント */
-.chatPanelMessages__empty { }     /* メッセージエリアに依存 */
+.chatPanelMessages {
+} /* 独立したサブコンポーネント */
+.chatPanelMessages__empty {
+} /* メッセージエリアに依存 */
 
-.chatPanelMessage { }             /* 独立したサブコンポーネント */
-.chatPanelMessage--user { }       /* Modifier */
-.chatPanelMessage--assistant { }  /* Modifier */
-.chatPanelMessage__content { }    /* メッセージに依存 */
-.chatPanelMessage__time { }       /* メッセージに依存 */
+.chatPanelMessage {
+} /* 独立したサブコンポーネント */
+.chatPanelMessage--user {
+} /* Modifier */
+.chatPanelMessage--assistant {
+} /* Modifier */
+.chatPanelMessage__content {
+} /* メッセージに依存 */
+.chatPanelMessage__time {
+} /* メッセージに依存 */
 ```
 
 ### CSS Modulesでの適用
@@ -2529,7 +2598,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
 ### ルールまとめ
 
 1. ✅ **Block名 = ファイル名**: Block名はファイル名と一致させる
-2. ✅ **依存関係を明確に**: 
+2. ✅ **依存関係を明確に**:
    - 親に依存する要素: `block__element` (アンダースコア2つ)
    - 独立したサブコンポーネント: `blockElement` (camelCase)
    - バリエーション: `block--modifier` (ハイフン2つ)
@@ -2569,12 +2638,14 @@ CSS Modulesを使用する場合、以下のルールに従う：
 ```
 
 **理由**:
+
 - 詳細度が高くなると、上書きが困難になる
 - スタイルの優先順位が複雑になり、メンテナンスしづらい
 - BEMの原則に反する（フラットな構造を保つ）
 - CSS Modulesの利点（スコープの分離）を活かせない
 
 **例外**:
+
 - 疑似要素（`::before`, `::after`）
 - 疑似クラス（`:hover`, `:focus`, `:active`など）
 - 子孫セレクタが必要な場合は、新しいElementクラスを作成する
@@ -2588,20 +2659,20 @@ CSS Modulesを使用する場合、以下のルールに従う：
 .button {
   background: var(--color-primary);
   transition: background 0.2s;
-  
+
   &:hover {
     background: var(--color-primary-hover);
   }
-  
+
   &:active {
     transform: scale(0.98);
   }
-  
+
   &:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -2611,13 +2682,13 @@ CSS Modulesを使用する場合、以下のルールに従う：
 /* ✅ 正しい - 疑似要素のネスト */
 .card {
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
     inset: 0;
   }
-  
+
   &::after {
     content: '';
     display: block;
@@ -2627,11 +2698,11 @@ CSS Modulesを使用する場合、以下のルールに従う：
 /* ✅ 正しい - メディアクエリのネスト */
 .title {
   font-size: 2rem;
-  
+
   @media (width < 768px) {
     font-size: 1.5rem;
   }
-  
+
   @media (width >= 1024px) {
     font-size: 2.5rem;
   }
@@ -2640,8 +2711,9 @@ CSS Modulesを使用する場合、以下のルールに従う：
 /* ❌ 間違い - 子孫セレクタのネスト（詳細度が上がる） */
 .card {
   padding: 1rem;
-  
-  .title {  /* これは .card .title になり詳細度が上がる */
+
+  .title {
+    /* これは .card .title になり詳細度が上がる */
     font-size: 1.5rem;
   }
 }
@@ -2667,6 +2739,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
 7. ✅ **`&`記号を使用**: 親セレクタを参照する際は`&`を使う
 
 **ブラウザサポート**:
+
 - Chrome 112+
 - Safari 16.5+
 - Firefox 117+
@@ -2682,7 +2755,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
   position: fixed;
   top: 0;
   transition: translate 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  
+
   @starting-style {
     translate: 0 -120%;
     opacity: 0;
@@ -2698,7 +2771,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
     scale 0.3s cubic-bezier(0.16, 1, 0.3, 1),
     overlay 0.3s ease allow-discrete,
     display 0.3s ease allow-discrete;
-  
+
   @starting-style {
     opacity: 0;
     scale: 0.9;
@@ -2714,12 +2787,14 @@ CSS Modulesを使用する場合、以下のルールに従う：
 ```
 
 **使用例**:
+
 - ヘッダーが画面外から登場
 - モーダルがフェードイン＋スケールイン
 - サイドバーがスライドイン
 - 通知がポップアップ
 
 **重要なポイント**:
+
 - `@starting-style`は要素が**初めてDOMに追加される時**のみ適用
 - 必ず`transition`と組み合わせて使用
 - `@media (prefers-reduced-motion: reduce)`で無効化すること
@@ -2732,12 +2807,12 @@ CSS Modulesを使用する場合、以下のルールに従う：
 /* ✅ 正しい - 疑似要素のネスト */
 .chatPanel {
   background: white;
-  
+
   &::backdrop {
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(8px);
   }
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -2747,20 +2822,20 @@ CSS Modulesを使用する場合、以下のルールに従う：
 /* ✅ 正しい - 属性セレクタのネスト */
 .chatPanel {
   opacity: 0;
-  
+
   &[popover] {
     transition: opacity 0.3s;
-    
+
     &:popover-open {
       opacity: 1;
     }
-    
+
     &::backdrop {
       opacity: 0;
       transition: opacity 0.3s;
     }
   }
-  
+
   &[popover]:popover-open::backdrop {
     opacity: 1;
   }
@@ -2771,32 +2846,32 @@ CSS Modulesを使用する場合、以下のルールに従う：
   &[popover] {
     opacity: 0;
     scale: 0.95;
-    
+
     @starting-style {
       opacity: 0;
       scale: 0.95;
     }
-    
+
     &:popover-open {
       opacity: 1;
       scale: 1;
     }
-    
+
     &::backdrop {
       opacity: 0;
-      
+
       @starting-style {
         opacity: 0;
       }
     }
-    
+
     &:popover-open::backdrop {
       opacity: 1;
     }
-    
+
     @media (prefers-reduced-motion: reduce) {
       transition: none;
-      
+
       &::backdrop {
         transition: none;
       }
@@ -2806,6 +2881,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
 ```
 
 **ネスト可能なセレクタ**:
+
 - 疑似クラス（`:hover`, `:focus`, `:active`, `:popover-open`など）
 - 疑似要素（`::before`, `::after`, `::backdrop`など）
 - 属性セレクタ（`[popover]`, `[open]`, `[disabled]`など）
@@ -2820,7 +2896,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
 /* ❌ 間違い - @supportsをネスト */
 .element {
   color: red;
-  
+
   @supports (animation-timeline: view()) {
     animation: fadeIn 1s;
   }
@@ -2840,10 +2916,14 @@ CSS Modulesを使用する場合、以下のルールに従う：
 /* ❌ 間違い - @keyframesをネスト */
 .element {
   animation: fadeIn 1s;
-  
+
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 }
 
@@ -2853,12 +2933,17 @@ CSS Modulesを使用する場合、以下のルールに従う：
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 ```
 
 **理由**:
+
 - `@supports`と`@keyframes`はCSS Nestingの仕様でネストがサポートされていない
 - ネストすると、ブラウザが正しく解釈できず、スタイルが適用されない
 - 必ずクラスの外に記述することで、確実に動作する
@@ -2906,6 +2991,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
 ```
 
 **複数値記法の利点**:
+
 - **明示性**: 外側と内側のレイアウトモードが明確
 - **理解しやすさ**: 要素がどのように振る舞うかが一目で分かる
 - **将来性**: CSS仕様の方向性に沿った記法
@@ -2913,14 +2999,14 @@ CSS Modulesを使用する場合、以下のルールに従う：
 
 **記法の対応表**:
 
-| 従来の記法 | モダンな複数値記法 | 意味 |
-|-----------|------------------|------|
-| `display: flex` | `display: block flex` | 外側はブロック、内側はフレックス |
-| `display: grid` | `display: block grid` | 外側はブロック、内側はグリッド |
-| `display: inline-flex` | `display: inline flex` | 外側はインライン、内側はフレックス |
-| `display: inline-grid` | `display: inline grid` | 外側はインライン、内側はグリッド |
-| `display: flow-root` | `display: block flow-root` | 外側はブロック、内側はフローレイアウト（BFC作成） |
-| `display: contents` | `display: contents` | 単一値（外側・内側の概念なし） |
+| 従来の記法             | モダンな複数値記法         | 意味                                              |
+| ---------------------- | -------------------------- | ------------------------------------------------- |
+| `display: flex`        | `display: block flex`      | 外側はブロック、内側はフレックス                  |
+| `display: grid`        | `display: block grid`      | 外側はブロック、内側はグリッド                    |
+| `display: inline-flex` | `display: inline flex`     | 外側はインライン、内側はフレックス                |
+| `display: inline-grid` | `display: inline grid`     | 外側はインライン、内側はグリッド                  |
+| `display: flow-root`   | `display: block flow-root` | 外側はブロック、内側はフローレイアウト（BFC作成） |
+| `display: contents`    | `display: contents`        | 単一値（外側・内側の概念なし）                    |
 
 ### 特殊なdisplay値の扱い
 
@@ -2943,6 +3029,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
 ```
 
 **flow-root の用途**:
+
 - **BFC（Block Formatting Context）の作成**: フロートのクリアフィックス
 - **マージンの相殺防止**: 子要素のマージンが親要素に影響しない
 - **包含ブロックの作成**: 絶対配置要素の基準点
@@ -2983,6 +3070,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
 ```
 
 **contents の用途**:
+
 - **レイアウトの透明化**: 要素自体は表示せず、子要素のみ表示
 - **グリッドやフレックスの階層をフラット化**: 中間要素を無視してレイアウト
 
@@ -3030,6 +3118,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
 ```
 
 **ブラウザサポート**:
+
 - Chrome 115+
 - Safari 16.4+
 - Firefox 70+
@@ -3069,6 +3158,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
 ```
 
 **of記法の利点**:
+
 - **柔軟性**: 特定のクラスやセレクタを持つ要素のみを対象にできる
 - **保守性**: HTMLの構造が変わっても、対象要素の順序は維持される
 - **直感性**: 「〇〇クラスの中で△番目」という自然な表現
@@ -3101,6 +3191,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
 ```
 
 **ブラウザサポート**:
+
 - Chrome 111+
 - Safari 16.4+
 - Firefox 113+
@@ -3124,7 +3215,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
   flex-direction: row;
 }
 
-.cardGrid .card:nth-child(n+2 of .featured) {
+.cardGrid .card:nth-child(n + 2 of .featured) {
   display: block flex;
   flex-direction: column;
 }
@@ -3218,7 +3309,7 @@ CSS Modulesを使用する場合、以下のルールに従う：
 - [ ] **モダンCSS記法（推奨）**:
   - [ ] displayの複数値記法を使用している（`display: block flex`など）
   - [ ] nth-child()のof記法を使用している（`:nth-child(2 of .class)`など）
-- [ ] **色設定ルール（必須）**: 
+- [ ] **色設定ルール（必須）**:
   - [ ] すべての色はCSS変数で定義している
   - [ ] 色は#000000形式（6桁HEX）で定義している
   - [ ] 半透明色はcolor-mix()関数でtransparentと混ぜている

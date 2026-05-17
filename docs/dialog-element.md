@@ -10,14 +10,14 @@
 
 ### 使い分けの基準
 
-| 項目 | `<dialog>` | Popover API |
-|------|-----------|-------------|
-| **主目的** | モーダル（重要な操作を行うためのUI） | 付随的なポップアップ（ツールチップ、メニューなど） |
-| **背景操作** | `showModal()`で不可になる（モーダル） | 基本的に背景操作できる |
-| **表示制御** | JSメソッド（`show()`, `showModal()`, `close()`）が主 | HTML属性だけでも開閉できる |
-| **フォーカストラップ** | あり（モーダル中はフォーカスが逃げない） | なし（通常の要素と同じ） |
-| **用途の強さ** | 強制力のあるUI | 補助的で軽いUI |
-| **代表的な用途** | 削除確認、ログインモーダル、フォーム | メニュー、ドロップダウン、吹き出し、ツールチップ |
+| 項目                   | `<dialog>`                                           | Popover API                                        |
+| ---------------------- | ---------------------------------------------------- | -------------------------------------------------- |
+| **主目的**             | モーダル（重要な操作を行うためのUI）                 | 付随的なポップアップ（ツールチップ、メニューなど） |
+| **背景操作**           | `showModal()`で不可になる（モーダル）                | 基本的に背景操作できる                             |
+| **表示制御**           | JSメソッド（`show()`, `showModal()`, `close()`）が主 | HTML属性だけでも開閉できる                         |
+| **フォーカストラップ** | あり（モーダル中はフォーカスが逃げない）             | なし（通常の要素と同じ）                           |
+| **用途の強さ**         | 強制力のあるUI                                       | 補助的で軽いUI                                     |
+| **代表的な用途**       | 削除確認、ログインモーダル、フォーム                 | メニュー、ドロップダウン、吹き出し、ツールチップ   |
 
 ### `<dialog>`を使うべき場合
 
@@ -44,7 +44,7 @@
     <input type="text" />
     <button>閉じる</button>
   </form>
-</dialog>
+</dialog>;
 
 // showModal()を呼ぶと、自動的にフォーカストラップが有効になる
 dialogRef.current?.showModal();
@@ -62,9 +62,7 @@ dialogRef.current?.showModal();
 
 ```tsx
 // ✅ dialog要素 - Escapeキーで自動的に閉じる
-<dialog ref={dialogRef}>
-  {/* Escapeキーで自動的に閉じる */}
-</dialog>
+<dialog ref={dialogRef}>{/* Escapeキーで自動的に閉じる */}</dialog>
 ```
 
 ### 4. ネイティブ::backdrop疑似要素
@@ -81,9 +79,7 @@ dialog::backdrop {
 
 ```tsx
 // ✅ dialog要素 - ブラウザが自動的にARIA属性を管理
-<dialog>
-  {/* role="dialog"、aria-modal="true"が自動設定 */}
-</dialog>
+<dialog>{/* role="dialog"、aria-modal="true"が自動設定 */}</dialog>
 ```
 
 ## 基本的な実装パターン
@@ -117,10 +113,12 @@ export function ConfirmDialog() {
           <p>本当に削除しますか？</p>
           <div className={styles.dialogActions}>
             <button onClick={closeDialog}>キャンセル</button>
-            <button onClick={() => {
-              // 削除処理
-              closeDialog();
-            }}>
+            <button
+              onClick={() => {
+                // 削除処理
+                closeDialog();
+              }}
+            >
               削除
             </button>
           </div>
@@ -143,14 +141,14 @@ export function ConfirmDialog() {
   border: none;
   padding: 0;
   box-shadow: 0 8px 32px var(--shadow-xl);
-  
+
   /* 中央配置 */
   position: fixed;
   inset: unset;
   top: 50%;
   left: 50%;
   translate: -50% -50%;
-  
+
   /* スクロールチェーン回避（必須） */
   overscroll-behavior: contain;
 }
@@ -160,7 +158,7 @@ export function ConfirmDialog() {
   background: color-mix(in oklab, var(--color-background) 20%, transparent);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  
+
   /* スクロールチェーン回避（必須） */
   overflow: hidden;
   overscroll-behavior: contain;
@@ -175,10 +173,10 @@ export function ConfirmDialog() {
     scale 0.3s cubic-bezier(0.16, 1, 0.3, 1),
     overlay 0.3s ease allow-discrete,
     display 0.3s ease allow-discrete;
-  
+
   /* スクロールチェーン回避（必須） */
   overscroll-behavior: contain;
-  
+
   @starting-style {
     opacity: 0;
     scale: 0.95;
@@ -196,11 +194,11 @@ export function ConfirmDialog() {
     opacity 0.3s ease,
     overlay 0.3s ease allow-discrete,
     display 0.3s ease allow-discrete;
-  
+
   /* スクロールチェーン回避（必須） */
   overflow: hidden;
   overscroll-behavior: contain;
-  
+
   @starting-style {
     opacity: 0;
   }
@@ -216,13 +214,13 @@ export function ConfirmDialog() {
   .dialog::backdrop {
     transition: none;
   }
-  
+
   @starting-style {
     .dialog[open] {
       opacity: 1;
       scale: 1;
     }
-    
+
     .dialog[open]::backdrop {
       opacity: 1;
     }
@@ -257,6 +255,7 @@ dialogRef.current?.showModal();
 ```
 
 **特徴**:
+
 - 背景が自動的にinert（操作不可）になる
 - フォーカストラップが有効になる
 - Escapeキーで閉じられる
@@ -271,6 +270,7 @@ dialogRef.current?.show();
 ```
 
 **特徴**:
+
 - 背景は操作可能
 - フォーカストラップなし
 - `::backdrop`疑似要素が表示されない
@@ -296,6 +296,7 @@ dialogRef.current?.show();
 ```
 
 **特徴**:
+
 - フォーム送信時に自動的にダイアログが閉じる
 - `returnValue`プロパティでボタンの値を取得できる
 - `close`イベントで結果を処理できる
@@ -365,10 +366,10 @@ useEffect(() => {
     scale 0.3s cubic-bezier(0.16, 1, 0.3, 1),
     overlay 0.3s ease allow-discrete,
     display 0.3s ease allow-discrete;
-  
+
   /* スクロールチェーン回避（必須） */
   overscroll-behavior: contain;
-  
+
   @starting-style {
     opacity: 0;
     scale: 0.95;
@@ -398,10 +399,10 @@ useEffect(() => {
     translate 0.3s cubic-bezier(0.16, 1, 0.3, 1),
     overlay 0.3s ease allow-discrete,
     display 0.3s ease allow-discrete;
-  
+
   /* スクロールチェーン回避（必須） */
   overscroll-behavior: contain;
-  
+
   @starting-style {
     opacity: 0;
     translate: 0 100%;
@@ -620,7 +621,7 @@ dialogRef.current?.show();
   .dialog::backdrop {
     transition: none;
   }
-  
+
   @starting-style {
     .dialog[open] {
       opacity: 1;
@@ -635,9 +636,7 @@ dialogRef.current?.show();
 ```tsx
 // ✅ 推奨 - 明確な閉じるボタン
 <dialog ref={dialogRef}>
-  <button onClick={() => dialogRef.current?.close()}>
-    ×
-  </button>
+  <button onClick={() => dialogRef.current?.close()}>×</button>
   {/* コンテンツ */}
 </dialog>
 ```
