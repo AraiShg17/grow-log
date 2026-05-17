@@ -51,7 +51,7 @@ substitutions:
   _SERVICE_NAME: grow-log-web
   _FIRESTORE_DATABASE_ID: grow-log-db
   _GCS_BUCKET_NAME: home-items-app-grow-log-photos
-  _OPENAI_MODEL: gpt-4o-mini
+  _OPENAI_MODEL: gpt-5.4-mini
 
 options:
   logging: CLOUD_LOGGING_ONLY

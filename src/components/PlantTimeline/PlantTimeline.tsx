@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { Link } from 'next-view-transitions';
+import { type SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { CompactMarkdownContent } from '@/components/CompactMarkdownContent/CompactMarkdownContent';
 import { PanelTitle } from '@/components/PanelTitle/PanelTitle';
 import { icons } from '@/icons';
@@ -25,9 +26,28 @@ interface PlantTimelineProps {
 }
 
 export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProps) {
-  const sortedLogs = [...logs].sort(
-    (a, b) => new Date(b.observedAtIso).getTime() - new Date(a.observedAtIso).getTime(),
+  const sortedLogs = useMemo(
+    () =>
+      [...logs].sort(
+        (a, b) =>
+          new Date(b.observedAtIso).getTime() - new Date(a.observedAtIso).getTime(),
+      ),
+    [logs],
   );
+
+  const latestId = sortedLogs[0]?.id;
+  const [latestOpen, setLatestOpen] = useState(true);
+  const prevLatestIdRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (latestId === undefined) {
+      return;
+    }
+    if (prevLatestIdRef.current !== latestId) {
+      prevLatestIdRef.current = latestId;
+      setLatestOpen(true);
+    }
+  }, [latestId]);
 
   return (
     <section className={styles.panel} aria-labelledby="timeline-heading">
@@ -50,44 +70,60 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
       ) : (
         <div className={styles.timelineLayout}>
           <ol className={styles.timelineList}>
-            {sortedLogs.map((log) => (
-              <li key={log.id} className={styles.timelineItem}>
-                <details className={styles.timelineDetails}>
-                  <summary className={styles.timelineSummary}>
-                    <span className={styles.dot} aria-hidden="true" />
-                    <span className={styles.summaryText}>
-                      <span className={styles.dateLabel}>{log.dateLabel}</span>
-                      {log.memo ? (
-                        <span className={styles.memoPreview}>{log.memo}</span>
-                      ) : null}
-                    </span>
-                  </summary>
-                  <article className={styles.detailCard} aria-live="polite">
-                    <div className={styles.imageWrap}>
-                      <Image
-                        src={log.photoUrl}
-                        alt={`${plantName}の観察写真`}
-                        fill
-                        sizes="(max-width: 899px) 100vw, 420px"
-                        className={styles.image}
-                      />
-                    </div>
-                    <div className={styles.detailBody}>
-                      <time className={styles.detailDate} dateTime={log.observedAtIso}>
-                        {log.dateTimeLabel}
-                      </time>
-                      {log.memo ? <p className={styles.memo}>{log.memo}</p> : null}
-                      {log.aiAdvice ? (
-                        <CompactMarkdownContent
-                          content={log.aiAdvice}
-                          detailLabel={log.detailLabel ?? '詳細を見る'}
+            {sortedLogs.map((log) => {
+              const isLatest = log.id === latestId;
+              return (
+                <li key={log.id} className={styles.timelineItem}>
+                  <details
+                    className={styles.timelineDetails}
+                    {...(isLatest
+                      ? {
+                          open: latestOpen,
+                          onToggle: (e: SyntheticEvent<HTMLDetailsElement>) => {
+                            setLatestOpen(e.currentTarget.open);
+                          },
+                        }
+                      : {})}
+                  >
+                    <summary className={styles.timelineSummary}>
+                      <span className={styles.dot} aria-hidden="true" />
+                      <span className={styles.summaryText}>
+                        <span className={styles.dateLabel}>{log.dateLabel}</span>
+                        {log.memo ? (
+                          <span className={styles.memoPreview}>{log.memo}</span>
+                        ) : null}
+                      </span>
+                    </summary>
+                    <article className={styles.detailCard} aria-live="polite">
+                      <div className={styles.imageWrap}>
+                        <Image
+                          src={log.photoUrl}
+                          alt={`${plantName}の観察写真`}
+                          fill
+                          sizes="(max-width: 899px) 100vw, 420px"
+                          className={styles.image}
                         />
-                      ) : null}
-                    </div>
-                  </article>
-                </details>
-              </li>
-            ))}
+                      </div>
+                      <div className={styles.detailBody}>
+                        <time
+                          className={styles.detailDate}
+                          dateTime={log.observedAtIso}
+                        >
+                          {log.dateTimeLabel}
+                        </time>
+                        {log.memo ? <p className={styles.memo}>{log.memo}</p> : null}
+                        {log.aiAdvice ? (
+                          <CompactMarkdownContent
+                            content={log.aiAdvice}
+                            detailLabel={log.detailLabel ?? '詳細を見る'}
+                          />
+                        ) : null}
+                      </div>
+                    </article>
+                  </details>
+                </li>
+              );
+            })}
           </ol>
         </div>
       )}
