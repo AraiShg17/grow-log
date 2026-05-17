@@ -19,12 +19,9 @@ export function LogForm({ plantId }: LogFormProps) {
 
   return (
     <>
-      <LoadingOverlay
-        active={pending}
-        message="写真をアップロードして AI がアドバイスを作成しています…"
-      />
+      <LoadingOverlay active={pending} message="観察記録を保存しています…" />
       <form action={formAction} className={styles.form}>
-        <PhotoInput />
+        <PhotoInput required={false} />
 
         <label className={styles.field}>
           <span className={styles.label}>メモ</span>
@@ -32,14 +29,14 @@ export function LogForm({ plantId }: LogFormProps) {
             name="memo"
             rows={4}
             className={styles.textarea}
-            placeholder="葉の色、土の乾き具合など"
+            placeholder="葉の色、土の乾き具合など（写真がないときはメモ必須）"
           />
         </label>
 
         {state.error ? <p className={styles.error}>{state.error}</p> : null}
 
         <Button type="submit" disabled={pending} fullWidth>
-          {pending ? 'AIアドバイスを生成中…' : '記録を保存'}
+          {pending ? '保存中…' : '記録を保存'}
         </Button>
       </form>
     </>

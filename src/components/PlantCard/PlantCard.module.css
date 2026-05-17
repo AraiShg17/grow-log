@@ -37,6 +37,20 @@
   transition: filter 220ms ease;
 }
 
+.imagePlaceholder {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--color-bg-elevated) 92%, var(--color-border));
+}
+
+.imagePlaceholderText {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
 .body {
   display: flex;
   flex-direction: column;

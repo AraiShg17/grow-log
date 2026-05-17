@@ -14,18 +14,25 @@ interface PlantCardProps {
 export function PlantCard({ plant }: PlantCardProps) {
   const photoUrl = plant.latestPhotoUrl ?? plant.firstPhotoUrl;
   const sunlightLabel = getSunlightTagLabel(plant.sunlightTag);
+  const hasPhoto = Boolean(photoUrl);
 
   return (
     <article className={styles.card}>
       <Link href={`/plants/${plant.id}`} className={styles.cardLink}>
         <div className={styles.imageWrap}>
-          <Image
-            src={photoUrl}
-            alt={`${plant.name}の写真`}
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className={styles.image}
-          />
+          {hasPhoto ? (
+            <Image
+              src={photoUrl}
+              alt={`${plant.name}の写真`}
+              fill
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className={styles.image}
+            />
+          ) : (
+            <div className={styles.imagePlaceholder} aria-hidden>
+              <span className={styles.imagePlaceholderText}>写真なし</span>
+            </div>
+          )}
         </div>
         <div className={styles.body}>
           <div className={styles.titleRow}>

@@ -4,12 +4,17 @@ import type { Plant } from '@/types/plant';
 
 function plant(p: Partial<Plant> & Pick<Plant, 'id' | 'name'>): Plant {
   const now = new Date('2024-01-01');
+  const firstPhotoUrl =
+    p.firstPhotoUrl ?? p.photoUrls?.[0] ?? 'https://storage.googleapis.com/b/x.jpg';
+  const photoUrls = p.photoUrls ?? [firstPhotoUrl];
   return {
-    firstPhotoUrl: 'https://storage.googleapis.com/b/x.jpg',
     careGuide: '',
     createdAt: now,
     updatedAt: now,
     ...p,
+    photoUrls,
+    aiPhotoIndex: p.aiPhotoIndex ?? 0,
+    firstPhotoUrl,
   };
 }
 

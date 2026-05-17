@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { Link } from 'next-view-transitions';
+import { PhotoGallery } from '@/components/PhotoGallery/PhotoGallery';
 import { type SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { CompactMarkdownContent } from '@/components/CompactMarkdownContent/CompactMarkdownContent';
 import { PanelTitle } from '@/components/PanelTitle/PanelTitle';
@@ -10,12 +10,12 @@ import styles from './PlantTimeline.module.css';
 
 export interface TimelineLog {
   id: string;
-  photoUrl: string;
+  photoUrls: string[];
+  aiPhotoIndex?: number;
   memo: string;
   aiAdvice: string | null;
   observedAtIso: string;
   dateLabel: string;
-  dateTimeLabel: string;
   detailLabel: string | null;
 }
 
@@ -72,8 +72,45 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
           <ol className={styles.timelineList}>
             {sortedLogs.map((log) => {
               const isLatest = log.id === latestId;
+              const hasDetail =
+                log.photoUrls.length > 0 || Boolean(log.aiAdvice?.trim());
+              const summaryRow = (
+                <>
+                  <span className={styles.dot} aria-hidden="true" />
+                  <span className={styles.summaryText}>
+                    <time
+                      className={styles.dateLabel}
+                      dateTime={log.observedAtIso}
+                    >
+                      {log.dateLabel}
+                    </time>
+                    {log.memo ? (
+                      <span className={styles.memoPreview}>{log.memo}</span>
+                    ) : null}
+                  </span>
+                </>
+              );
+
+              if (!hasDetail) {
+                return (
+                  <li
+                    key={log.id}
+                    className={[styles.timelineItem, styles.timelineItemStatic]
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
+                    <div className={styles.timelineStatic}>{summaryRow}</div>
+                  </li>
+                );
+              }
+
               return (
-                <li key={log.id} className={styles.timelineItem}>
+                <li
+                  key={log.id}
+                  className={[styles.timelineItem, styles.timelineItemInteractive]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
                   <details
                     className={styles.timelineDetails}
                     {...(isLatest
@@ -85,33 +122,19 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
                         }
                       : {})}
                   >
-                    <summary className={styles.timelineSummary}>
-                      <span className={styles.dot} aria-hidden="true" />
-                      <span className={styles.summaryText}>
-                        <span className={styles.dateLabel}>{log.dateLabel}</span>
-                        {log.memo ? (
-                          <span className={styles.memoPreview}>{log.memo}</span>
-                        ) : null}
-                      </span>
-                    </summary>
+                    <summary className={styles.timelineSummary}>{summaryRow}</summary>
                     <article className={styles.detailCard} aria-live="polite">
-                      <div className={styles.imageWrap}>
-                        <Image
-                          src={log.photoUrl}
+                      {log.photoUrls.length > 0 ? (
+                        <PhotoGallery
+                          photoUrls={log.photoUrls}
                           alt={`${plantName}の観察写真`}
-                          fill
-                          sizes="(max-width: 899px) 100vw, 420px"
-                          className={styles.image}
+                          aiPhotoIndex={log.aiPhotoIndex}
                         />
-                      </div>
+                      ) : null}
                       <div className={styles.detailBody}>
-                        <time
-                          className={styles.detailDate}
-                          dateTime={log.observedAtIso}
-                        >
-                          {log.dateTimeLabel}
-                        </time>
-                        {log.memo ? <p className={styles.memo}>{log.memo}</p> : null}
+                        {log.photoUrls.length > 0 && log.memo ? (
+                          <p className={styles.memo}>{log.memo}</p>
+                        ) : null}
                         {log.aiAdvice ? (
                           <CompactMarkdownContent
                             content={log.aiAdvice}

@@ -1,4 +1,5 @@
 import { Link } from 'next-view-transitions';
+import { PlantCareQuickActions } from '@/components/PlantCareQuickActions/PlantCareQuickActions';
 import { PlantListBrowse } from '@/components/PlantListBrowse/PlantListBrowse';
 import { PageShell } from '@/components/PageShell/PageShell';
 import { listPlants } from '@/lib/firestore/plants';
@@ -20,7 +21,10 @@ export default async function HomePage() {
   }));
 
   return (
-    <PageShell title="植物一覧">
+    <PageShell
+      title="植物一覧"
+      actions={plants.length > 0 ? <PlantCareQuickActions plants={items} /> : null}
+    >
       {plants.length === 0 ? (
         <div className={styles.empty}>
           <p>まだ植物が登録されていません。</p>

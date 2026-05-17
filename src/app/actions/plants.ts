@@ -14,9 +14,13 @@ import {
   updatePlant,
 } from '@/lib/firestore/plants';
 import {
-  deleteStorageObjectsByUrls,
-  uploadPlantPhotoBuffer,
-} from '@/lib/storage/upload';
+  uploadPhotosFromFormData,
+  validateLogPhotosFormData,
+  validatePhotoFormData,
+} from '@/lib/photos/uploadPhotosFromFormData';
+import { getCareLogMemo, isCareLogKind } from '@/lib/plants/careLogMemos';
+import { parsePhotoFilesFromFormData } from '@/lib/photos/parsePhotoFormData';
+import { deleteStorageObjectsByUrls } from '@/lib/storage/upload';
 
 export type ActionResult = {
   success: boolean;
@@ -28,28 +32,29 @@ export async function createPlantAction(
   formData: FormData,
 ): Promise<ActionResult> {
   const name = String(formData.get('name') ?? '').trim();
-  const photo = formData.get('photo');
+  const photoError = validatePhotoFormData(formData);
 
   if (!name) {
     return { success: false, error: '植物名を入力してください。' };
   }
 
-  if (!(photo instanceof File) || photo.size === 0) {
-    return { success: false, error: '写真を選択してください。' };
+  if (photoError) {
+    return { success: false, error: photoError };
   }
 
   try {
-    const mimeType = photo.type || 'image/jpeg';
-    const photoBuffer = Buffer.from(await photo.arrayBuffer());
+    const uploaded = await uploadPhotosFromFormData(formData, 'plants');
 
-    const [photoUrl, bundle] = await Promise.all([
-      uploadPlantPhotoBuffer(photoBuffer, mimeType, 'plants'),
-      generatePlantRegistrationBundle({ name, photoBuffer, mimeType }),
-    ]);
+    const bundle = await generatePlantRegistrationBundle({
+      name,
+      photoBuffer: uploaded.aiBuffer,
+      mimeType: uploaded.aiMimeType,
+    });
 
     const plantId = await createPlant({
       name,
-      firstPhotoUrl: photoUrl,
+      photoUrls: uploaded.photoUrls,
+      aiPhotoIndex: uploaded.aiPhotoIndex,
       careGuide: bundle.careGuide,
       sunlightTag: bundle.sunlightTag,
     });
@@ -75,33 +80,44 @@ export async function createPlantLogAction(
   }
 
   const memo = String(formData.get('memo') ?? '').trim();
-  const photo = formData.get('photo');
+  const photoError = validateLogPhotosFormData(formData);
 
-  if (!(photo instanceof File) || photo.size === 0) {
-    return { success: false, error: '写真を選択してください。' };
+  if (photoError) {
+    return { success: false, error: photoError };
   }
 
   const observedAt = new Date();
 
   try {
-    const mimeType = photo.type || 'image/jpeg';
-    const photoBuffer = Buffer.from(await photo.arrayBuffer());
     const pastLogs = await listPlantLogs(plantId, 5);
+    const files = parsePhotoFilesFromFormData(formData);
 
-    const [photoUrl, aiAdvice] = await Promise.all([
-      uploadPlantPhotoBuffer(photoBuffer, mimeType, 'logs'),
-      generateLogAdvice({
+    let photoUrls: string[] = [];
+    let aiPhotoIndex = 0;
+    let aiAdvice = '';
+
+    if (files.length > 0) {
+      const uploaded = await uploadPhotosFromFormData(formData, 'logs');
+      photoUrls = uploaded.photoUrls;
+      aiPhotoIndex = uploaded.aiPhotoIndex;
+      aiAdvice = await generateLogAdvice({
         plantName: plant.name,
         careGuide: plant.careGuide,
         memo,
-        photoBuffer,
-        mimeType,
+        photoBuffer: uploaded.aiBuffer,
+        mimeType: uploaded.aiMimeType,
         pastLogs,
-      }),
-    ]);
+      });
+    } else if (!memo) {
+      return {
+        success: false,
+        error: 'メモを入力するか、写真を1枚以上追加してください。',
+      };
+    }
 
     await createPlantLog(plantId, {
-      photoUrl,
+      photoUrls,
+      aiPhotoIndex,
       memo,
       aiAdvice,
       observedAt,
@@ -109,6 +125,52 @@ export async function createPlantLogAction(
 
     revalidatePath(`/plants/${plantId}`);
     redirect(`/plants/${plantId}`);
+  } catch (error) {
+    return {
+      success: false,
+      error: toActionErrorMessage(error, '観察記録の追加に失敗しました。'),
+    };
+  }
+}
+
+export async function bulkCreateCareLogsAction(
+  plantIds: string[],
+  kind: string,
+): Promise<ActionResult> {
+  if (!isCareLogKind(kind)) {
+    return { success: false, error: '不正な操作です。' };
+  }
+
+  const uniqueIds = [...new Set(plantIds.map((id) => id.trim()).filter(Boolean))];
+  if (uniqueIds.length === 0) {
+    return { success: false, error: '植物を1つ以上選択してください。' };
+  }
+
+  const memo = getCareLogMemo(kind);
+  const observedAt = new Date();
+
+  try {
+    for (const plantId of uniqueIds) {
+      const plant = await getPlant(plantId);
+      if (!plant) {
+        return { success: false, error: '選択した植物の一部が見つかりません。' };
+      }
+
+      await createPlantLog(plantId, {
+        photoUrls: [],
+        aiPhotoIndex: 0,
+        memo,
+        aiAdvice: '',
+        observedAt,
+      });
+    }
+
+    revalidatePath('/');
+    for (const plantId of uniqueIds) {
+      revalidatePath(`/plants/${plantId}`);
+    }
+
+    return { success: true };
   } catch (error) {
     return {
       success: false,
@@ -158,9 +220,12 @@ export async function deletePlantAction(plantId: string): Promise<ActionResult> 
 
   try {
     const logs = await listPlantLogs(plantId, 0);
-    const photoUrls = [plant.firstPhotoUrl, ...logs.map((log) => log.photoUrl)];
+    const photoUrls = [
+      ...plant.photoUrls,
+      ...logs.flatMap((log) => log.photoUrls),
+    ].filter(Boolean);
 
-    await deleteStorageObjectsByUrls(photoUrls);
+    await deleteStorageObjectsByUrls([...new Set(photoUrls)]);
     await deletePlantWithLogs(plantId);
 
     revalidatePath('/');

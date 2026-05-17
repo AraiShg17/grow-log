@@ -5,7 +5,7 @@ import {
   type TimelineLog,
 } from '@/components/PlantTimeline/PlantTimeline';
 import { icons } from '@/icons';
-import { formatDate, formatDateTime } from '@/lib/utils/formatDate';
+import { formatDateTime } from '@/lib/utils/formatDate';
 import type { Plant, PlantLog } from '@/types/plant';
 import styles from './PlantDetail.module.css';
 
@@ -18,22 +18,22 @@ export function PlantDetail({ plant, logs }: PlantDetailProps) {
   const timelineLogs: TimelineLog[] = [
     {
       id: `${plant.id}-initial`,
-      photoUrl: plant.firstPhotoUrl,
+      photoUrls: plant.photoUrls,
+      aiPhotoIndex: plant.aiPhotoIndex,
       memo: '植物を登録しました。',
       aiAdvice: null,
       observedAtIso: plant.createdAt.toISOString(),
-      dateLabel: formatDate(plant.createdAt),
-      dateTimeLabel: formatDateTime(plant.createdAt),
+      dateLabel: formatDateTime(plant.createdAt),
       detailLabel: null,
     },
     ...logs.map((log) => ({
       id: log.id,
-      photoUrl: log.photoUrl,
+      photoUrls: log.photoUrls,
+      aiPhotoIndex: log.aiPhotoIndex,
       memo: log.memo,
       aiAdvice: log.aiAdvice,
       observedAtIso: log.observedAt.toISOString(),
-      dateLabel: formatDate(log.observedAt),
-      dateTimeLabel: formatDateTime(log.observedAt),
+      dateLabel: formatDateTime(log.observedAt),
       detailLabel: 'アドバイスの詳細を見る',
     })),
   ];

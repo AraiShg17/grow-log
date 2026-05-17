@@ -4,6 +4,11 @@ import type { SunlightTagId } from '@/lib/plants/sunlightTags';
 export interface Plant {
   id: string;
   name: string;
+  /** 登録時の写真（最大10枚）。一覧のサムネイルは先頭 */
+  photoUrls: string[];
+  /** AI 分析に使った写真の photoUrls 内インデックス */
+  aiPhotoIndex: number;
+  /** @deprecated 互換用。photoUrls[0] と同値 */
   firstPhotoUrl: string;
   latestPhotoUrl?: string;
   careGuide: string;
@@ -21,6 +26,9 @@ export type PlantListItem = Pick<
 
 export interface PlantLog {
   id: string;
+  photoUrls: string[];
+  aiPhotoIndex: number;
+  /** @deprecated 互換用。photoUrls[0] と同値 */
   photoUrl: string;
   memo: string;
   aiAdvice: string;
@@ -30,6 +38,8 @@ export interface PlantLog {
 
 export interface PlantDocument {
   name: string;
+  photoUrls?: string[];
+  aiPhotoIndex?: number;
   firstPhotoUrl: string;
   careGuide: string;
   /** 育てるうえで推奨する置き場の明るさ（撮影時の環境ではない） */
@@ -41,9 +51,11 @@ export interface PlantDocument {
 }
 
 export interface PlantLogDocument {
+  photoUrls?: string[];
+  aiPhotoIndex?: number;
   photoUrl: string;
   memo: string;
-  aiAdvice: string;
+  aiAdvice?: string;
   observedAt: Timestamp;
   createdAt: Timestamp;
 }

@@ -13,8 +13,12 @@ function formatPastLogs(logs: PlantLog[]): string {
 
   return logs
     .map((log, index) => {
-      const { summary } = parseCompactSections(log.aiAdvice);
-      return `### ログ ${index + 1} (${log.observedAt.toISOString().slice(0, 10)})\nメモ: ${log.memo || 'なし'}\n要点: ${summary.slice(0, 120)}`;
+      const advice = log.aiAdvice?.trim() ?? '';
+      const { summary } = parseCompactSections(advice);
+      const gist = advice
+        ? summary.slice(0, 120)
+        : (log.memo || '（メモなし）').slice(0, 120);
+      return `### ログ ${index + 1} (${log.observedAt.toISOString().slice(0, 10)})\nメモ: ${log.memo || 'なし'}\n要点: ${gist}`;
     })
     .join('\n\n');
 }

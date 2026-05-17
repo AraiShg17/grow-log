@@ -1,3 +1,8 @@
+.root {
+  display: grid;
+  gap: var(--space-3);
+}
+
 .dropzone {
   display: grid;
   place-items: center;
@@ -46,17 +51,115 @@
   font-weight: 600;
 }
 
+.aiHint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.limitNote {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.thumbItem {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.thumbButton {
+  position: relative;
+  display: block;
+  padding: 0;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.thumbButtonAi {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-accent) 28%, transparent);
+}
+
+.thumbButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.thumbImage {
+  display: block;
+  width: 5.5rem;
+  height: 5.5rem;
+  object-fit: cover;
+}
+
+.aiBadge {
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-1);
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #0b120c;
+  background: var(--color-accent);
+}
+
+.removeButton {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.removeButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .dropzone:hover {
     border-color: var(--color-accent);
     background-color: color-mix(in oklab, var(--color-bg-elevated) 86%, #ffffff);
     color: var(--color-text);
   }
-}
 
-@media (hover: none), (pointer: coarse) {
-  .dropzone:active {
-    border-color: color-mix(in oklab, var(--color-accent) 52%, var(--color-border));
-    background-color: color-mix(in oklab, var(--color-bg-elevated) 92%, #ffffff);
+  .thumbButton:hover {
+    border-color: color-mix(in oklab, var(--color-accent) 48%, var(--color-border));
+  }
+
+  .removeButton:hover {
+    border-color: color-mix(in oklab, var(--color-danger) 48%, var(--color-border));
+    color: var(--color-danger);
   }
 }
