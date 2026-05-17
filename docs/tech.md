@@ -91,7 +91,7 @@ npm run test:coverage
 | ----------------- | ------------------------------------------------------ |
 | リージョン        | `asia-northeast1`                                      |
 | サービス名        | `grow-log-web`（`cloudbuild.yaml` の `_SERVICE_NAME`） |
-| Artifact Registry | `grow-log` リポジトリ                                  |
+| Artifact Registry | `cloud-run-source-deploy/grow-log`                     |
 
 ## Browser Support
 
