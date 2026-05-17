@@ -49,7 +49,7 @@ function toPlantLog(id: string, data: PlantLogDocument): PlantLog {
 export async function listPlants(): Promise<Plant[]> {
   const snapshot = await getDb()
     .collection(PLANTS_COLLECTION)
-    .orderBy('updatedAt', 'desc')
+    .orderBy('createdAt', 'desc')
     .get();
 
   return Promise.all(

@@ -2,7 +2,7 @@
 
 import { Link } from 'next-view-transitions';
 import { PhotoGallery } from '@/components/PhotoGallery/PhotoGallery';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { CompactMarkdownContent } from '@/components/CompactMarkdownContent/CompactMarkdownContent';
 import { PanelTitle } from '@/components/PanelTitle/PanelTitle';
 import { icons } from '@/icons';
@@ -35,8 +35,6 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
       ),
     [logs],
   );
-
-  const [openById, setOpenById] = useState<Record<string, boolean>>({});
 
   return (
     <section className={styles.panel} aria-labelledby="timeline-heading">
@@ -98,16 +96,7 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
                     .filter(Boolean)
                     .join(' ')}
                 >
-                  <details
-                    className={styles.timelineDetails}
-                    open={openById[log.id] ?? true}
-                    onToggle={(e) => {
-                      setOpenById((prev) => ({
-                        ...prev,
-                        [log.id]: e.currentTarget.open,
-                      }));
-                    }}
-                  >
+                  <details className={styles.timelineDetails} open>
                     <summary className={styles.timelineSummary}>{summaryRow}</summary>
                     <article className={styles.detailCard} aria-live="polite">
                       {log.photoUrls.length > 0 ? (
