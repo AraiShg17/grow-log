@@ -31,7 +31,11 @@
 }
 
 .iconButtonWaterActive {
-  background-color: color-mix(in oklab, var(--care-water) 20%, var(--color-surface-strong));
+  background-color: color-mix(
+    in oklab,
+    var(--care-water) 20%,
+    var(--color-surface-strong)
+  );
 }
 
 .iconButtonFertilize {
@@ -40,7 +44,11 @@
 }
 
 .iconButtonFertilizeActive {
-  background-color: color-mix(in oklab, var(--care-fertilize) 20%, var(--color-surface-strong));
+  background-color: color-mix(
+    in oklab,
+    var(--care-fertilize) 20%,
+    var(--color-surface-strong)
+  );
 }
 
 .iconButtonWater:focus-visible {
@@ -211,11 +219,7 @@
 
 .primaryButton {
   border: none;
-  background-image: linear-gradient(
-    135deg in oklab,
-    #b8efbe 0%,
-    #7bcf75 100%
-  );
+  background-image: linear-gradient(135deg in oklab, #b8efbe 0%, #7bcf75 100%);
   color: #0b120c;
 }
 
@@ -234,13 +238,21 @@
   .iconButtonWater:hover {
     color: var(--care-water);
     border-color: var(--care-water);
-    background-color: color-mix(in oklab, var(--care-water) 18%, var(--color-surface-strong));
+    background-color: color-mix(
+      in oklab,
+      var(--care-water) 18%,
+      var(--color-surface-strong)
+    );
   }
 
   .iconButtonFertilize:hover {
     color: var(--care-fertilize);
     border-color: var(--care-fertilize);
-    background-color: color-mix(in oklab, var(--care-fertilize) 18%, var(--color-surface-strong));
+    background-color: color-mix(
+      in oklab,
+      var(--care-fertilize) 18%,
+      var(--color-surface-strong)
+    );
   }
 
   .closeButton:hover {

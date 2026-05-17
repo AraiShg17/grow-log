@@ -68,10 +68,7 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
                 <>
                   <span className={styles.dot} aria-hidden="true" />
                   <span className={styles.summaryText}>
-                    <time
-                      className={styles.dateLabel}
-                      dateTime={log.observedAtIso}
-                    >
+                    <time className={styles.dateLabel} dateTime={log.observedAtIso}>
                       {log.dateLabel}
                     </time>
                     {log.memo ? (

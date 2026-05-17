@@ -20,7 +20,8 @@ export function parsePhotoFilesFromFormData(formData: FormData): File[] {
 
 /** 上限チェック用（slice 前の枚数） */
 export function countNonEmptyPhotoFiles(formData: FormData): number {
-  return formData.getAll('photos').filter((item) => getUploadFile(item) !== null).length;
+  return formData.getAll('photos').filter((item) => getUploadFile(item) !== null)
+    .length;
 }
 
 export function parseAiPhotoIndexFromFormData(

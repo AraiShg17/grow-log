@@ -18,11 +18,19 @@ export function hasExpandableTimelineDetail(input: {
   );
 }
 
-export function clampAiPhotoIndex(index: number | undefined, photoCount: number): number {
+export function clampAiPhotoIndex(
+  index: number | undefined,
+  photoCount: number,
+): number {
   if (photoCount <= 0) {
     return 0;
   }
-  if (typeof index !== 'number' || !Number.isInteger(index) || index < 0 || index >= photoCount) {
+  if (
+    typeof index !== 'number' ||
+    !Number.isInteger(index) ||
+    index < 0 ||
+    index >= photoCount
+  ) {
     return 0;
   }
   return index;
