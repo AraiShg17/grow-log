@@ -1,23 +1,49 @@
 import { describe, expect, it } from 'vitest';
 import {
   clampAiPhotoIndex,
+  hasExpandableTimelineDetail,
   normalizePhotoUrls,
   primaryPhotoUrl,
 } from '@/lib/photos/normalizePhotos';
 
 describe('normalizePhotoUrls', () => {
-  it('prefers photoUrls array', () => {
-    expect(normalizePhotoUrls(['a', 'b'], 'legacy')).toEqual(['a', 'b']);
+  it('returns non-empty trimmed urls', () => {
+    expect(normalizePhotoUrls(['a', 'b'])).toEqual(['a', 'b']);
   });
 
-  it('falls back to legacy single url', () => {
-    expect(normalizePhotoUrls(undefined, 'legacy')).toEqual(['legacy']);
+  it('filters empty strings', () => {
+    expect(normalizePhotoUrls(['', '  ', 'https://example.com/a.jpg'])).toEqual([
+      'https://example.com/a.jpg',
+    ]);
+  });
+
+  it('returns empty array when undefined', () => {
+    expect(normalizePhotoUrls(undefined)).toEqual([]);
   });
 });
 
 describe('primaryPhotoUrl', () => {
   it('returns first url', () => {
     expect(primaryPhotoUrl(['a', 'b'])).toBe('a');
+  });
+});
+
+describe('hasExpandableTimelineDetail', () => {
+  it('is true when photoUrls exist', () => {
+    expect(
+      hasExpandableTimelineDetail({
+        photoUrls: ['https://example.com/a.jpg'],
+      }),
+    ).toBe(true);
+  });
+
+  it('is true when aiAdvice exists without photos', () => {
+    expect(
+      hasExpandableTimelineDetail({
+        photoUrls: [],
+        aiAdvice: '## まとめ\n- test',
+      }),
+    ).toBe(true);
   });
 });
 

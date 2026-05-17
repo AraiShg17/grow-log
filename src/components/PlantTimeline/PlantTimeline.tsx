@@ -2,10 +2,11 @@
 
 import { Link } from 'next-view-transitions';
 import { PhotoGallery } from '@/components/PhotoGallery/PhotoGallery';
-import { type SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CompactMarkdownContent } from '@/components/CompactMarkdownContent/CompactMarkdownContent';
 import { PanelTitle } from '@/components/PanelTitle/PanelTitle';
 import { icons } from '@/icons';
+import { hasExpandableTimelineDetail } from '@/lib/photos/normalizePhotos';
 import styles from './PlantTimeline.module.css';
 
 export interface TimelineLog {
@@ -35,19 +36,7 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
     [logs],
   );
 
-  const latestId = sortedLogs[0]?.id;
-  const [latestOpen, setLatestOpen] = useState(true);
-  const prevLatestIdRef = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (latestId === undefined) {
-      return;
-    }
-    if (prevLatestIdRef.current !== latestId) {
-      prevLatestIdRef.current = latestId;
-      setLatestOpen(true);
-    }
-  }, [latestId]);
+  const [openById, setOpenById] = useState<Record<string, boolean>>({});
 
   return (
     <section className={styles.panel} aria-labelledby="timeline-heading">
@@ -71,9 +60,10 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
         <div className={styles.timelineLayout}>
           <ol className={styles.timelineList}>
             {sortedLogs.map((log) => {
-              const isLatest = log.id === latestId;
-              const hasDetail =
-                log.photoUrls.length > 0 || Boolean(log.aiAdvice?.trim());
+              const hasDetail = hasExpandableTimelineDetail({
+                photoUrls: log.photoUrls,
+                aiAdvice: log.aiAdvice,
+              });
               const summaryRow = (
                 <>
                   <span className={styles.dot} aria-hidden="true" />
@@ -113,14 +103,13 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
                 >
                   <details
                     className={styles.timelineDetails}
-                    {...(isLatest
-                      ? {
-                          open: latestOpen,
-                          onToggle: (e: SyntheticEvent<HTMLDetailsElement>) => {
-                            setLatestOpen(e.currentTarget.open);
-                          },
-                        }
-                      : {})}
+                    open={openById[log.id] ?? true}
+                    onToggle={(e) => {
+                      setOpenById((prev) => ({
+                        ...prev,
+                        [log.id]: e.currentTarget.open,
+                      }));
+                    }}
                   >
                     <summary className={styles.timelineSummary}>{summaryRow}</summary>
                     <article className={styles.detailCard} aria-live="polite">
@@ -135,7 +124,7 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
                         {log.photoUrls.length > 0 && log.memo ? (
                           <p className={styles.memo}>{log.memo}</p>
                         ) : null}
-                        {log.aiAdvice ? (
+                        {log.aiAdvice?.trim() ? (
                           <CompactMarkdownContent
                             content={log.aiAdvice}
                             detailLabel={log.detailLabel ?? '詳細を見る'}

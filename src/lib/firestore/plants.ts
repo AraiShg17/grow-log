@@ -15,7 +15,7 @@ function toPlant(id: string, data: PlantDocument, latestPhotoUrl?: string): Plan
   const sunlightTag =
     typeof rawTag === 'string' && isSunlightTagId(rawTag) ? rawTag : undefined;
 
-  const photoUrls = normalizePhotoUrls(data.photoUrls, data.firstPhotoUrl);
+  const photoUrls = normalizePhotoUrls(data.photoUrls);
   const aiPhotoIndex = clampAiPhotoIndex(data.aiPhotoIndex, photoUrls.length);
 
   return {
@@ -23,7 +23,6 @@ function toPlant(id: string, data: PlantDocument, latestPhotoUrl?: string): Plan
     name: data.name,
     photoUrls,
     aiPhotoIndex,
-    firstPhotoUrl: primaryPhotoUrl(photoUrls, data.firstPhotoUrl),
     latestPhotoUrl,
     careGuide: data.careGuide,
     sunlightTag,
@@ -33,14 +32,13 @@ function toPlant(id: string, data: PlantDocument, latestPhotoUrl?: string): Plan
 }
 
 function toPlantLog(id: string, data: PlantLogDocument): PlantLog {
-  const photoUrls = normalizePhotoUrls(data.photoUrls, data.photoUrl);
+  const photoUrls = normalizePhotoUrls(data.photoUrls);
   const aiPhotoIndex = clampAiPhotoIndex(data.aiPhotoIndex, photoUrls.length);
 
   return {
     id,
     photoUrls,
     aiPhotoIndex,
-    photoUrl: primaryPhotoUrl(photoUrls, data.photoUrl),
     memo: data.memo,
     aiAdvice: typeof data.aiAdvice === 'string' ? data.aiAdvice : '',
     observedAt: data.observedAt.toDate(),
@@ -65,12 +63,7 @@ export async function listPlants(): Promise<Plant[]> {
         | PlantLogDocument
         | undefined;
 
-      const latestUrls = latestLog
-        ? normalizePhotoUrls(latestLog.photoUrls, latestLog.photoUrl)
-        : [];
-      const latestPrimary = latestLog
-        ? primaryPhotoUrl(latestUrls, latestLog.photoUrl)
-        : '';
+      const latestPrimary = latestLog ? primaryPhotoUrl(latestLog.photoUrls) : '';
       const latestPhotoUrl = latestPrimary.length > 0 ? latestPrimary : undefined;
 
       return toPlant(doc.id, doc.data() as PlantDocument, latestPhotoUrl);
@@ -94,12 +87,10 @@ export async function createPlant(input: {
   sunlightTag: SunlightTagId;
 }): Promise<string> {
   const now = FieldValue.serverTimestamp();
-  const firstPhotoUrl = input.photoUrls[0] ?? '';
   const ref = await getDb().collection(PLANTS_COLLECTION).add({
     name: input.name,
     photoUrls: input.photoUrls,
     aiPhotoIndex: input.aiPhotoIndex,
-    firstPhotoUrl,
     careGuide: input.careGuide,
     sunlightTag: input.sunlightTag,
     createdAt: now,
@@ -150,12 +141,10 @@ export async function createPlantLog(
   const db = getDb();
   const batch = db.batch();
   const logRef = db.collection(PLANTS_COLLECTION).doc(plantId).collection('logs').doc();
-  const photoUrl = input.photoUrls[0] ?? '';
 
   batch.set(logRef, {
     photoUrls: input.photoUrls,
     aiPhotoIndex: input.aiPhotoIndex,
-    photoUrl,
     memo: input.memo,
     aiAdvice: input.aiAdvice,
     observedAt: Timestamp.fromDate(input.observedAt),

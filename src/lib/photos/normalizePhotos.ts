@@ -1,20 +1,21 @@
-/** Firestore の旧フィールド（photoUrl / firstPhotoUrl）と新フィールド（photoUrls）を統一 */
-export function normalizePhotoUrls(
-  photoUrls: string[] | undefined,
-  legacyUrl: string | undefined,
-): string[] {
-  if (photoUrls && photoUrls.length > 0) {
-    return photoUrls;
-  }
-  if (legacyUrl) {
-    return [legacyUrl];
-  }
-  return [];
+/** Firestore の photoUrls を正規化（空文字を除外） */
+export function normalizePhotoUrls(photoUrls?: string[]): string[] {
+  return (photoUrls ?? [])
+    .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
+    .map((url) => url.trim());
 }
 
-export function primaryPhotoUrl(urls: string[], legacyUrl?: string): string {
-  const list = normalizePhotoUrls(urls, legacyUrl);
-  return list[0] ?? '';
+export function primaryPhotoUrl(photoUrls?: string[]): string {
+  return normalizePhotoUrls(photoUrls)[0] ?? '';
+}
+
+export function hasExpandableTimelineDetail(input: {
+  photoUrls?: string[];
+  aiAdvice?: string | null;
+}): boolean {
+  return (
+    normalizePhotoUrls(input.photoUrls).length > 0 || Boolean(input.aiAdvice?.trim())
+  );
 }
 
 export function clampAiPhotoIndex(index: number | undefined, photoCount: number): number {

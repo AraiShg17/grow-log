@@ -5,6 +5,7 @@ import {
   type TimelineLog,
 } from '@/components/PlantTimeline/PlantTimeline';
 import { icons } from '@/icons';
+import { normalizePhotoUrls } from '@/lib/photos/normalizePhotos';
 import { formatDateTime } from '@/lib/utils/formatDate';
 import type { Plant, PlantLog } from '@/types/plant';
 import styles from './PlantDetail.module.css';
@@ -18,7 +19,7 @@ export function PlantDetail({ plant, logs }: PlantDetailProps) {
   const timelineLogs: TimelineLog[] = [
     {
       id: `${plant.id}-initial`,
-      photoUrls: plant.photoUrls,
+      photoUrls: normalizePhotoUrls(plant.photoUrls),
       aiPhotoIndex: plant.aiPhotoIndex,
       memo: '植物を登録しました。',
       aiAdvice: null,
@@ -28,7 +29,7 @@ export function PlantDetail({ plant, logs }: PlantDetailProps) {
     },
     ...logs.map((log) => ({
       id: log.id,
-      photoUrls: log.photoUrls,
+      photoUrls: normalizePhotoUrls(log.photoUrls),
       aiPhotoIndex: log.aiPhotoIndex,
       memo: log.memo,
       aiAdvice: log.aiAdvice,

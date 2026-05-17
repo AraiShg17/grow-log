@@ -1,4 +1,7 @@
 .toolbar {
+  --care-water: #0ea5e9;
+  --care-fertilize: #ea580c;
+
   display: flex;
   gap: var(--space-2);
 }
@@ -22,14 +25,31 @@
     transform 200ms ease;
 }
 
-.iconButtonActive {
-  border-color: color-mix(in oklab, var(--color-accent) 56%, var(--color-border));
-  color: var(--color-accent);
-  background-color: color-mix(in oklab, var(--color-accent) 12%, var(--color-surface-strong));
+.iconButtonWater {
+  color: var(--care-water);
+  border-color: var(--care-water);
 }
 
-.iconButton:focus-visible {
-  outline: 2px solid var(--color-accent);
+.iconButtonWaterActive {
+  background-color: color-mix(in oklab, var(--care-water) 20%, var(--color-surface-strong));
+}
+
+.iconButtonFertilize {
+  color: var(--care-fertilize);
+  border-color: var(--care-fertilize);
+}
+
+.iconButtonFertilizeActive {
+  background-color: color-mix(in oklab, var(--care-fertilize) 20%, var(--color-surface-strong));
+}
+
+.iconButtonWater:focus-visible {
+  outline: 2px solid var(--care-water);
+  outline-offset: 3px;
+}
+
+.iconButtonFertilize:focus-visible {
+  outline: 2px solid var(--care-fertilize);
   outline-offset: 3px;
 }
 
@@ -211,9 +231,16 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .iconButton:hover {
-    border-color: color-mix(in oklab, var(--color-accent) 56%, var(--color-border));
-    color: var(--color-accent);
+  .iconButtonWater:hover {
+    color: var(--care-water);
+    border-color: var(--care-water);
+    background-color: color-mix(in oklab, var(--care-water) 18%, var(--color-surface-strong));
+  }
+
+  .iconButtonFertilize:hover {
+    color: var(--care-fertilize);
+    border-color: var(--care-fertilize);
+    background-color: color-mix(in oklab, var(--care-fertilize) 18%, var(--color-surface-strong));
   }
 
   .closeButton:hover {

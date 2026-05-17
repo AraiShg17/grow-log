@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { createPlantLogAction, type ActionResult } from '@/app/actions/plants';
 import { Button } from '@/components/Button/Button';
 import { LoadingOverlay } from '@/components/LoadingOverlay/LoadingOverlay';
@@ -16,12 +16,13 @@ interface LogFormProps {
 export function LogForm({ plantId }: LogFormProps) {
   const action = createPlantLogAction.bind(null, plantId);
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [compressingPhotos, setCompressingPhotos] = useState(false);
 
   return (
     <>
       <LoadingOverlay active={pending} message="観察記録を保存しています…" />
-      <form action={formAction} className={styles.form}>
-        <PhotoInput required={false} />
+      <form action={formAction} encType="multipart/form-data" className={styles.form}>
+        <PhotoInput required={false} onCompressingChange={setCompressingPhotos} />
 
         <label className={styles.field}>
           <span className={styles.label}>メモ</span>
@@ -35,7 +36,7 @@ export function LogForm({ plantId }: LogFormProps) {
 
         {state.error ? <p className={styles.error}>{state.error}</p> : null}
 
-        <Button type="submit" disabled={pending} fullWidth>
+        <Button type="submit" disabled={pending || compressingPhotos} fullWidth>
           {pending ? '保存中…' : '記録を保存'}
         </Button>
       </form>

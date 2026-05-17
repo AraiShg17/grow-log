@@ -14,7 +14,7 @@ export default async function HomePage() {
   const items: PlantListItem[] = plants.map((p) => ({
     id: p.id,
     name: p.name,
-    firstPhotoUrl: p.firstPhotoUrl,
+    photoUrls: p.photoUrls,
     latestPhotoUrl: p.latestPhotoUrl,
     sunlightTag: p.sunlightTag,
     updatedAt: p.updatedAt.toISOString(),

@@ -8,8 +8,7 @@ export interface Plant {
   photoUrls: string[];
   /** AI 分析に使った写真の photoUrls 内インデックス */
   aiPhotoIndex: number;
-  /** @deprecated 互換用。photoUrls[0] と同値 */
-  firstPhotoUrl: string;
+  /** 最新の観察記録の先頭写真（一覧サムネ用・ログに写真があるときのみ） */
   latestPhotoUrl?: string;
   careGuide: string;
   /** 育てるうえで推奨する置き場の明るさ（日向／半日向／日陰）。撮影時の環境ではない。タグがない旧データは undefined */
@@ -21,15 +20,13 @@ export interface Plant {
 /** 一覧カード用（サーバー→クライアントでは updatedAt を ISO 文字列で渡す） */
 export type PlantListItem = Pick<
   Plant,
-  'id' | 'name' | 'firstPhotoUrl' | 'latestPhotoUrl' | 'sunlightTag'
+  'id' | 'name' | 'photoUrls' | 'latestPhotoUrl' | 'sunlightTag'
 > & { updatedAt: Date | string };
 
 export interface PlantLog {
   id: string;
   photoUrls: string[];
   aiPhotoIndex: number;
-  /** @deprecated 互換用。photoUrls[0] と同値 */
-  photoUrl: string;
   memo: string;
   aiAdvice: string;
   observedAt: Date;
@@ -38,9 +35,8 @@ export interface PlantLog {
 
 export interface PlantDocument {
   name: string;
-  photoUrls?: string[];
-  aiPhotoIndex?: number;
-  firstPhotoUrl: string;
+  photoUrls: string[];
+  aiPhotoIndex: number;
   careGuide: string;
   /** 育てるうえで推奨する置き場の明るさ（撮影時の環境ではない） */
   sunlightTag?: SunlightTagId;
@@ -51,9 +47,8 @@ export interface PlantDocument {
 }
 
 export interface PlantLogDocument {
-  photoUrls?: string[];
-  aiPhotoIndex?: number;
-  photoUrl: string;
+  photoUrls: string[];
+  aiPhotoIndex: number;
   memo: string;
   aiAdvice?: string;
   observedAt: Timestamp;

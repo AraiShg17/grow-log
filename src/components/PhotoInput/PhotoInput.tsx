@@ -24,13 +24,19 @@ interface PhotoEntry {
 
 interface PhotoInputProps {
   required?: boolean;
+  onPhotoCountChange?: (count: number) => void;
+  onCompressingChange?: (compressing: boolean) => void;
 }
 
 function createEntryId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export function PhotoInput({ required = true }: PhotoInputProps) {
+export function PhotoInput({
+  required = true,
+  onPhotoCountChange,
+  onCompressingChange,
+}: PhotoInputProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [entries, setEntries] = useState<PhotoEntry[]>([]);
@@ -55,6 +61,18 @@ export function PhotoInput({ required = true }: PhotoInputProps) {
       }
     };
   }, [entries]);
+
+  useEffect(() => {
+    syncInputFiles(entries);
+  }, [entries, syncInputFiles]);
+
+  useEffect(() => {
+    onPhotoCountChange?.(entries.length);
+  }, [entries.length, onPhotoCountChange]);
+
+  useEffect(() => {
+    onCompressingChange?.(compressing);
+  }, [compressing, onCompressingChange]);
 
   const addFiles = useCallback(
     async (files: File[]) => {
@@ -103,7 +121,6 @@ export function PhotoInput({ required = true }: PhotoInputProps) {
       return;
     }
     await addFiles(files);
-    event.target.value = '';
   }
 
   async function handleDrop(event: DragEvent<HTMLLabelElement>) {

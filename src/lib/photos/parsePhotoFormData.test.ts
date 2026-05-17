@@ -16,6 +16,13 @@ describe('parsePhotoFilesFromFormData', () => {
     expect(parsePhotoFilesFromFormData(formData)).toHaveLength(1);
   });
 
+  it('accepts a single file', () => {
+    const formData = new FormData();
+    formData.append('photos', new File(['a'], 'a.jpg', { type: 'image/jpeg' }));
+
+    expect(parsePhotoFilesFromFormData(formData)).toHaveLength(1);
+  });
+
   it('caps at MAX_PHOTOS_PER_ENTRY', () => {
     const formData = new FormData();
     for (let i = 0; i < MAX_PHOTOS_PER_ENTRY + 2; i += 1) {

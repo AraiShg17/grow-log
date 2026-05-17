@@ -12,7 +12,7 @@ interface PlantCardProps {
 }
 
 export function PlantCard({ plant }: PlantCardProps) {
-  const photoUrl = plant.latestPhotoUrl ?? plant.firstPhotoUrl;
+  const photoUrl = plant.latestPhotoUrl ?? plant.photoUrls[0] ?? '';
   const sunlightLabel = getSunlightTagLabel(plant.sunlightTag);
   const hasPhoto = Boolean(photoUrl);
 

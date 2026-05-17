@@ -107,7 +107,8 @@ export function PlantCareQuickActions({ plants }: PlantCareQuickActionsProps) {
           type="button"
           className={[
             styles.iconButton,
-            activeKind === 'water' ? styles.iconButtonActive : '',
+            styles.iconButtonWater,
+            activeKind === 'water' ? styles.iconButtonWaterActive : '',
           ]
             .filter(Boolean)
             .join(' ')}
@@ -121,7 +122,8 @@ export function PlantCareQuickActions({ plants }: PlantCareQuickActionsProps) {
           type="button"
           className={[
             styles.iconButton,
-            activeKind === 'fertilize' ? styles.iconButtonActive : '',
+            styles.iconButtonFertilize,
+            activeKind === 'fertilize' ? styles.iconButtonFertilizeActive : '',
           ]
             .filter(Boolean)
             .join(' ')}
