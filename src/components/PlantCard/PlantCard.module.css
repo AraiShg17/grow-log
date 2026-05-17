@@ -28,7 +28,7 @@
 
 .imageWrap {
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 2;
   background: var(--color-bg-elevated);
 }
 
@@ -38,16 +38,45 @@
 }
 
 .body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   padding: var(--space-4);
+}
+
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .name {
   margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 1.125rem;
+  line-height: 1.25;
+}
+
+.sunlightTag {
+  flex: 0 0 auto;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.0625rem 0.35rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-text);
+  background: color-mix(in oklab, var(--color-accent) 22%, var(--color-surface));
+  border: 1px solid color-mix(in oklab, var(--color-accent) 38%, var(--color-border));
 }
 
 .meta {
-  margin: var(--space-3) 0 0;
+  margin: var(--space-2) 0 0;
   font-size: 0.875rem;
   color: var(--color-text-muted);
 }

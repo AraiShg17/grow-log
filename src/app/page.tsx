@@ -1,13 +1,23 @@
 import { Link } from 'next-view-transitions';
+import { PlantListBrowse } from '@/components/PlantListBrowse/PlantListBrowse';
 import { PageShell } from '@/components/PageShell/PageShell';
-import { PlantCard } from '@/components/PlantCard/PlantCard';
 import { listPlants } from '@/lib/firestore/plants';
+import type { PlantListItem } from '@/types/plant';
 import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const plants = await listPlants();
+
+  const items: PlantListItem[] = plants.map((p) => ({
+    id: p.id,
+    name: p.name,
+    firstPhotoUrl: p.firstPhotoUrl,
+    latestPhotoUrl: p.latestPhotoUrl,
+    sunlightTag: p.sunlightTag,
+    updatedAt: p.updatedAt.toISOString(),
+  }));
 
   return (
     <PageShell title="植物一覧">
@@ -19,13 +29,7 @@ export default async function HomePage() {
           </Link>
         </div>
       ) : (
-        <ul className={styles.grid}>
-          {plants.map((plant) => (
-            <li key={plant.id}>
-              <PlantCard plant={plant} />
-            </li>
-          ))}
-        </ul>
+        <PlantListBrowse plants={items} />
       )}
     </PageShell>
   );

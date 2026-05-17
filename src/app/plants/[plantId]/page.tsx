@@ -21,7 +21,13 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
   return (
     <PageShell
       title={plant.name}
-      titleContent={<PlantManagePanel plantId={plant.id} plantName={plant.name} />}
+      titleContent={
+        <PlantManagePanel
+          plantId={plant.id}
+          plantName={plant.name}
+          sunlightTag={plant.sunlightTag}
+        />
+      }
     >
       <PlantDetail plant={plant} logs={logs} />
     </PageShell>

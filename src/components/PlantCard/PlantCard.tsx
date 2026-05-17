@@ -1,15 +1,19 @@
+'use client';
+
 import Image from 'next/image';
 import { Link } from 'next-view-transitions';
+import { getSunlightTagLabel } from '@/lib/plants/sunlightTags';
 import { formatDate } from '@/lib/utils/formatDate';
-import type { Plant } from '@/types/plant';
+import type { PlantListItem } from '@/types/plant';
 import styles from './PlantCard.module.css';
 
 interface PlantCardProps {
-  plant: Plant;
+  plant: PlantListItem;
 }
 
 export function PlantCard({ plant }: PlantCardProps) {
   const photoUrl = plant.latestPhotoUrl ?? plant.firstPhotoUrl;
+  const sunlightLabel = getSunlightTagLabel(plant.sunlightTag);
 
   return (
     <article className={styles.card}>
@@ -24,7 +28,17 @@ export function PlantCard({ plant }: PlantCardProps) {
           />
         </div>
         <div className={styles.body}>
-          <h2 className={styles.name}>{plant.name}</h2>
+          <div className={styles.titleRow}>
+            <h2 className={styles.name}>{plant.name}</h2>
+            {sunlightLabel ? (
+              <span
+                className={styles.sunlightTag}
+                aria-label={`推奨の置き場: ${sunlightLabel}`}
+              >
+                {sunlightLabel}
+              </span>
+            ) : null}
+          </div>
           <p className={styles.meta}>更新 {formatDate(plant.updatedAt)}</p>
         </div>
       </Link>

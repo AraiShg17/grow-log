@@ -16,7 +16,7 @@ export function PlantForm() {
     <>
       <LoadingOverlay
         active={pending}
-        message="写真をアップロードして AI が育成方法を作成しています…"
+        message="植物名と写真から種を推定し、置き場の推奨タグと育成ガイドを作成しています…"
       />
       <form action={formAction} className={styles.form}>
         <label className={styles.field}>
@@ -34,7 +34,7 @@ export function PlantForm() {
         {state.error ? <p className={styles.error}>{state.error}</p> : null}
 
         <Button type="submit" disabled={pending} fullWidth>
-          {pending ? 'AIが育成方法を生成中…' : '登録する'}
+          {pending ? 'AIが分析・生成中…' : '登録する'}
         </Button>
       </form>
     </>

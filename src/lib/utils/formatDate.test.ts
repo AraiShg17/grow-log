@@ -7,6 +7,12 @@ describe('formatDate', () => {
     expect(result).toContain('2026');
     expect(result).toContain('17');
   });
+
+  it('accepts ISO date string', () => {
+    const result = formatDate('2026-05-17T12:00:00+09:00');
+    expect(result).toContain('2026');
+    expect(result).toContain('17');
+  });
 });
 
 describe('formatDateTime', () => {

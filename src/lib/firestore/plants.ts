@@ -1,16 +1,22 @@
 import { FieldValue, Timestamp, type Query } from 'firebase-admin/firestore';
 import { getDb } from '@/lib/firebase/admin';
+import { isSunlightTagId, type SunlightTagId } from '@/lib/plants/sunlightTags';
 import type { Plant, PlantDocument, PlantLog, PlantLogDocument } from '@/types/plant';
 
 const PLANTS_COLLECTION = 'plants';
 
 function toPlant(id: string, data: PlantDocument, latestPhotoUrl?: string): Plant {
+  const rawTag = data.sunlightTag;
+  const sunlightTag =
+    typeof rawTag === 'string' && isSunlightTagId(rawTag) ? rawTag : undefined;
+
   return {
     id,
     name: data.name,
     firstPhotoUrl: data.firstPhotoUrl,
     latestPhotoUrl,
     careGuide: data.careGuide,
+    sunlightTag,
     createdAt: data.createdAt.toDate(),
     updatedAt: data.updatedAt.toDate(),
   };
@@ -61,12 +67,14 @@ export async function createPlant(input: {
   name: string;
   firstPhotoUrl: string;
   careGuide: string;
+  sunlightTag: SunlightTagId;
 }): Promise<string> {
   const now = FieldValue.serverTimestamp();
   const ref = await getDb().collection(PLANTS_COLLECTION).add({
     name: input.name,
     firstPhotoUrl: input.firstPhotoUrl,
     careGuide: input.careGuide,
+    sunlightTag: input.sunlightTag,
     createdAt: now,
     updatedAt: now,
   });
@@ -80,15 +88,10 @@ export async function updatePlant(
     name: string;
   },
 ): Promise<void> {
-  const data: {
-    name: string;
-    updatedAt: FieldValue;
-  } = {
+  await getDb().collection(PLANTS_COLLECTION).doc(plantId).update({
     name: input.name,
     updatedAt: FieldValue.serverTimestamp(),
-  };
-
-  await getDb().collection(PLANTS_COLLECTION).doc(plantId).update(data);
+  });
 }
 
 export async function listPlantLogs(plantId: string, limit = 20): Promise<PlantLog[]> {

@@ -1,0 +1,173 @@
+.searchAccordion {
+  display: grid;
+  margin-bottom: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-strong);
+  overflow: clip;
+}
+
+.searchAccordion::details-content {
+  height: 0;
+  opacity: 0;
+  overflow: clip;
+  transition:
+    height 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 180ms ease,
+    content-visibility 240ms allow-discrete;
+}
+
+.searchAccordion[open]::details-content {
+  height: auto;
+  opacity: 1;
+}
+
+.searchSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  list-style: none;
+  background-color: var(--color-bg-elevated);
+  transition: background-color 200ms ease;
+}
+
+.searchSummary:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.searchSummary::-webkit-details-marker {
+  display: none;
+}
+
+.searchSummary::marker {
+  content: '';
+}
+
+.searchSummary::after {
+  content: '';
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-left: auto;
+  border-right: 2px solid var(--color-text-muted);
+  border-bottom: 2px solid var(--color-text-muted);
+  transform: rotate(45deg) translateY(-0.125rem);
+  transition: transform 200ms ease;
+}
+
+.searchAccordion[open] .searchSummary::after {
+  transform: rotate(-135deg) translateY(0.125rem);
+}
+
+.searchAccordion[open] .searchSummary {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.searchAccordionBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.searchInput {
+  width: stretch;
+  width: -webkit-fill-available;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text);
+  font-size: 1rem;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.searchInput:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.filterBlock {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.chipActive {
+  border-color: color-mix(in oklab, var(--color-accent) 55%, var(--color-border));
+  background: color-mix(in oklab, var(--color-accent) 18%, var(--color-surface));
+  color: var(--color-text);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .searchSummary:hover {
+    background-color: color-mix(in oklab, var(--color-bg-elevated) 88%, #ffffff);
+  }
+
+  .searchInput:hover {
+    border-color: color-mix(in oklab, var(--color-accent) 52%, var(--color-border));
+    background-color: color-mix(in oklab, var(--color-bg-elevated) 86%, #ffffff);
+  }
+
+  .chip:hover {
+    border-color: color-mix(in oklab, var(--color-accent) 48%, var(--color-border));
+    background: var(--color-surface-strong);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .searchInput:active {
+    border-color: color-mix(in oklab, var(--color-accent) 52%, var(--color-border));
+    background-color: color-mix(in oklab, var(--color-bg-elevated) 92%, #ffffff);
+  }
+
+  .chip:active {
+    transform: scale(0.98);
+    filter: brightness(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .searchAccordion::details-content {
+    transition: none;
+  }
+}

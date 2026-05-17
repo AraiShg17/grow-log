@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { toActionErrorMessage } from '@/lib/errors/actionError';
-import { generateCareGuide } from '@/lib/openai/careGuide';
+import { generatePlantRegistrationBundle } from '@/lib/openai/careGuide';
 import { generateLogAdvice } from '@/lib/openai/logAdvice';
 import {
   createPlant,
@@ -42,15 +42,16 @@ export async function createPlantAction(
     const mimeType = photo.type || 'image/jpeg';
     const photoBuffer = Buffer.from(await photo.arrayBuffer());
 
-    const [photoUrl, careGuide] = await Promise.all([
+    const [photoUrl, bundle] = await Promise.all([
       uploadPlantPhotoBuffer(photoBuffer, mimeType, 'plants'),
-      generateCareGuide({ name, photoBuffer, mimeType }),
+      generatePlantRegistrationBundle({ name, photoBuffer, mimeType }),
     ]);
 
     const plantId = await createPlant({
       name,
       firstPhotoUrl: photoUrl,
-      careGuide,
+      careGuide: bundle.careGuide,
+      sunlightTag: bundle.sunlightTag,
     });
 
     revalidatePath('/');
