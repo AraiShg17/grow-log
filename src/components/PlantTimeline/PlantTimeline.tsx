@@ -26,8 +26,7 @@ interface PlantTimelineProps {
 
 export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProps) {
   const sortedLogs = [...logs].sort(
-    (a, b) =>
-      new Date(b.observedAtIso).getTime() - new Date(a.observedAtIso).getTime(),
+    (a, b) => new Date(b.observedAtIso).getTime() - new Date(a.observedAtIso).getTime(),
   );
 
   return (

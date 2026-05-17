@@ -102,8 +102,6 @@ body {
     'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, sans-serif;
   color: var(--color-text);
   background-color: transparent;
-  text-autospace: normal;
-  -webkit-font-smoothing: antialiased;
 }
 
 body::before {
