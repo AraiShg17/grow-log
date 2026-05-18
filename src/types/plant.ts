@@ -54,3 +54,26 @@ export interface PlantLogDocument {
   observedAt: Timestamp;
   createdAt: Timestamp;
 }
+
+export type PlantChatRole = 'user' | 'assistant';
+
+export interface PlantChatMessage {
+  id: string;
+  role: PlantChatRole;
+  content: string;
+  createdAt: Date;
+}
+
+/** クライアントへ渡すチャットメッセージ */
+export type PlantChatMessageDto = {
+  id: string;
+  role: PlantChatRole;
+  content: string;
+  createdAt: string;
+};
+
+export interface PlantChatMessageDocument {
+  role: PlantChatRole;
+  content: string;
+  createdAt: Timestamp;
+}

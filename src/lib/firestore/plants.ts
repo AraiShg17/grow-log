@@ -160,34 +160,16 @@ export async function createPlantLog(
 }
 
 export async function deletePlantWithLogs(plantId: string): Promise<void> {
+  const { deleteSubcollection } = await import('@/lib/firestore/deleteSubcollection');
+  const { deletePlantChatMessages } = await import('@/lib/firestore/plantChat');
+
   const db = getDb();
   const plantRef = db.collection(PLANTS_COLLECTION).doc(plantId);
-  const logsSnapshot = await plantRef.collection('logs').get();
 
-  let batch = db.batch();
-  let operationCount = 0;
+  await Promise.all([
+    deleteSubcollection(plantRef.collection('logs')),
+    deletePlantChatMessages(plantId),
+  ]);
 
-  async function commitIfNeeded() {
-    if (operationCount === 0) {
-      return;
-    }
-
-    await batch.commit();
-    batch = db.batch();
-    operationCount = 0;
-  }
-
-  for (const logDoc of logsSnapshot.docs) {
-    batch.delete(logDoc.ref);
-    operationCount += 1;
-
-    if (operationCount >= 450) {
-      await commitIfNeeded();
-    }
-  }
-
-  batch.delete(plantRef);
-  operationCount += 1;
-
-  await commitIfNeeded();
+  await plantRef.delete();
 }

@@ -1,7 +1,26 @@
+import { parseInlineMarkdownLinks } from '@/lib/markdown/parseInlineMarkdownLinks';
 import styles from './MarkdownContent.module.css';
 
 interface MarkdownContentProps {
   content: string;
+}
+
+function renderInline(text: string) {
+  return parseInlineMarkdownLinks(text).map((part, index) =>
+    part.type === 'link' ? (
+      <a
+        key={index}
+        href={part.href}
+        className={styles.link}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {part.label}
+      </a>
+    ) : (
+      <span key={index}>{part.value}</span>
+    ),
+  );
 }
 
 export function MarkdownContent({ content }: MarkdownContentProps) {
@@ -23,14 +42,14 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
           return (
             <ul key={index} className={styles.list}>
               {items.map((item, itemIndex) => (
-                <li key={itemIndex}>{item}</li>
+                <li key={itemIndex}>{renderInline(item)}</li>
               ))}
             </ul>
           );
         }
         return (
           <p key={index} className={styles.paragraph}>
-            {trimmed}
+            {renderInline(trimmed)}
           </p>
         );
       })}

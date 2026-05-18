@@ -1,5 +1,6 @@
 import { getModel, getOpenAiClient } from '@/lib/openai/client';
 import {
+  buildFertilizerProductClarityRules,
   buildHonestHealthAssessmentRules,
   buildPhotoPlantVerificationRules,
   buildRegistrationMismatchMarkdown,
@@ -25,6 +26,8 @@ ${mismatchExample}
 
 照合に成功した場合のみ:
 ${honestRules}
+
+${buildFertilizerProductClarityRules()}
 - 写真は葉の形・質感・全体の様子から種類の**補助推定**に使う（部屋の明るさだけで日照タグを決めない）。
 - この回答は登録時の「共通育成ガイド」です。個体の健康診断や今日すぐやる対応は書かない。
 - 種類に確信が低いときは「種類: 〇〇（推定）」のように書く。照合が通ったことの説明は不要。
@@ -45,7 +48,7 @@ careGuideMarkdown は次の Markdown 構造**のみ**にしてください。見
 （適温、寒さ暑さ、乾燥対策）
 
 ### 肥料と植え替え
-（肥料の時期、植え替え目安）
+（肥料の時期・量・植え替え目安。肥料を書くときは【肥料・液肥など購入品を書くときのルール】に従い、具体商品名と購入URLを1〜2点含める）
 
 ### 注意点
 （弱りやすいサイン、害虫、初心者が間違えやすいこと）`;

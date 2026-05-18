@@ -31,6 +31,19 @@ export function buildSkipVerificationReportOnSuccessRules(): string {
 「判断できます」「一致しています」「ラベルも〜」など、照合がうまくいったことの説明は書かず、いきなり観察内容・育成アドバイスに入ってください。`;
 }
 
+/** 肥料など「何を買うか」がわかる具体例（育成ガイド・観察アドバイス共通） */
+export function buildFertilizerProductClarityRules(): string {
+  return `【肥料・液肥など購入品を書くときのルール】
+肥料・液肥・緩効性肥料・有機肥料・土の改良材などを**推奨・言及する場合**、「肥料をあげる」だけでは不十分です。初心者が「どれを買えばいいか」イメージできるよう、次を守ってください。
+
+- **具体商品**: 日本で入手しやすい製品を1〜2点（メーカー名＋製品名。例: マグアンプK、ハイポネックス 原液 など）
+- **用途の一言**: なぜその品がこの植物・時期向きか（観葉用・多肉用・有機・NPKの目安など）
+- **購入URL**: Markdown リンク \`[表示名](https://...)\` で実在する販売ページを示す（Amazon.co.jp・楽天・メーカー公式・ホームセンター通販など）
+- URLを特定できない場合は、実在が確実な検索ページ（例: \`[Amazonで「ハイポネックス 原液」を検索](https://www.amazon.co.jp/s?k=...)\`）を使う
+- **捏造禁止**: 存在しない商品名・架空URL・短縮URLは使わない。確信が低い場合は商品名と店頭での選び方（「観葉植物用」「窒素控えめ」など）だけ書く
+- 肥料の話題がない節では無理に商品例を入れない`;
+}
+
 export function buildHonestHealthAssessmentRules(options?: {
   includeMemoEmpathy?: boolean;
 }): string {

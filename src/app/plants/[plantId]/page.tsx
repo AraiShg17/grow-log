@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation';
 import { PageShell } from '@/components/PageShell/PageShell';
 import { PlantDetail } from '@/components/PlantDetail/PlantDetail';
 import { PlantManagePanel } from '@/components/PlantManagePanel/PlantManagePanel';
+import { listPlantChatMessages } from '@/lib/firestore/plantChat';
+import { toPlantChatMessageDto } from '@/lib/plantChat/serializePlantChatMessage';
+import { PlantChat } from '@/components/PlantChat/PlantChat';
 import { getPlant, listPlantLogs } from '@/lib/firestore/plants';
 
 interface PlantDetailPageProps {
@@ -12,7 +15,11 @@ export const dynamic = 'force-dynamic';
 
 export default async function PlantDetailPage({ params }: PlantDetailPageProps) {
   const { plantId } = await params;
-  const [plant, logs] = await Promise.all([getPlant(plantId), listPlantLogs(plantId)]);
+  const [plant, logs, chatMessages] = await Promise.all([
+    getPlant(plantId),
+    listPlantLogs(plantId),
+    listPlantChatMessages(plantId),
+  ]);
 
   if (!plant) {
     notFound();
@@ -30,6 +37,11 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
       }
     >
       <PlantDetail plant={plant} logs={logs} />
+      <PlantChat
+        plantId={plant.id}
+        plantName={plant.name}
+        initialMessages={chatMessages.map(toPlantChatMessageDto)}
+      />
     </PageShell>
   );
 }

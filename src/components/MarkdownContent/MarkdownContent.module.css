@@ -18,3 +18,13 @@
 .list {
   padding-left: 1.25rem;
 }
+
+.link {
+  color: var(--color-primary, #15803d);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.link:hover {
+  opacity: 0.85;
+}
