@@ -27,4 +27,16 @@ describe('parseCompactSections', () => {
     expect(result.detail).toBeNull();
     expect(result.detailSections).toEqual([]);
   });
+
+  it('does not split plain multi-paragraph text', () => {
+    const content = `いまの葉は緑で元気です。
+
+前回より土の乾きが早いので、水やりの間隔を少し空けて様子を見ましょう。
+
+急いで直すことはありません。`;
+    const result = parseCompactSections(content);
+    expect(result.summary).toBe(content);
+    expect(result.detail).toBeNull();
+    expect(result.detailSections).toEqual([]);
+  });
 });

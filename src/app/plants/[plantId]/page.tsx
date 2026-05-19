@@ -17,7 +17,7 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
   const { plantId } = await params;
   const [plant, logs, chatMessages] = await Promise.all([
     getPlant(plantId),
-    listPlantLogs(plantId),
+    listPlantLogs(plantId, 0),
     listPlantChatMessages(plantId),
   ]);
 

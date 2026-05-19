@@ -1,11 +1,17 @@
 'use client';
 
 import { Link } from 'next-view-transitions';
-import { PhotoGallery } from '@/components/PhotoGallery/PhotoGallery';
-import { useMemo } from 'react';
-import { CompactMarkdownContent } from '@/components/CompactMarkdownContent/CompactMarkdownContent';
+import {
+  PhotoGallery,
+  type PhotoGalleryItem,
+} from '@/components/PhotoGallery/PhotoGallery';
+import { PhotoSliderModal } from '@/components/PhotoSliderModal/PhotoSliderModal';
+import { useMemo, useState } from 'react';
+import { MarkdownContent } from '@/components/MarkdownContent/MarkdownContent';
+import { PlantLogDeleteButton } from '@/components/PlantLogDeleteButton/PlantLogDeleteButton';
 import { PanelTitle } from '@/components/PanelTitle/PanelTitle';
 import { icons } from '@/icons';
+import type { PlantPhotoItem } from '@/lib/photos/collectPlantPhotos';
 import { hasExpandableTimelineDetail } from '@/lib/photos/normalizePhotos';
 import styles from './PlantTimeline.module.css';
 
@@ -17,16 +23,43 @@ export interface TimelineLog {
   aiAdvice: string | null;
   observedAtIso: string;
   dateLabel: string;
-  detailLabel: string | null;
+  /** Firestore の観察記録のみ削除可能（登録行は false） */
+  canDelete: boolean;
 }
 
 interface PlantTimelineProps {
+  plantId: string;
   plantName: string;
   logs: TimelineLog[];
+  allPhotos: readonly PlantPhotoItem[];
   addLogHref: string;
 }
 
-export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProps) {
+function toGalleryItems(log: TimelineLog): PhotoGalleryItem[] {
+  return log.photoUrls.map((url, index) => ({
+    id: `${log.id}-${index}`,
+    url,
+    isAiPhoto: typeof log.aiPhotoIndex === 'number' && index === log.aiPhotoIndex,
+  }));
+}
+
+function renderDeleteButton(plantId: string, log: TimelineLog) {
+  if (!log.canDelete) {
+    return null;
+  }
+  return <PlantLogDeleteButton plantId={plantId} logId={log.id} />;
+}
+
+export function PlantTimeline({
+  plantId,
+  plantName,
+  logs,
+  allPhotos,
+  addLogHref,
+}: PlantTimelineProps) {
+  const [sliderOpen, setSliderOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+
   const sortedLogs = useMemo(
     () =>
       [...logs].sort(
@@ -35,6 +68,15 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
       ),
     [logs],
   );
+
+  function openPhoto(photoId: string) {
+    const index = allPhotos.findIndex((photo) => photo.id === photoId);
+    if (index < 0) {
+      return;
+    }
+    setActiveIndex(index);
+    setSliderOpen(true);
+  }
 
   return (
     <section className={styles.panel} aria-labelledby="timeline-heading">
@@ -58,6 +100,7 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
         <div className={styles.timelineLayout}>
           <ol className={styles.timelineList}>
             {sortedLogs.map((log) => {
+              const galleryItems = toGalleryItems(log);
               const hasDetail = hasExpandableTimelineDetail({
                 photoUrls: log.photoUrls,
                 aiAdvice: log.aiAdvice,
@@ -84,7 +127,10 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
                       .filter(Boolean)
                       .join(' ')}
                   >
-                    <div className={styles.timelineStatic}>{summaryRow}</div>
+                    <div className={styles.entryRow}>
+                      <div className={styles.timelineStatic}>{summaryRow}</div>
+                      {renderDeleteButton(plantId, log)}
+                    </div>
                   </li>
                 );
               }
@@ -96,35 +142,41 @@ export function PlantTimeline({ plantName, logs, addLogHref }: PlantTimelineProp
                     .filter(Boolean)
                     .join(' ')}
                 >
-                  <details className={styles.timelineDetails} open>
-                    <summary className={styles.timelineSummary}>{summaryRow}</summary>
-                    <article className={styles.detailCard} aria-live="polite">
-                      {log.photoUrls.length > 0 ? (
-                        <PhotoGallery
-                          photoUrls={log.photoUrls}
-                          alt={`${plantName}の観察写真`}
-                          aiPhotoIndex={log.aiPhotoIndex}
-                        />
-                      ) : null}
-                      <div className={styles.detailBody}>
-                        {log.photoUrls.length > 0 && log.memo ? (
-                          <p className={styles.memo}>{log.memo}</p>
-                        ) : null}
-                        {log.aiAdvice?.trim() ? (
-                          <CompactMarkdownContent
-                            content={log.aiAdvice}
-                            detailLabel={log.detailLabel ?? '詳細を見る'}
+                  <div className={styles.entryRow}>
+                    <details className={styles.timelineDetails} open>
+                      <summary className={styles.timelineSummary}>{summaryRow}</summary>
+                      <article className={styles.detailCard} aria-live="polite">
+                        {galleryItems.length > 0 ? (
+                          <PhotoGallery
+                            items={galleryItems}
+                            alt={`${plantName}の観察写真`}
+                            onPhotoClick={openPhoto}
                           />
                         ) : null}
-                      </div>
-                    </article>
-                  </details>
+                        {log.aiAdvice?.trim() ? (
+                          <div className={styles.detailBody}>
+                            <MarkdownContent content={log.aiAdvice} />
+                          </div>
+                        ) : null}
+                      </article>
+                    </details>
+                    {renderDeleteButton(plantId, log)}
+                  </div>
                 </li>
               );
             })}
           </ol>
         </div>
       )}
+
+      <PhotoSliderModal
+        open={sliderOpen}
+        photos={allPhotos}
+        activeIndex={activeIndex}
+        plantName={plantName}
+        onClose={() => setSliderOpen(false)}
+        onIndexChange={setActiveIndex}
+      />
     </section>
   );
 }

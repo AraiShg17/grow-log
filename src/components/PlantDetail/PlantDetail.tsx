@@ -5,6 +5,7 @@ import {
   type TimelineLog,
 } from '@/components/PlantTimeline/PlantTimeline';
 import { icons } from '@/icons';
+import { collectPlantPhotos } from '@/lib/photos/collectPlantPhotos';
 import { normalizePhotoUrls } from '@/lib/photos/normalizePhotos';
 import { formatDateTime } from '@/lib/utils/formatDate';
 import type { Plant, PlantLog } from '@/types/plant';
@@ -25,7 +26,7 @@ export function PlantDetail({ plant, logs }: PlantDetailProps) {
       aiAdvice: null,
       observedAtIso: plant.createdAt.toISOString(),
       dateLabel: formatDateTime(plant.createdAt),
-      detailLabel: null,
+      canDelete: false,
     },
     ...logs.map((log) => ({
       id: log.id,
@@ -35,17 +36,20 @@ export function PlantDetail({ plant, logs }: PlantDetailProps) {
       aiAdvice: log.aiAdvice,
       observedAtIso: log.observedAt.toISOString(),
       dateLabel: formatDateTime(log.observedAt),
-      detailLabel: 'アドバイスの詳細を見る',
+      canDelete: true,
     })),
   ];
   const addLogHref = `/plants/${plant.id}/logs/new`;
+  const allPhotos = collectPlantPhotos(plant, logs);
 
   return (
     <div className={styles.container}>
       <div className={styles.detailGrid}>
         <PlantTimeline
+          plantId={plant.id}
           plantName={plant.name}
           logs={timelineLogs}
+          allPhotos={allPhotos}
           addLogHref={addLogHref}
         />
 

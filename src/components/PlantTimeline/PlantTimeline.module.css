@@ -67,6 +67,18 @@
   position: relative;
 }
 
+.entryRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.entryRow > .timelineDetails,
+.entryRow > .timelineStatic {
+  flex: 1;
+  min-width: 0;
+}
+
 .timelineDetails {
   display: grid;
 }
@@ -172,9 +184,6 @@
 .detailCard {
   overflow: hidden;
   margin: var(--space-3) 0 0 calc(1rem + var(--space-3));
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  background: color-mix(in oklab, var(--color-bg-elevated) 84%, transparent);
 }
 
 .imageWrap {
@@ -190,11 +199,7 @@
 .detailBody {
   display: grid;
   gap: var(--space-3);
-  padding: var(--space-4);
-}
-
-.memo {
-  margin: 0;
+  padding-block: var(--space-4);
 }
 
 @media (hover: hover) and (pointer: fine) {

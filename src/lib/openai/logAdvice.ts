@@ -1,6 +1,10 @@
 import { getModel, getOpenAiClient } from '@/lib/openai/client';
+import { formatPastLogsForAdvice } from '@/lib/openai/formatPastLogsForAdvice';
+import {
+  parseLogAdviceResponse,
+  type LogAdviceGenerationResult,
+} from '@/lib/openai/parseLogAdviceResponse';
 import type { PlantLog } from '@/types/plant';
-import { parseCompactSections } from '@/lib/markdown/parseCompactSections';
 import {
   buildFertilizerProductClarityRules,
   buildHonestHealthAssessmentRules,
@@ -12,29 +16,100 @@ function bufferToDataUrl(buffer: Buffer, mimeType: string): string {
   return `data:${mimeType};base64,${buffer.toString('base64')}`;
 }
 
-function formatPastLogs(logs: PlantLog[]): string {
-  if (logs.length === 0) {
-    return '（過去ログなし）';
-  }
+const NO_REPEAT_CARE_GUIDE_IN_OUTPUT = `【育成ガイドの扱い（重要）】
+下文の「育成方法（登録時）」全文は**背景・照合の参考**として読んでよい。
+ただし aiAdvice には、水やり頻度・基本的な置き場・肥料の時期など**育成ガイドと重なる一般論を繰り返し書かない**こと。ユーザーは詳細画面で育成ガイドを既に読める。
+aiAdvice では**今回の写真・メモ・過去記録との変化**にだけ答える。`;
 
-  return logs
-    .map((log, index) => {
-      const advice = log.aiAdvice?.trim() ?? '';
-      const { summary } = parseCompactSections(advice);
-      const gist = advice
-        ? summary.slice(0, 120)
-        : (log.memo || '（メモなし）').slice(0, 120);
-      return `### ログ ${index + 1} (${log.observedAt.toISOString().slice(0, 10)})\nメモ: ${log.memo || 'なし'}\n要点: ${gist}`;
-    })
-    .join('\n\n');
-}
+const JSON_OUTPUT_RULES = `返却は次のキーだけを持つ JSON オブジェクト**のみ**（前置き・コードフェンス禁止）。
+- "aiAdvice": ユーザー向けアドバイス本文（照合失敗時は解析不可の Markdown）
+- "visualSnapshot": 照合**成功時のみ**、今回の写真から読み取れる客観的な状態メモ（次回比較用・150〜300字）。葉・茎・土の色・乾き・姿勢・目立つ変化など。アドバイス本文の繰り返しや「〜すべき」は書かない。照合失敗時は空文字 ""`;
 
-const LOG_ADVICE_SYSTEM = `あなたは植物の健康状態を観察するアドバイザーです。
+const LOG_ADVICE_SYSTEM_FIRST = `あなたは植物の健康状態を観察するアドバイザーです。
 作業順序は必ず (1) 写真と登録名の照合（内部） → (2) 照合成功時のみ写真ベースの観察アドバイスです。
 照合に失敗したときだけ「判断できない／一致しない」をユーザーに伝えてください。照合に成功したときは、一致したこと・種類が合うことの報告は書かないでください。
-照合成功時のみ、登録時の育成方法を背景情報として使い、一般論の繰り返しは避けてください。
+${NO_REPEAT_CARE_GUIDE_IN_OUTPUT}
 肥料・液肥などを勧めるときは、具体商品名と購入URLを示し「どれを買うか」がわかるようにしてください。
-必ず「## まとめ」と「## 詳細」を使い、「## 詳細」の中は「###」見出しごとの項目に分けてください。余計な前置きや締めの文章は不要です。初心者向けの日本語で書いてください。`;
+初回の観察記録では aiAdvice に必ず「## まとめ」と「## 詳細」を使い、「## 詳細」の中は「###」見出しごとに分けてください。
+${JSON_OUTPUT_RULES}`;
+
+const LOG_ADVICE_SYSTEM_FOLLOWUP = `あなたは植物の健康状態を観察するアドバイザーです。
+作業順序は必ず (1) 写真と登録名の照合（内部） → (2) 照合成功時のみ写真ベースの観察アドバイスです。
+照合に失敗したときだけ「判断できない／一致しない」をユーザーに伝えてください。照合に成功したときは、一致したこと・種類が合うことの報告は書かないでください。
+${NO_REPEAT_CARE_GUIDE_IN_OUTPUT}
+2回目以降の観察記録では、過去の「当時の写真から読み取った状態」と今回の写真を比較し、**いまどうなっているか**を中心に答えてください。
+aiAdvice は見出し・箇条書き・項目名ラベルは使わず、自然な文章（段落3〜5、合計200〜450字程度）で書いてください。
+${JSON_OUTPUT_RULES}`;
+
+function buildUnavailableSection(plantName: string): string {
+  const unavailableFormat = buildLogAnalysisUnavailableMarkdown(plantName);
+  return `---
+
+照合に失敗した場合: aiAdvice に次の解析不可フォーマット**のみ**を入れ、visualSnapshot は "" にしてください。
+
+${unavailableFormat}`;
+}
+
+function buildFirstLogSuccessSection(): string {
+  return `---
+
+照合に成功した場合のみ: aiAdvice は次の通常形式**のみ**で書いてください。
+写真から見える状態・リスク・次に取る行動を優先してください。照合の報告は書かないこと。
+
+## まとめ
+（箇条書き3〜5項目。メモがある場合は**1項目目だけ**メモへの短い共感）
+
+## 詳細
+### 現在の状態
+### 今すぐやること
+### 様子を見ること
+### 次回チェック
+### 注意点`;
+}
+
+function buildFollowUpSuccessSection(): string {
+  return `---
+
+照合に成功した場合のみ: aiAdvice は**プレーンテキストの文章のみ**で、次の流れで書いてください（見出し・箇条書き・「###」は禁止）。
+
+1. **いまどうなっているか** … 今回の写真（とメモがあれば一言の共感）から見える状態。過去の状態メモと比べて変化があれば自然に触れる。
+2. **それは普通か** … その状態がこの植物として問題ないか、季節・成長段階として自然か。問題なければ「このままでよい」とはっきり書く。
+3. **気になる点と改善** … 気になる所があるときだけ、何が気になるかと、**具体的にどうすれば改善できるか**を書く。問題がなければ「急いで直すことはない」と書く。
+
+育成ガイドの一般論の繰り返しはしない。肥料を勧める場合だけ【肥料・液肥など購入品を書くときのルール】に従う。`;
+}
+
+function buildUserPromptText(input: {
+  plantName: string;
+  careGuide: string;
+  memo: string;
+  pastLogs: PlantLog[];
+  isFollowUp: boolean;
+}): string {
+  const verification = buildPhotoPlantVerificationRules('登録名', input.plantName);
+  const honestRules = buildHonestHealthAssessmentRules();
+  const fertilizerRules = buildFertilizerProductClarityRules();
+
+  const pastSection = input.isFollowUp
+    ? `## 過去の観察記録（最大10件・古い順。写真は送っていない。状態メモとアドバイスを比較の材料にする）
+${formatPastLogsForAdvice(input.pastLogs)}`
+    : `## 過去の観察記録
+${formatPastLogsForAdvice(input.pastLogs)}`;
+
+  const sections = [
+    `植物名（登録名・テキスト）: ${input.plantName}`,
+    verification,
+    honestRules,
+    fertilizerRules,
+    `## 育成方法（登録時・全文・照合成功時のみ参照。aiAdvice にこの一般論を繰り返すな）\n${input.careGuide}`,
+    `## 今回のメモ\n${input.memo || '（なし）'}`,
+    pastSection,
+    buildUnavailableSection(input.plantName),
+    input.isFollowUp ? buildFollowUpSuccessSection() : buildFirstLogSuccessSection(),
+  ];
+
+  return sections.join('\n\n');
+}
 
 export async function generateLogAdvice(input: {
   plantName: string;
@@ -43,69 +118,29 @@ export async function generateLogAdvice(input: {
   photoBuffer: Buffer;
   mimeType: string;
   pastLogs: PlantLog[];
-}): Promise<string> {
+}): Promise<LogAdviceGenerationResult> {
+  const isFollowUp = input.pastLogs.length > 0;
   const imageUrl = bufferToDataUrl(input.photoBuffer, input.mimeType);
-  const verification = buildPhotoPlantVerificationRules('登録名', input.plantName);
-  const honestRules = buildHonestHealthAssessmentRules();
-  const unavailableFormat = buildLogAnalysisUnavailableMarkdown(input.plantName);
+  const userText = buildUserPromptText({
+    plantName: input.plantName,
+    careGuide: input.careGuide,
+    memo: input.memo,
+    pastLogs: input.pastLogs,
+    isFollowUp,
+  });
 
   const response = await getOpenAiClient().chat.completions.create({
     model: getModel(),
+    response_format: { type: 'json_object' },
     messages: [
-      { role: 'system', content: LOG_ADVICE_SYSTEM },
+      {
+        role: 'system',
+        content: isFollowUp ? LOG_ADVICE_SYSTEM_FOLLOWUP : LOG_ADVICE_SYSTEM_FIRST,
+      },
       {
         role: 'user',
         content: [
-          {
-            type: 'text',
-            text: `植物名（登録名・テキスト）: ${input.plantName}
-
-${verification}
-
-${honestRules}
-
-${buildFertilizerProductClarityRules()}
-
-## 育成方法（登録時・参考・照合成功時のみ参照）
-${input.careGuide}
-
-## 今回のメモ
-${input.memo || '（なし）'}
-
-## 過去ログ
-${formatPastLogs(input.pastLogs)}
-
----
-
-照合に失敗した場合: 次の解析不可フォーマット**のみ**を返してください（要点は維持し、表現は調整可）。
-
-${unavailableFormat}
-
----
-
-照合に成功した場合のみ: 次の通常形式**のみ**で回答してください。
-写真から見える状態・変化・リスク・次に取る行動を優先し、一般的な育て方の説明は避けてください。
-照合が通ったこと・登録名と写真が一致すること・ラベルが合うことなどの**報告は書かない**こと。
-
-## まとめ
-（箇条書き3〜5項目。メモがある場合は**1項目目だけ**メモへの短い共感。2項目目以降は写真に基づく状態・いま一番やること・次回見るポイント。照合の報告は含めない）
-
-## 詳細
-### 現在の状態
-（照合・種類一致の宣言から始めない。メモへの共感は最初に1〜2文まで。その後は葉・茎・土など写真に見える状態だけを、良い点と気になる点に分けて記述。確信が低い所は「推定」「可能性」を使う）
-
-### 今すぐやること
-（写真から読み取れる状態に基づく具体的対応。肥料・液肥を勧める場合は具体商品名と購入URLを含める。不要なら「急いで対応することはありません」と明記）
-
-### 様子を見ること
-（観察ポイントと判断基準。不確かな点は推定として書く）
-
-### 次回チェック
-（次に撮る場所・記録するとよいこと）
-
-### 注意点
-（写真から想定できるリスク。見えない脅威は断定せず、確認方法を書く）`,
-          },
+          { type: 'text', text: userText },
           {
             type: 'image_url',
             image_url: { url: imageUrl },
@@ -115,8 +150,13 @@ ${unavailableFormat}
     ],
   });
 
-  return (
-    response.choices[0]?.message?.content?.trim() ??
-    'アドバイスを生成できませんでした。'
-  );
+  const raw = response.choices[0]?.message?.content?.trim() ?? '';
+  if (!raw) {
+    return {
+      aiAdvice: 'アドバイスを生成できませんでした。',
+      visualSnapshot: '',
+    };
+  }
+
+  return parseLogAdviceResponse(raw);
 }

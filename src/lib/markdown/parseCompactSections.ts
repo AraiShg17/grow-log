@@ -38,17 +38,7 @@ export function parseCompactSections(content: string): CompactSections {
     return { summary, detail: null, detailSections: [] };
   }
 
-  const blocks = content.split(/\n{2,}/).filter((block) => block.trim());
-  if (blocks.length <= 2) {
-    return { summary: content.trim(), detail: null, detailSections: [] };
-  }
-
-  const detail = blocks.slice(2).join('\n\n').trim();
-  return {
-    summary: blocks.slice(0, 2).join('\n\n').trim(),
-    detail,
-    detailSections: parseDetailSections(detail),
-  };
+  return { summary: content.trim(), detail: null, detailSections: [] };
 }
 
 function parseDetailSections(detail: string): CompactDetailSection[] {

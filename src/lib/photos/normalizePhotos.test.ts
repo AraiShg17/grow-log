@@ -29,19 +29,22 @@ describe('primaryPhotoUrl', () => {
 });
 
 describe('hasExpandableTimelineDetail', () => {
-  it('is true when photoUrls exist', () => {
+  it('is false when only memo exists', () => {
+    expect(hasExpandableTimelineDetail({})).toBe(false);
+  });
+
+  it('is true when aiAdvice exists', () => {
     expect(
       hasExpandableTimelineDetail({
-        photoUrls: ['https://example.com/a.jpg'],
+        aiAdvice: '## まとめ\n- test',
       }),
     ).toBe(true);
   });
 
-  it('is true when aiAdvice exists without photos', () => {
+  it('is true when photos exist', () => {
     expect(
       hasExpandableTimelineDetail({
-        photoUrls: [],
-        aiAdvice: '## まとめ\n- test',
+        photoUrls: ['https://example.com/a.jpg'],
       }),
     ).toBe(true);
   });

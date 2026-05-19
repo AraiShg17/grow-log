@@ -8,8 +8,10 @@ import { generateLogAdvice } from '@/lib/openai/logAdvice';
 import {
   createPlant,
   createPlantLog,
+  deletePlantLog,
   deletePlantWithLogs,
   getPlant,
+  getPlantLog,
   listPlantLogs,
   updatePlant,
 } from '@/lib/firestore/plants';
@@ -19,6 +21,7 @@ import {
   validatePhotoFormData,
 } from '@/lib/photos/uploadPhotosFromFormData';
 import { getCareLogMemo, isCareLogKind } from '@/lib/plants/careLogMemos';
+import { normalizePhotoUrls } from '@/lib/photos/normalizePhotos';
 import { parsePhotoFilesFromFormData } from '@/lib/photos/parsePhotoFormData';
 import { deleteStorageObjectsByUrls } from '@/lib/storage/upload';
 
@@ -89,18 +92,19 @@ export async function createPlantLogAction(
   const observedAt = new Date();
 
   try {
-    const pastLogs = await listPlantLogs(plantId, 5);
+    const pastLogs = await listPlantLogs(plantId, 10);
     const files = parsePhotoFilesFromFormData(formData);
 
     let photoUrls: string[] = [];
     let aiPhotoIndex = 0;
     let aiAdvice = '';
+    let visualSnapshot: string | undefined;
 
     if (files.length > 0) {
       const uploaded = await uploadPhotosFromFormData(formData, 'logs');
       photoUrls = uploaded.photoUrls;
       aiPhotoIndex = uploaded.aiPhotoIndex;
-      aiAdvice = await generateLogAdvice({
+      const generated = await generateLogAdvice({
         plantName: plant.name,
         careGuide: plant.careGuide,
         memo,
@@ -108,6 +112,8 @@ export async function createPlantLogAction(
         mimeType: uploaded.aiMimeType,
         pastLogs,
       });
+      aiAdvice = generated.aiAdvice;
+      visualSnapshot = generated.visualSnapshot || undefined;
     } else if (!memo) {
       return {
         success: false,
@@ -120,6 +126,7 @@ export async function createPlantLogAction(
       aiPhotoIndex,
       memo,
       aiAdvice,
+      visualSnapshot,
       observedAt,
     });
 
@@ -208,6 +215,42 @@ export async function updatePlantAction(
     return {
       success: false,
       error: toActionErrorMessage(error, '植物の更新に失敗しました。'),
+    };
+  }
+}
+
+export async function deletePlantLogAction(
+  plantId: string,
+  logId: string,
+  _prevState: ActionResult,
+  _formData: FormData,
+): Promise<ActionResult> {
+  const plant = await getPlant(plantId);
+  if (!plant) {
+    return { success: false, error: '植物が見つかりません。' };
+  }
+
+  const log = await getPlantLog(plantId, logId);
+  if (!log) {
+    return { success: false, error: '観察記録が見つかりません。' };
+  }
+
+  try {
+    const photoUrls = normalizePhotoUrls(log.photoUrls);
+    if (photoUrls.length > 0) {
+      await deleteStorageObjectsByUrls(photoUrls);
+    }
+
+    await deletePlantLog(plantId, logId);
+
+    revalidatePath('/');
+    revalidatePath(`/plants/${plantId}`);
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: toActionErrorMessage(error, '観察記録の削除に失敗しました。'),
     };
   }
 }

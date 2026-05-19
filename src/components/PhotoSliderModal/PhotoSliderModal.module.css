@@ -1,0 +1,199 @@
+/* docs/dialog-element.md の @starting-style パターンに準拠 */
+
+.dialog {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  overscroll-behavior: contain;
+}
+
+.dialog::backdrop {
+  background: color-mix(in oklab, var(--color-bg) 45%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  backdrop-filter: blur(20px) saturate(1.35);
+  opacity: 0;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  transition:
+    opacity 0.3s ease,
+    overlay 0.3s ease allow-discrete,
+    display 0.3s ease allow-discrete;
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+.dialog[open]::backdrop {
+  opacity: 1;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  opacity: 0;
+  scale: 0.97;
+  transition:
+    opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    scale 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @starting-style {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+
+.dialog[open] .shell {
+  opacity: 1;
+  scale: 1;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in oklab, var(--color-surface-strong) 82%, transparent);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+}
+
+.meta {
+  min-width: 0;
+}
+
+.counter {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.dateLabel {
+  margin: var(--space-1) 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.closeButton,
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-surface-strong) 90%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--color-text);
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 0.25rem 0.75rem color-mix(in oklab, #000 8%, transparent);
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    transform 200ms ease;
+}
+
+.closeButton:hover,
+.navButton:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: color-mix(in oklab, var(--color-accent) 12%, var(--color-surface-strong));
+}
+
+.closeButton:focus-visible,
+.navButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.navButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  gap: var(--space-3);
+  touch-action: pan-y pinch-zoom;
+}
+
+.imageWrap {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  max-width: min(72rem, 100%);
+  height: 100%;
+  min-height: 12rem;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: color-mix(in oklab, var(--color-bg-elevated) 70%, transparent);
+  box-shadow:
+    0 1.25rem 3rem color-mix(in oklab, #000 12%, transparent),
+    0 0 0 1px var(--color-border);
+}
+
+.image {
+  object-fit: contain;
+}
+
+.aiBadge {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0b120c;
+  background: var(--color-accent);
+  box-shadow: 0 0.15rem 0.5rem color-mix(in oklab, #000 15%, transparent);
+}
+
+/* タッチ端末: スワイプ操作のため左右ナビを隠し、画像領域を広げる */
+@media (hover: none), (pointer: coarse) {
+  .navButton {
+    display: none;
+  }
+
+  .stage {
+    gap: 0;
+    padding-inline: var(--space-2);
+  }
+
+  .imageWrap {
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog::backdrop,
+  .shell {
+    transition: none;
+  }
+
+  .dialog[open]::backdrop,
+  .dialog[open] .shell {
+    opacity: 1;
+    scale: 1;
+  }
+}

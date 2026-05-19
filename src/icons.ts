@@ -20,6 +20,8 @@ export const icons = {
   waterDrop: 'water_drop',
   compost: 'compost',
   chat: 'chat',
+  chevronLeft: 'chevron_left',
+  chevronRight: 'chevron_right',
 } as const;
 
 export type IconName = (typeof icons)[keyof typeof icons];

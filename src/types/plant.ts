@@ -29,6 +29,8 @@ export interface PlantLog {
   aiPhotoIndex: number;
   memo: string;
   aiAdvice: string;
+  /** AI が当時の写真から抽出した客観的な状態メモ（次回比較用） */
+  visualSnapshot?: string;
   observedAt: Date;
   createdAt: Date;
 }
@@ -51,6 +53,7 @@ export interface PlantLogDocument {
   aiPhotoIndex: number;
   memo: string;
   aiAdvice?: string;
+  visualSnapshot?: string;
   observedAt: Timestamp;
   createdAt: Timestamp;
 }

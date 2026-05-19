@@ -35,12 +35,16 @@ function toPlantLog(id: string, data: PlantLogDocument): PlantLog {
   const photoUrls = normalizePhotoUrls(data.photoUrls);
   const aiPhotoIndex = clampAiPhotoIndex(data.aiPhotoIndex, photoUrls.length);
 
+  const visualSnapshot =
+    typeof data.visualSnapshot === 'string' ? data.visualSnapshot.trim() : undefined;
+
   return {
     id,
     photoUrls,
     aiPhotoIndex,
     memo: data.memo,
     aiAdvice: typeof data.aiAdvice === 'string' ? data.aiAdvice : '',
+    visualSnapshot: visualSnapshot || undefined,
     observedAt: data.observedAt.toDate(),
     createdAt: data.createdAt.toDate(),
   };
@@ -112,6 +116,24 @@ export async function updatePlant(
   });
 }
 
+export async function getPlantLog(
+  plantId: string,
+  logId: string,
+): Promise<PlantLog | null> {
+  const doc = await getDb()
+    .collection(PLANTS_COLLECTION)
+    .doc(plantId)
+    .collection('logs')
+    .doc(logId)
+    .get();
+
+  if (!doc.exists) {
+    return null;
+  }
+
+  return toPlantLog(doc.id, doc.data() as PlantLogDocument);
+}
+
 export async function listPlantLogs(plantId: string, limit = 20): Promise<PlantLog[]> {
   let query: Query = getDb()
     .collection(PLANTS_COLLECTION)
@@ -135,6 +157,7 @@ export async function createPlantLog(
     aiPhotoIndex: number;
     memo: string;
     aiAdvice: string;
+    visualSnapshot?: string;
     observedAt: Date;
   },
 ): Promise<string> {
@@ -147,6 +170,7 @@ export async function createPlantLog(
     aiPhotoIndex: input.aiPhotoIndex,
     memo: input.memo,
     aiAdvice: input.aiAdvice,
+    ...(input.visualSnapshot ? { visualSnapshot: input.visualSnapshot } : {}),
     observedAt: Timestamp.fromDate(input.observedAt),
     createdAt: FieldValue.serverTimestamp(),
   });
@@ -157,6 +181,23 @@ export async function createPlantLog(
 
   await batch.commit();
   return logRef.id;
+}
+
+export async function deletePlantLog(plantId: string, logId: string): Promise<void> {
+  const db = getDb();
+  const batch = db.batch();
+  const logRef = db
+    .collection(PLANTS_COLLECTION)
+    .doc(plantId)
+    .collection('logs')
+    .doc(logId);
+
+  batch.delete(logRef);
+  batch.update(db.collection(PLANTS_COLLECTION).doc(plantId), {
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+
+  await batch.commit();
 }
 
 export async function deletePlantWithLogs(plantId: string): Promise<void> {
