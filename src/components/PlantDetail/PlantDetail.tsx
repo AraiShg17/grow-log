@@ -32,6 +32,7 @@ export function PlantDetail({ plant, logs }: PlantDetailProps) {
       id: log.id,
       photoUrls: normalizePhotoUrls(log.photoUrls),
       aiPhotoIndex: log.aiPhotoIndex,
+      aiPhotoIndices: log.aiPhotoIndices,
       memo: log.memo,
       aiAdvice: log.aiAdvice,
       observedAtIso: log.observedAt.toISOString(),

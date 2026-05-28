@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
-import { Link } from 'next-view-transitions';
 import { PageShell } from '@/components/PageShell/PageShell';
+import { PageTitleWithHistoryBack } from '@/components/PageTitleWithHistoryBack/PageTitleWithHistoryBack';
+import { PlantContextBanner } from '@/components/PlantContextBanner/PlantContextBanner';
 import { LogForm } from '@/components/LogForm/LogForm';
+import { normalizePhotoUrls } from '@/lib/photos/normalizePhotos';
 import { getPlant } from '@/lib/firestore/plants';
 
 interface NewLogPageProps {
@@ -21,8 +23,14 @@ export default async function NewLogPage({ params }: NewLogPageProps) {
   return (
     <PageShell
       title="観察記録を追加"
-      actions={<Link href={`/plants/${plantId}`}>詳細へ戻る</Link>}
+      titleContent={<PageTitleWithHistoryBack title="観察記録を追加" />}
     >
+      <PlantContextBanner
+        name={plant.name}
+        photoUrls={normalizePhotoUrls(plant.photoUrls)}
+        latestPhotoUrl={plant.latestPhotoUrl}
+        sunlightTag={plant.sunlightTag}
+      />
       <LogForm plantId={plantId} />
     </PageShell>
   );

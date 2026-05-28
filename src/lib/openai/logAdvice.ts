@@ -85,6 +85,7 @@ function buildUserPromptText(input: {
   memo: string;
   pastLogs: PlantLog[];
   isFollowUp: boolean;
+  photoCount: number;
 }): string {
   const verification = buildPhotoPlantVerificationRules('登録名', input.plantName);
   const honestRules = buildHonestHealthAssessmentRules();
@@ -96,8 +97,14 @@ ${formatPastLogsForAdvice(input.pastLogs)}`
     : `## 過去の観察記録
 ${formatPastLogsForAdvice(input.pastLogs)}`;
 
+  const photoNote =
+    input.photoCount > 1
+      ? `## 今回の写真\n${input.photoCount}枚を添付しています。すべてを見て総合的に判断してください。`
+      : '';
+
   const sections = [
     `植物名（登録名・テキスト）: ${input.plantName}`,
+    photoNote,
     verification,
     honestRules,
     fertilizerRules,
@@ -108,25 +115,24 @@ ${formatPastLogsForAdvice(input.pastLogs)}`;
     input.isFollowUp ? buildFollowUpSuccessSection() : buildFirstLogSuccessSection(),
   ];
 
-  return sections.join('\n\n');
+  return sections.filter((section) => section.length > 0).join('\n\n');
 }
 
 export async function generateLogAdvice(input: {
   plantName: string;
   careGuide: string;
   memo: string;
-  photoBuffer: Buffer;
-  mimeType: string;
+  photos: { buffer: Buffer; mimeType: string }[];
   pastLogs: PlantLog[];
 }): Promise<LogAdviceGenerationResult> {
   const isFollowUp = input.pastLogs.length > 0;
-  const imageUrl = bufferToDataUrl(input.photoBuffer, input.mimeType);
   const userText = buildUserPromptText({
     plantName: input.plantName,
     careGuide: input.careGuide,
     memo: input.memo,
     pastLogs: input.pastLogs,
     isFollowUp,
+    photoCount: input.photos.length,
   });
 
   const response = await getOpenAiClient().chat.completions.create({
@@ -141,10 +147,10 @@ export async function generateLogAdvice(input: {
         role: 'user',
         content: [
           { type: 'text', text: userText },
-          {
-            type: 'image_url',
-            image_url: { url: imageUrl },
-          },
+          ...input.photos.map((photo) => ({
+            type: 'image_url' as const,
+            image_url: { url: bufferToDataUrl(photo.buffer, photo.mimeType) },
+          })),
         ],
       },
     ],

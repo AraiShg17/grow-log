@@ -10,15 +10,18 @@ import { useMemo, useState } from 'react';
 import { MarkdownContent } from '@/components/MarkdownContent/MarkdownContent';
 import { PlantLogDeleteButton } from '@/components/PlantLogDeleteButton/PlantLogDeleteButton';
 import { PanelTitle } from '@/components/PanelTitle/PanelTitle';
+import { useTimelineAccordion } from '@/hooks/useTimelineAccordion';
 import { icons } from '@/icons';
 import type { PlantPhotoItem } from '@/lib/photos/collectPlantPhotos';
-import { hasExpandableTimelineDetail } from '@/lib/photos/normalizePhotos';
+import { rememberPlantListAnchor } from '@/lib/navigation/plantListAnchor';
+import { isAiPhotoIndex } from '@/lib/photos/normalizePhotos';
 import styles from './PlantTimeline.module.css';
 
 export interface TimelineLog {
   id: string;
   photoUrls: string[];
   aiPhotoIndex?: number;
+  aiPhotoIndices?: number[];
   memo: string;
   aiAdvice: string | null;
   observedAtIso: string;
@@ -36,10 +39,11 @@ interface PlantTimelineProps {
 }
 
 function toGalleryItems(log: TimelineLog): PhotoGalleryItem[] {
+  const aiPhotoIndex = log.aiPhotoIndex ?? 0;
   return log.photoUrls.map((url, index) => ({
     id: `${log.id}-${index}`,
     url,
-    isAiPhoto: typeof log.aiPhotoIndex === 'number' && index === log.aiPhotoIndex,
+    isAiPhoto: isAiPhotoIndex(index, aiPhotoIndex, log.aiPhotoIndices),
   }));
 }
 
@@ -69,6 +73,9 @@ export function PlantTimeline({
     [logs],
   );
 
+  const logIds = useMemo(() => sortedLogs.map((log) => log.id), [sortedLogs]);
+  const { isOpen, setOpen } = useTimelineAccordion(plantId, logIds);
+
   function openPhoto(photoId: string) {
     const index = allPhotos.findIndex((photo) => photo.id === photoId);
     if (index < 0) {
@@ -84,7 +91,11 @@ export function PlantTimeline({
         <PanelTitle id="timeline-heading" icon={icons.photoCamera}>
           観察年表
         </PanelTitle>
-        <Link href={addLogHref} className={styles.addLink}>
+        <Link
+          href={addLogHref}
+          className={styles.addLink}
+          onClick={() => rememberPlantListAnchor(plantId)}
+        >
           観察記録を追加
         </Link>
       </div>
@@ -92,7 +103,11 @@ export function PlantTimeline({
       {sortedLogs.length === 0 ? (
         <div className={styles.empty}>
           <p>まだ観察記録がありません。</p>
-          <Link href={addLogHref} className={styles.addLink}>
+          <Link
+            href={addLogHref}
+            className={styles.addLink}
+            onClick={() => rememberPlantListAnchor(plantId)}
+          >
             最初の観察記録を追加する
           </Link>
         </div>
@@ -101,10 +116,10 @@ export function PlantTimeline({
           <ol className={styles.timelineList}>
             {sortedLogs.map((log) => {
               const galleryItems = toGalleryItems(log);
-              const hasDetail = hasExpandableTimelineDetail({
-                photoUrls: log.photoUrls,
-                aiAdvice: log.aiAdvice,
-              });
+              const hasDetailContent =
+                galleryItems.length > 0 || Boolean(log.aiAdvice?.trim());
+              const open = isOpen(log.id);
+
               const summaryRow = (
                 <>
                   <span className={styles.dot} aria-hidden="true" />
@@ -113,27 +128,11 @@ export function PlantTimeline({
                       {log.dateLabel}
                     </time>
                     {log.memo ? (
-                      <span className={styles.memoPreview}>{log.memo}</span>
+                      <span className={styles.memoText}>{log.memo}</span>
                     ) : null}
                   </span>
                 </>
               );
-
-              if (!hasDetail) {
-                return (
-                  <li
-                    key={log.id}
-                    className={[styles.timelineItem, styles.timelineItemStatic]
-                      .filter(Boolean)
-                      .join(' ')}
-                  >
-                    <div className={styles.entryRow}>
-                      <div className={styles.timelineStatic}>{summaryRow}</div>
-                      {renderDeleteButton(plantId, log)}
-                    </div>
-                  </li>
-                );
-              }
 
               return (
                 <li
@@ -143,22 +142,31 @@ export function PlantTimeline({
                     .join(' ')}
                 >
                   <div className={styles.entryRow}>
-                    <details className={styles.timelineDetails} open>
+                    <details
+                      className={styles.timelineDetails}
+                      open={open}
+                      onToggle={(event) => {
+                        event.preventDefault();
+                        setOpen(log.id, !open);
+                      }}
+                    >
                       <summary className={styles.timelineSummary}>{summaryRow}</summary>
-                      <article className={styles.detailCard} aria-live="polite">
-                        {galleryItems.length > 0 ? (
-                          <PhotoGallery
-                            items={galleryItems}
-                            alt={`${plantName}の観察写真`}
-                            onPhotoClick={openPhoto}
-                          />
-                        ) : null}
-                        {log.aiAdvice?.trim() ? (
-                          <div className={styles.detailBody}>
-                            <MarkdownContent content={log.aiAdvice} />
-                          </div>
-                        ) : null}
-                      </article>
+                      {hasDetailContent ? (
+                        <article className={styles.detailCard} aria-live="polite">
+                          {galleryItems.length > 0 ? (
+                            <PhotoGallery
+                              items={galleryItems}
+                              alt={`${plantName}の観察写真`}
+                              onPhotoClick={openPhoto}
+                            />
+                          ) : null}
+                          {log.aiAdvice?.trim() ? (
+                            <div className={styles.detailBody}>
+                              <MarkdownContent content={log.aiAdvice} />
+                            </div>
+                          ) : null}
+                        </article>
+                      ) : null}
                     </details>
                     {renderDeleteButton(plantId, log)}
                   </div>

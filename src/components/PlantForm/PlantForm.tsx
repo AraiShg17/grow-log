@@ -21,7 +21,7 @@ export function PlantForm() {
         active={pending}
         message="植物名と写真から種を推定し、置き場の推奨タグと育成ガイドを作成しています…"
       />
-      <form action={formAction} encType="multipart/form-data" className={styles.form}>
+      <form action={formAction} className={styles.form}>
         <label className={styles.field}>
           <span className={styles.label}>植物名</span>
           <input

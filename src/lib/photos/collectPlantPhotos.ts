@@ -1,4 +1,4 @@
-import { normalizePhotoUrls } from '@/lib/photos/normalizePhotos';
+import { isAiPhotoIndex, normalizePhotoUrls } from '@/lib/photos/normalizePhotos';
 import { formatDateTime } from '@/lib/utils/formatDate';
 import type { Plant, PlantLog } from '@/types/plant';
 
@@ -39,7 +39,7 @@ export function collectPlantPhotos(
         url,
         dateLabel: formatDateTime(log.observedAt),
         observedAtIso: log.observedAt.toISOString(),
-        isAiPhoto: index === log.aiPhotoIndex,
+        isAiPhoto: isAiPhotoIndex(index, log.aiPhotoIndex, log.aiPhotoIndices),
       });
     });
   }

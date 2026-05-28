@@ -2,8 +2,15 @@
 
 import { useMemo, useState } from 'react';
 import { PlantCard } from '@/components/PlantCard/PlantCard';
+import { PlantListScrollRestore } from '@/components/PlantListScrollRestore/PlantListScrollRestore';
+import { plantListAnchorId } from '@/lib/navigation/plantListAnchor';
 import { PlantListFilters } from '@/components/PlantListFilters/PlantListFilters';
 import { filterPlants } from '@/lib/plants/filterPlants';
+import {
+  DEFAULT_PLANT_SORT,
+  sortPlants,
+  type PlantSortKey,
+} from '@/lib/plants/sortPlants';
 import type { PlantListItem } from '@/types/plant';
 import pageStyles from '@/app/page.module.css';
 
@@ -14,23 +21,28 @@ interface PlantListBrowseProps {
 export function PlantListBrowse({ plants }: PlantListBrowseProps) {
   const [query, setQuery] = useState('');
   const [sunlight, setSunlight] = useState('');
+  const [sort, setSort] = useState<PlantSortKey>(DEFAULT_PLANT_SORT);
 
-  const filtered = useMemo(
-    () => filterPlants(plants, { query, sunlight }),
-    [plants, query, sunlight],
-  );
+  const displayed = useMemo(() => {
+    const filtered = filterPlants(plants, { query, sunlight });
+    return sortPlants(filtered, sort);
+  }, [plants, query, sunlight, sort]);
 
-  const filtersActive = query.trim() !== '' || sunlight !== '';
+  const filtersActive =
+    query.trim() !== '' || sunlight !== '' || sort !== DEFAULT_PLANT_SORT;
 
   return (
     <>
+      <PlantListScrollRestore />
       <PlantListFilters
         query={query}
         onQueryChange={setQuery}
         sunlight={sunlight}
         onSunlightChange={setSunlight}
+        sort={sort}
+        onSortChange={setSort}
       />
-      {filtered.length === 0 ? (
+      {displayed.length === 0 ? (
         <div className={pageStyles.filterEmpty}>
           <p>条件に合う植物がありません。</p>
           {filtersActive ? (
@@ -40,6 +52,7 @@ export function PlantListBrowse({ plants }: PlantListBrowseProps) {
               onClick={() => {
                 setQuery('');
                 setSunlight('');
+                setSort(DEFAULT_PLANT_SORT);
               }}
             >
               条件をクリア
@@ -48,8 +61,12 @@ export function PlantListBrowse({ plants }: PlantListBrowseProps) {
         </div>
       ) : (
         <ul className={pageStyles.grid}>
-          {filtered.map((plant) => (
-            <li key={plant.id}>
+          {displayed.map((plant) => (
+            <li
+              key={plant.id}
+              id={plantListAnchorId(plant.id)}
+              className={pageStyles.gridItem}
+            >
               <PlantCard plant={plant} />
             </li>
           ))}

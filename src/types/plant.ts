@@ -6,8 +6,10 @@ export interface Plant {
   name: string;
   /** 登録時の写真（最大10枚）。一覧のサムネイルは先頭 */
   photoUrls: string[];
-  /** AI 分析に使った写真の photoUrls 内インデックス */
+  /** AI 分析に使った写真の photoUrls 内インデックス（先頭） */
   aiPhotoIndex: number;
+  /** AI 分析に使った写真のインデックス一覧（観察記録で複数可） */
+  aiPhotoIndices?: number[];
   /** 最新の観察記録の先頭写真（一覧サムネ用・ログに写真があるときのみ） */
   latestPhotoUrl?: string;
   careGuide: string;
@@ -15,18 +17,27 @@ export interface Plant {
   sunlightTag?: SunlightTagId;
   createdAt: Date;
   updatedAt: Date;
+  /** listPlants 取得時のみ。クイック記録の最新日 */
+  lastWateredAt?: Date;
+  lastFertilizedAt?: Date;
 }
 
-/** 一覧カード用（サーバー→クライアントでは updatedAt を ISO 文字列で渡す） */
+/** 一覧カード用（サーバー→クライアントでは日付を ISO 文字列で渡す） */
 export type PlantListItem = Pick<
   Plant,
   'id' | 'name' | 'photoUrls' | 'latestPhotoUrl' | 'sunlightTag'
-> & { updatedAt: Date | string };
+> & {
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  lastWateredAt?: string;
+  lastFertilizedAt?: string;
+};
 
 export interface PlantLog {
   id: string;
   photoUrls: string[];
   aiPhotoIndex: number;
+  aiPhotoIndices?: number[];
   memo: string;
   aiAdvice: string;
   /** AI が当時の写真から抽出した客観的な状態メモ（次回比較用） */
@@ -51,6 +62,7 @@ export interface PlantDocument {
 export interface PlantLogDocument {
   photoUrls: string[];
   aiPhotoIndex: number;
+  aiPhotoIndices?: number[];
   memo: string;
   aiAdvice?: string;
   visualSnapshot?: string;

@@ -3,9 +3,10 @@ import { getDb } from '@/lib/firebase/admin';
 import { isSunlightTagId, type SunlightTagId } from '@/lib/plants/sunlightTags';
 import {
   clampAiPhotoIndex,
+  normalizeAiPhotoIndices,
   normalizePhotoUrls,
-  primaryPhotoUrl,
 } from '@/lib/photos/normalizePhotos';
+import { extractCareDatesFromLogs } from '@/lib/plants/extractCareDatesFromLogs';
 import type { Plant, PlantDocument, PlantLog, PlantLogDocument } from '@/types/plant';
 
 const PLANTS_COLLECTION = 'plants';
@@ -34,6 +35,11 @@ function toPlant(id: string, data: PlantDocument, latestPhotoUrl?: string): Plan
 function toPlantLog(id: string, data: PlantLogDocument): PlantLog {
   const photoUrls = normalizePhotoUrls(data.photoUrls);
   const aiPhotoIndex = clampAiPhotoIndex(data.aiPhotoIndex, photoUrls.length);
+  const aiPhotoIndices = normalizeAiPhotoIndices(
+    data.aiPhotoIndices,
+    aiPhotoIndex,
+    photoUrls.length,
+  );
 
   const visualSnapshot =
     typeof data.visualSnapshot === 'string' ? data.visualSnapshot.trim() : undefined;
@@ -42,6 +48,7 @@ function toPlantLog(id: string, data: PlantLogDocument): PlantLog {
     id,
     photoUrls,
     aiPhotoIndex,
+    aiPhotoIndices: aiPhotoIndices.length > 0 ? aiPhotoIndices : undefined,
     memo: data.memo,
     aiAdvice: typeof data.aiAdvice === 'string' ? data.aiAdvice : '',
     visualSnapshot: visualSnapshot || undefined,
@@ -58,19 +65,24 @@ export async function listPlants(): Promise<Plant[]> {
 
   return Promise.all(
     snapshot.docs.map(async (doc) => {
-      const latestLogSnapshot = await doc.ref
+      const logsSnapshot = await doc.ref
         .collection('logs')
         .orderBy('observedAt', 'desc')
-        .limit(1)
         .get();
-      const latestLog = latestLogSnapshot.docs[0]?.data() as
-        | PlantLogDocument
-        | undefined;
 
-      const latestPrimary = latestLog ? primaryPhotoUrl(latestLog.photoUrls) : '';
-      const latestPhotoUrl = latestPrimary.length > 0 ? latestPrimary : undefined;
+      const { latestPhotoUrl, lastWateredAt, lastFertilizedAt } =
+        extractCareDatesFromLogs(
+          logsSnapshot.docs.map((logDoc) => ({
+            data: () => logDoc.data() as PlantLogDocument,
+          })),
+        );
 
-      return toPlant(doc.id, doc.data() as PlantDocument, latestPhotoUrl);
+      const plant = toPlant(doc.id, doc.data() as PlantDocument, latestPhotoUrl);
+      return {
+        ...plant,
+        lastWateredAt,
+        lastFertilizedAt,
+      };
     }),
   );
 }
@@ -155,6 +167,7 @@ export async function createPlantLog(
   input: {
     photoUrls: string[];
     aiPhotoIndex: number;
+    aiPhotoIndices?: number[];
     memo: string;
     aiAdvice: string;
     visualSnapshot?: string;
@@ -165,9 +178,16 @@ export async function createPlantLog(
   const batch = db.batch();
   const logRef = db.collection(PLANTS_COLLECTION).doc(plantId).collection('logs').doc();
 
+  const aiPhotoIndices = normalizeAiPhotoIndices(
+    input.aiPhotoIndices,
+    input.aiPhotoIndex,
+    input.photoUrls.length,
+  );
+
   batch.set(logRef, {
     photoUrls: input.photoUrls,
-    aiPhotoIndex: input.aiPhotoIndex,
+    aiPhotoIndex: aiPhotoIndices[0] ?? input.aiPhotoIndex,
+    ...(aiPhotoIndices.length > 0 ? { aiPhotoIndices } : {}),
     memo: input.memo,
     aiAdvice: input.aiAdvice,
     ...(input.visualSnapshot ? { visualSnapshot: input.visualSnapshot } : {}),

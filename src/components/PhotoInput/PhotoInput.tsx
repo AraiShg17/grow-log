@@ -13,7 +13,11 @@ import {
 import { MaterialIcon } from '@/components/MaterialIcon/MaterialIcon';
 import { icons } from '@/icons';
 import { compressImageForUpload } from '@/lib/images/compressImageForUpload';
-import { MAX_PHOTOS_PER_ENTRY } from '@/lib/photos/constants';
+import {
+  MAX_LOG_AI_PHOTOS,
+  MAX_PHOTOS_PER_ENTRY,
+  MIN_LOG_AI_PHOTOS,
+} from '@/lib/photos/constants';
 import styles from './PhotoInput.module.css';
 
 interface PhotoEntry {
@@ -22,9 +26,16 @@ interface PhotoEntry {
   previewUrl: string;
 }
 
+type AiSelectionMode = 'single' | 'multi';
+
 interface PhotoInputProps {
   required?: boolean;
+  maxPhotos?: number;
+  aiSelectionMode?: AiSelectionMode;
+  minAiSelections?: number;
+  maxAiSelections?: number;
   onPhotoCountChange?: (count: number) => void;
+  onAiSelectionValidChange?: (valid: boolean) => void;
   onCompressingChange?: (compressing: boolean) => void;
 }
 
@@ -32,16 +43,45 @@ function createEntryId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+function clampSelectionCount(
+  indices: number[],
+  min: number,
+  max: number,
+  photoCount: number,
+): number[] {
+  const sorted = [...new Set(indices)]
+    .filter((index) => index >= 0 && index < photoCount)
+    .sort((a, b) => a - b);
+  if (sorted.length < min && photoCount >= min) {
+    const filled = [...sorted];
+    for (let i = 0; i < photoCount && filled.length < min; i += 1) {
+      if (!filled.includes(i)) {
+        filled.push(i);
+      }
+    }
+    return filled.sort((a, b) => a - b).slice(0, max);
+  }
+  return sorted.slice(0, max);
+}
+
 export function PhotoInput({
   required = true,
+  maxPhotos = MAX_PHOTOS_PER_ENTRY,
+  aiSelectionMode = 'single',
+  minAiSelections = MIN_LOG_AI_PHOTOS,
+  maxAiSelections = MAX_LOG_AI_PHOTOS,
   onPhotoCountChange,
+  onAiSelectionValidChange,
   onCompressingChange,
 }: PhotoInputProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [entries, setEntries] = useState<PhotoEntry[]>([]);
   const [aiPhotoIndex, setAiPhotoIndex] = useState(0);
+  const [aiPhotoIndices, setAiPhotoIndices] = useState<number[]>([]);
   const [compressing, setCompressing] = useState(false);
+
+  const isMultiAi = aiSelectionMode === 'multi';
 
   const syncInputFiles = useCallback((nextEntries: PhotoEntry[]) => {
     if (!inputRef.current) {
@@ -74,6 +114,25 @@ export function PhotoInput({
     onCompressingChange?.(compressing);
   }, [compressing, onCompressingChange]);
 
+  useEffect(() => {
+    if (!onAiSelectionValidChange) {
+      return;
+    }
+    if (entries.length === 0) {
+      onAiSelectionValidChange(true);
+      return;
+    }
+    const count = isMultiAi ? aiPhotoIndices.length : 1;
+    onAiSelectionValidChange(count >= minAiSelections && count <= maxAiSelections);
+  }, [
+    aiPhotoIndices.length,
+    entries.length,
+    isMultiAi,
+    maxAiSelections,
+    minAiSelections,
+    onAiSelectionValidChange,
+  ]);
+
   const addFiles = useCallback(
     async (files: File[]) => {
       const imageFiles = files.filter((f) => f.type.startsWith('image/'));
@@ -83,7 +142,7 @@ export function PhotoInput({
 
       setCompressing(true);
       try {
-        const slotsLeft = MAX_PHOTOS_PER_ENTRY - entries.length;
+        const slotsLeft = maxPhotos - entries.length;
         const toAdd = imageFiles.slice(0, slotsLeft);
         if (toAdd.length === 0) {
           return;
@@ -99,15 +158,37 @@ export function PhotoInput({
         }));
 
         setEntries((prev) => {
-          const merged = [...prev, ...newEntries].slice(0, MAX_PHOTOS_PER_ENTRY);
+          const merged = [...prev, ...newEntries].slice(0, maxPhotos);
           syncInputFiles(merged);
           return merged;
         });
+
+        if (isMultiAi) {
+          setAiPhotoIndices((prev) => {
+            const start = entries.length;
+            const added = newEntries.map((_, offset) => start + offset);
+            return clampSelectionCount(
+              [...prev, ...added],
+              minAiSelections,
+              maxAiSelections,
+              entries.length + newEntries.length,
+            );
+          });
+        } else {
+          setAiPhotoIndex((prev) => (entries.length === 0 ? 0 : prev));
+        }
       } finally {
         setCompressing(false);
       }
     },
-    [entries.length, syncInputFiles],
+    [
+      entries.length,
+      isMultiAi,
+      maxAiSelections,
+      maxPhotos,
+      minAiSelections,
+      syncInputFiles,
+    ],
   );
 
   function handleDrag(event: DragEvent<HTMLLabelElement>) {
@@ -138,28 +219,82 @@ export function PhotoInput({
       syncInputFiles(next);
       return next;
     });
-    setAiPhotoIndex((prev) => {
-      if (prev === index) {
-        return 0;
+
+    if (isMultiAi) {
+      setAiPhotoIndices((prev) =>
+        clampSelectionCount(
+          prev.filter((i) => i !== index).map((i) => (i > index ? i - 1 : i)),
+          minAiSelections,
+          maxAiSelections,
+          entries.length - 1,
+        ),
+      );
+    } else {
+      setAiPhotoIndex((prev) => {
+        if (prev === index) {
+          return 0;
+        }
+        if (prev > index) {
+          return prev - 1;
+        }
+        return prev;
+      });
+    }
+  }
+
+  function toggleAiSelection(index: number) {
+    if (!isMultiAi) {
+      setAiPhotoIndex(index);
+      return;
+    }
+
+    setAiPhotoIndices((prev) => {
+      const selected = prev.includes(index);
+      if (selected) {
+        if (prev.length <= minAiSelections) {
+          return prev;
+        }
+        return prev.filter((i) => i !== index);
       }
-      if (prev > index) {
-        return prev - 1;
+      if (prev.length >= maxAiSelections) {
+        return prev;
       }
-      return prev;
+      return [...prev, index].sort((a, b) => a - b);
     });
   }
 
-  const canAddMore = entries.length < MAX_PHOTOS_PER_ENTRY;
+  function isAiSelected(index: number): boolean {
+    return isMultiAi ? aiPhotoIndices.includes(index) : index === aiPhotoIndex;
+  }
+
+  const canAddMore = entries.length < maxPhotos;
   const hint =
     entries.length === 0
       ? required
-        ? `画像を選択（最大${MAX_PHOTOS_PER_ENTRY}枚）`
-        : `画像を追加（任意・最大${MAX_PHOTOS_PER_ENTRY}枚）`
-      : `写真を追加（${entries.length}/${MAX_PHOTOS_PER_ENTRY}枚）`;
+        ? `画像を選択（最大${maxPhotos}枚）`
+        : `画像を追加（任意・最大${maxPhotos}枚）`
+      : `写真を追加（${entries.length}/${maxPhotos}枚）`;
+
+  const aiHint = isMultiAi
+    ? `AI分析に使う写真を${minAiSelections}〜${maxAiSelections}枚タップして選んでください`
+    : required
+      ? 'AI分析に使う写真をタップして選んでください'
+      : 'AI分析に使う写真をタップして選べます（写真を付けた場合のみAIが動きます）';
 
   return (
     <div className={styles.root} role="group" aria-label="写真の選択">
-      <input type="hidden" name="aiPhotoIndex" value={aiPhotoIndex} />
+      {isMultiAi ? (
+        aiPhotoIndices.map((index) => (
+          <input
+            key={`ai-${index}`}
+            type="hidden"
+            name="aiPhotoIndices"
+            value={index}
+          />
+        ))
+      ) : (
+        <input type="hidden" name="aiPhotoIndex" value={aiPhotoIndex} />
+      )}
 
       <input
         ref={inputRef}
@@ -175,14 +310,10 @@ export function PhotoInput({
 
       {entries.length > 0 ? (
         <>
-          <p className={styles.aiHint}>
-            {required
-              ? 'AI分析に使う写真をタップして選んでください'
-              : 'AI分析に使う写真をタップして選べます（写真を付けた場合のみAIが動きます）'}
-          </p>
+          <p className={styles.aiHint}>{aiHint}</p>
           <ul className={styles.gallery} aria-label="選択した写真">
             {entries.map((entry, index) => {
-              const isAi = index === aiPhotoIndex;
+              const isAi = isAiSelected(index);
               return (
                 <li key={entry.id} className={styles.thumbItem}>
                   <button
@@ -190,7 +321,7 @@ export function PhotoInput({
                     className={[styles.thumbButton, isAi ? styles.thumbButtonAi : '']
                       .filter(Boolean)
                       .join(' ')}
-                    onClick={() => setAiPhotoIndex(index)}
+                    onClick={() => toggleAiSelection(index)}
                     aria-pressed={isAi}
                     aria-label={
                       isAi
@@ -240,7 +371,7 @@ export function PhotoInput({
           </span>
         </label>
       ) : (
-        <p className={styles.limitNote}>写真は最大{MAX_PHOTOS_PER_ENTRY}枚までです。</p>
+        <p className={styles.limitNote}>写真は最大{maxPhotos}枚までです。</p>
       )}
     </div>
   );

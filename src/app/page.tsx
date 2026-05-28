@@ -17,7 +17,10 @@ export default async function HomePage() {
     photoUrls: p.photoUrls,
     latestPhotoUrl: p.latestPhotoUrl,
     sunlightTag: p.sunlightTag,
+    createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString(),
+    lastWateredAt: p.lastWateredAt?.toISOString(),
+    lastFertilizedAt: p.lastFertilizedAt?.toISOString(),
   }));
 
   return (

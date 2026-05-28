@@ -35,6 +35,8 @@
   --color-accent-strong: #3f9f46;
   --color-border: color-mix(in oklab, #172019 16%, transparent);
   --color-danger: #b73d3d;
+  --color-care-water: #0ea5e9;
+  --color-care-fertilize: #ea580c;
   --color-hero-start: #ffffff;
   --color-hero-end: #ffffff;
 

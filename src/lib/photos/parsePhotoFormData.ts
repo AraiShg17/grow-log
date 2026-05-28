@@ -10,12 +10,15 @@ function getUploadFile(value: FormDataEntryValue): File | null {
   return value;
 }
 
-export function parsePhotoFilesFromFormData(formData: FormData): File[] {
+export function parsePhotoFilesFromFormData(
+  formData: FormData,
+  maxPhotos = MAX_PHOTOS_PER_ENTRY,
+): File[] {
   return formData
     .getAll('photos')
     .map(getUploadFile)
     .filter((file): file is File => file !== null)
-    .slice(0, MAX_PHOTOS_PER_ENTRY);
+    .slice(0, maxPhotos);
 }
 
 /** 上限チェック用（slice 前の枚数） */
@@ -33,4 +36,19 @@ export function parseAiPhotoIndexFromFormData(
     return 0;
   }
   return raw;
+}
+
+export function parseAiPhotoIndicesFromFormData(
+  formData: FormData,
+  photoCount: number,
+): number[] {
+  const indices = formData
+    .getAll('aiPhotoIndices')
+    .map((value) => Number(value))
+    .filter(
+      (index): index is number =>
+        Number.isInteger(index) && index >= 0 && index < photoCount,
+    );
+
+  return [...new Set(indices)].sort((a, b) => a - b);
 }

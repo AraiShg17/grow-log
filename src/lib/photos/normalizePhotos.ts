@@ -35,3 +35,39 @@ export function clampAiPhotoIndex(
   }
   return index;
 }
+
+export function normalizeAiPhotoIndices(
+  indices: number[] | undefined,
+  fallbackIndex: number,
+  photoCount: number,
+): number[] {
+  if (photoCount <= 0) {
+    return [];
+  }
+
+  const primary = clampAiPhotoIndex(fallbackIndex, photoCount);
+  const fromArray = (indices ?? [])
+    .filter(
+      (index): index is number =>
+        Number.isInteger(index) && index >= 0 && index < photoCount,
+    )
+    .filter((index, position, list) => list.indexOf(index) === position)
+    .sort((a, b) => a - b);
+
+  if (fromArray.length > 0) {
+    return fromArray;
+  }
+
+  return [primary];
+}
+
+export function isAiPhotoIndex(
+  index: number,
+  aiPhotoIndex: number,
+  aiPhotoIndices: number[] | undefined,
+): boolean {
+  if (aiPhotoIndices && aiPhotoIndices.length > 0) {
+    return aiPhotoIndices.includes(index);
+  }
+  return index === aiPhotoIndex;
+}

@@ -48,10 +48,15 @@ export async function createPlantAction(
   try {
     const uploaded = await uploadPhotosFromFormData(formData, 'plants');
 
+    const primaryAi = uploaded.aiBuffers[0];
+    if (!primaryAi) {
+      return { success: false, error: '写真を1枚以上選択してください。' };
+    }
+
     const bundle = await generatePlantRegistrationBundle({
       name,
-      photoBuffer: uploaded.aiBuffer,
-      mimeType: uploaded.aiMimeType,
+      photoBuffer: primaryAi.buffer,
+      mimeType: primaryAi.mimeType,
     });
 
     const plantId = await createPlant({
@@ -97,6 +102,7 @@ export async function createPlantLogAction(
 
     let photoUrls: string[] = [];
     let aiPhotoIndex = 0;
+    let aiPhotoIndices: number[] | undefined;
     let aiAdvice = '';
     let visualSnapshot: string | undefined;
 
@@ -104,12 +110,12 @@ export async function createPlantLogAction(
       const uploaded = await uploadPhotosFromFormData(formData, 'logs');
       photoUrls = uploaded.photoUrls;
       aiPhotoIndex = uploaded.aiPhotoIndex;
+      aiPhotoIndices = uploaded.aiPhotoIndices;
       const generated = await generateLogAdvice({
         plantName: plant.name,
         careGuide: plant.careGuide,
         memo,
-        photoBuffer: uploaded.aiBuffer,
-        mimeType: uploaded.aiMimeType,
+        photos: uploaded.aiBuffers,
         pastLogs,
       });
       aiAdvice = generated.aiAdvice;
@@ -124,6 +130,7 @@ export async function createPlantLogAction(
     await createPlantLog(plantId, {
       photoUrls,
       aiPhotoIndex,
+      aiPhotoIndices,
       memo,
       aiAdvice,
       visualSnapshot,
