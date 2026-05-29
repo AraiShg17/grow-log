@@ -30,3 +30,28 @@ export function writeTimelineOpenState(
     // ignore
   }
 }
+
+/** 保存済み状態と未登録ログのデフォルト（開く）をマージ */
+export function buildTimelineOpenState(
+  plantId: string,
+  logIds: readonly string[],
+): TimelineOpenState {
+  const stored = readTimelineOpenState(plantId);
+  const next: TimelineOpenState = { ...stored };
+
+  for (const logId of logIds) {
+    if (!(logId in next)) {
+      next[logId] = true;
+    }
+  }
+
+  return next;
+}
+
+export function timelineOpenStatesEqual(
+  a: TimelineOpenState,
+  b: TimelineOpenState,
+  logIds: readonly string[],
+): boolean {
+  return logIds.every((logId) => (a[logId] ?? true) === (b[logId] ?? true));
+}

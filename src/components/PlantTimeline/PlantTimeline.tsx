@@ -146,8 +146,7 @@ export function PlantTimeline({
                       className={styles.timelineDetails}
                       open={open}
                       onToggle={(event) => {
-                        event.preventDefault();
-                        setOpen(log.id, !open);
+                        setOpen(log.id, event.currentTarget.open);
                       }}
                     >
                       <summary className={styles.timelineSummary}>{summaryRow}</summary>
