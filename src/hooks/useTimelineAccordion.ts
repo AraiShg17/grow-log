@@ -1,54 +1,104 @@
 'use client';
 
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import {
-  buildTimelineOpenState,
-  timelineOpenStatesEqual,
-  writeTimelineOpenState,
-} from '@/lib/timeline/timelineAccordionStorage';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-function buildDefaultOpenState(logIds: readonly string[]): Record<string, boolean> {
-  return Object.fromEntries(logIds.map((logId) => [logId, true]));
+interface UseTimelineAccordionOptions {
+  initialOpenById: Record<string, boolean>;
+  persistOpenStates: (openById: Record<string, boolean>) => Promise<void>;
+  persistDelayMs?: number;
+  resetKey?: string;
 }
 
-export function useTimelineAccordion(plantId: string, logIds: readonly string[]) {
-  const logIdsKey = logIds.join('\0');
-  const stableLogIds = useMemo(
-    () => (logIdsKey ? logIdsKey.split('\0') : []),
-    [logIdsKey],
-  );
+function openStatesEqual(
+  a: Record<string, boolean>,
+  b: Record<string, boolean>,
+): boolean {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  return [...keys].every((key) => (a[key] ?? false) === (b[key] ?? false));
+}
 
-  const [openById, setOpenById] = useState<Record<string, boolean>>(() =>
-    buildDefaultOpenState(logIds),
-  );
+export function useTimelineAccordion({
+  initialOpenById,
+  persistOpenStates,
+  persistDelayMs = 500,
+  resetKey = '',
+}: UseTimelineAccordionOptions) {
+  const [openById, setOpenById] = useState(initialOpenById);
+  const pendingOpenById = useRef<Record<string, boolean>>({});
+  const timerId = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resetKeyRef = useRef(resetKey);
 
-  useLayoutEffect(() => {
+  const flushPending = useCallback(() => {
+    const pending = pendingOpenById.current;
+    pendingOpenById.current = {};
+    timerId.current = null;
+
+    if (Object.keys(pending).length === 0) {
+      return;
+    }
+
+    void persistOpenStates(pending).catch(() => {
+      // Display state is already correct locally. A later toggle will retry saving.
+    });
+  }, [persistOpenStates]);
+
+  useEffect(() => {
+    if (resetKeyRef.current === resetKey) {
+      return;
+    }
+    resetKeyRef.current = resetKey;
+
     setOpenById((prev) => {
-      const next = buildTimelineOpenState(plantId, stableLogIds);
-      if (timelineOpenStatesEqual(prev, next, stableLogIds)) {
+      if (openStatesEqual(prev, initialOpenById)) {
         return prev;
       }
-      return next;
+
+      pendingOpenById.current = {};
+      if (timerId.current) {
+        clearTimeout(timerId.current);
+        timerId.current = null;
+      }
+
+      return initialOpenById;
     });
-  }, [plantId, stableLogIds]);
+  }, [initialOpenById, resetKey]);
+
+  useEffect(
+    () => () => {
+      if (timerId.current) {
+        clearTimeout(timerId.current);
+        flushPending();
+      }
+    },
+    [flushPending],
+  );
 
   const isOpen = useCallback(
-    (logId: string) => openById[logId] ?? true,
+    (logId: string) => openById[logId] ?? false,
     [openById],
   );
 
   const setOpen = useCallback(
     (logId: string, open: boolean) => {
       setOpenById((prev) => {
-        if (prev[logId] === open) {
+        if ((prev[logId] ?? false) === open) {
           return prev;
         }
-        const next = { ...prev, [logId]: open };
-        writeTimelineOpenState(plantId, next);
-        return next;
+
+        pendingOpenById.current = {
+          ...pendingOpenById.current,
+          [logId]: open,
+        };
+
+        if (timerId.current) {
+          clearTimeout(timerId.current);
+        }
+        timerId.current = setTimeout(flushPending, persistDelayMs);
+
+        return { ...prev, [logId]: open };
       });
     },
-    [plantId],
+    [flushPending, persistDelayMs],
   );
 
   return { isOpen, setOpen };

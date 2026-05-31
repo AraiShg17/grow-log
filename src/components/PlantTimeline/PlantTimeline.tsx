@@ -1,12 +1,13 @@
 'use client';
 
+import { updateTimelineAccordionOpenStateAction } from '@/app/actions/plants';
 import { Link } from 'next-view-transitions';
 import {
   PhotoGallery,
   type PhotoGalleryItem,
 } from '@/components/PhotoGallery/PhotoGallery';
 import { PhotoSliderModal } from '@/components/PhotoSliderModal/PhotoSliderModal';
-import { useId, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import { MarkdownContent } from '@/components/MarkdownContent/MarkdownContent';
 import { PlantLogDeleteButton } from '@/components/PlantLogDeleteButton/PlantLogDeleteButton';
 import { PanelTitle } from '@/components/PanelTitle/PanelTitle';
@@ -28,6 +29,8 @@ export interface TimelineLog {
   dateLabel: string;
   /** Firestore の観察記録のみ削除可能（登録行は false） */
   canDelete: boolean;
+  accordionOpen: boolean;
+  canToggleAccordion: boolean;
 }
 
 interface PlantTimelineProps {
@@ -74,8 +77,33 @@ export function PlantTimeline({
     [logs],
   );
 
-  const logIds = useMemo(() => sortedLogs.map((log) => log.id), [sortedLogs]);
-  const { isOpen, setOpen } = useTimelineAccordion(plantId, logIds);
+  const initialOpenById = useMemo(
+    () =>
+      Object.fromEntries(
+        sortedLogs
+          .filter((log) => log.canToggleAccordion)
+          .map((log) => [log.id, log.accordionOpen]),
+      ),
+    [sortedLogs],
+  );
+  const accordionResetKey = useMemo(
+    () =>
+      `${plantId}:${sortedLogs
+        .filter((log) => log.canToggleAccordion)
+        .map((log) => log.id)
+        .join('\0')}`,
+    [plantId, sortedLogs],
+  );
+  const persistOpenStates = useCallback(
+    (openById: Record<string, boolean>) =>
+      updateTimelineAccordionOpenStateAction(plantId, openById).then(() => undefined),
+    [plantId],
+  );
+  const { isOpen, setOpen } = useTimelineAccordion({
+    initialOpenById,
+    persistOpenStates,
+    resetKey: accordionResetKey,
+  });
 
   function openPhoto(photoId: string) {
     const index = allPhotos.findIndex((photo) => photo.id === photoId);
@@ -119,7 +147,7 @@ export function PlantTimeline({
               const galleryItems = toGalleryItems(log);
               const hasDetailContent =
                 galleryItems.length > 0 || Boolean(log.aiAdvice?.trim());
-              const open = isOpen(log.id);
+              const open = log.canToggleAccordion ? isOpen(log.id) : true;
               const panelId = `${accordionId}-timeline-panel-${index}`;
 
               const summaryRow = (
@@ -152,15 +180,19 @@ export function PlantTimeline({
                         .filter(Boolean)
                         .join(' ')}
                     >
-                      <button
-                        type="button"
-                        className={styles.timelineSummary}
-                        aria-expanded={open}
-                        aria-controls={panelId}
-                        onClick={() => setOpen(log.id, !open)}
-                      >
-                        {summaryRow}
-                      </button>
+                      {log.canToggleAccordion ? (
+                        <button
+                          type="button"
+                          className={styles.timelineSummary}
+                          aria-expanded={open}
+                          aria-controls={panelId}
+                          onClick={() => setOpen(log.id, !open)}
+                        >
+                          {summaryRow}
+                        </button>
+                      ) : (
+                        <div className={styles.timelineSummary}>{summaryRow}</div>
+                      )}
                       {hasDetailContent ? (
                         <div id={panelId} hidden={!open}>
                           <article className={styles.detailCard} aria-live="polite">

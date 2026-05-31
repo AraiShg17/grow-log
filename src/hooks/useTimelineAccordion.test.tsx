@@ -1,38 +1,46 @@
-import { renderHook, act } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { useTimelineAccordion } from '@/hooks/useTimelineAccordion';
-import { writeTimelineOpenState } from '@/lib/timeline/timelineAccordionStorage';
 
 describe('useTimelineAccordion', () => {
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it('hydrates from localStorage without flipping closed ids on mount', () => {
-    writeTimelineOpenState('plant-1', { logA: false, logB: true });
-
+  it('uses server-provided initial open state', () => {
+    const persistOpenStates = vi.fn();
     const { result } = renderHook(() =>
-      useTimelineAccordion('plant-1', ['logA', 'logB']),
+      useTimelineAccordion({
+        initialOpenById: { logA: false, logB: true },
+        persistOpenStates,
+      }),
     );
 
     expect(result.current.isOpen('logA')).toBe(false);
     expect(result.current.isOpen('logB')).toBe(true);
+    expect(result.current.isOpen('missing')).toBe(false);
   });
 
-  it('persists user toggle', () => {
+  it('updates optimistically and persists the final debounced state', async () => {
+    const persistOpenStates = vi.fn().mockResolvedValue(undefined);
     const { result } = renderHook(() =>
-      useTimelineAccordion('plant-2', ['logA']),
+      useTimelineAccordion({
+        initialOpenById: { logA: true, logB: true },
+        persistOpenStates,
+        persistDelayMs: 1,
+      }),
     );
-
-    expect(result.current.isOpen('logA')).toBe(true);
 
     act(() => {
       result.current.setOpen('logA', false);
+      result.current.setOpen('logA', true);
+      result.current.setOpen('logB', false);
     });
 
-    expect(result.current.isOpen('logA')).toBe(false);
-    expect(JSON.parse(localStorage.getItem('grow-log-timeline-open:plant-2')!)).toEqual(
-      { logA: false },
-    );
+    expect(result.current.isOpen('logA')).toBe(true);
+    expect(result.current.isOpen('logB')).toBe(false);
+    expect(persistOpenStates).not.toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(persistOpenStates).toHaveBeenCalledTimes(1);
+    });
+
+    expect(persistOpenStates).toHaveBeenCalledWith({ logA: true, logB: false });
   });
 });

@@ -54,6 +54,8 @@ function toPlantLog(id: string, data: PlantLogDocument): PlantLog {
     visualSnapshot: visualSnapshot || undefined,
     observedAt: data.observedAt.toDate(),
     createdAt: data.createdAt.toDate(),
+    accordionOpen:
+      typeof data.accordionOpen === 'boolean' ? data.accordionOpen : undefined,
   };
 }
 
@@ -216,6 +218,29 @@ export async function deletePlantLog(plantId: string, logId: string): Promise<vo
   batch.update(db.collection(PLANTS_COLLECTION).doc(plantId), {
     updatedAt: FieldValue.serverTimestamp(),
   });
+
+  await batch.commit();
+}
+
+export async function updateTimelineAccordionOpenState(
+  plantId: string,
+  logOpenById: Record<string, boolean>,
+): Promise<void> {
+  const db = getDb();
+  const batch = db.batch();
+  const plantRef = db.collection(PLANTS_COLLECTION).doc(plantId);
+  let hasUpdates = false;
+
+  for (const [logId, accordionOpen] of Object.entries(logOpenById)) {
+    batch.update(plantRef.collection('logs').doc(logId), {
+      accordionOpen,
+    });
+    hasUpdates = true;
+  }
+
+  if (!hasUpdates) {
+    return;
+  }
 
   await batch.commit();
 }
