@@ -7,6 +7,10 @@ import {
   writeTimelineOpenState,
 } from '@/lib/timeline/timelineAccordionStorage';
 
+function buildDefaultOpenState(logIds: readonly string[]): Record<string, boolean> {
+  return Object.fromEntries(logIds.map((logId) => [logId, true]));
+}
+
 export function useTimelineAccordion(plantId: string, logIds: readonly string[]) {
   const logIdsKey = logIds.join('\0');
   const stableLogIds = useMemo(
@@ -15,7 +19,7 @@ export function useTimelineAccordion(plantId: string, logIds: readonly string[])
   );
 
   const [openById, setOpenById] = useState<Record<string, boolean>>(() =>
-    buildTimelineOpenState(plantId, logIds),
+    buildDefaultOpenState(logIds),
   );
 
   useLayoutEffect(() => {

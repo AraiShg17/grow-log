@@ -6,7 +6,7 @@ import {
   type PhotoGalleryItem,
 } from '@/components/PhotoGallery/PhotoGallery';
 import { PhotoSliderModal } from '@/components/PhotoSliderModal/PhotoSliderModal';
-import { useEffect, useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { MarkdownContent } from '@/components/MarkdownContent/MarkdownContent';
 import { PlantLogDeleteButton } from '@/components/PlantLogDeleteButton/PlantLogDeleteButton';
 import { PanelTitle } from '@/components/PanelTitle/PanelTitle';
@@ -63,11 +63,7 @@ export function PlantTimeline({
 }: PlantTimelineProps) {
   const [sliderOpen, setSliderOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [animateDetails, setAnimateDetails] = useState(false);
-
-  useEffect(() => {
-    setAnimateDetails(true);
-  }, []);
+  const accordionId = useId();
 
   const sortedLogs = useMemo(
     () =>
@@ -119,11 +115,12 @@ export function PlantTimeline({
       ) : (
         <div className={styles.timelineLayout}>
           <ol className={styles.timelineList}>
-            {sortedLogs.map((log) => {
+            {sortedLogs.map((log, index) => {
               const galleryItems = toGalleryItems(log);
               const hasDetailContent =
                 galleryItems.length > 0 || Boolean(log.aiAdvice?.trim());
               const open = isOpen(log.id);
+              const panelId = `${accordionId}-timeline-panel-${index}`;
 
               const summaryRow = (
                 <>
@@ -147,36 +144,42 @@ export function PlantTimeline({
                     .join(' ')}
                 >
                   <div className={styles.entryRow}>
-                    <details
+                    <div
                       className={[
                         styles.timelineDetails,
-                        animateDetails ? styles.timelineDetailsAnimated : '',
+                        open ? styles.timelineDetailsOpen : '',
                       ]
                         .filter(Boolean)
                         .join(' ')}
-                      open={open}
-                      onToggle={(event) => {
-                        setOpen(log.id, event.currentTarget.open);
-                      }}
                     >
-                      <summary className={styles.timelineSummary}>{summaryRow}</summary>
+                      <button
+                        type="button"
+                        className={styles.timelineSummary}
+                        aria-expanded={open}
+                        aria-controls={panelId}
+                        onClick={() => setOpen(log.id, !open)}
+                      >
+                        {summaryRow}
+                      </button>
                       {hasDetailContent ? (
-                        <article className={styles.detailCard} aria-live="polite">
-                          {galleryItems.length > 0 ? (
-                            <PhotoGallery
-                              items={galleryItems}
-                              alt={`${plantName}の観察写真`}
-                              onPhotoClick={openPhoto}
-                            />
-                          ) : null}
-                          {log.aiAdvice?.trim() ? (
-                            <div className={styles.detailBody}>
-                              <MarkdownContent content={log.aiAdvice} />
-                            </div>
-                          ) : null}
-                        </article>
+                        <div id={panelId} hidden={!open}>
+                          <article className={styles.detailCard} aria-live="polite">
+                            {galleryItems.length > 0 ? (
+                              <PhotoGallery
+                                items={galleryItems}
+                                alt={`${plantName}の観察写真`}
+                                onPhotoClick={openPhoto}
+                              />
+                            ) : null}
+                            {log.aiAdvice?.trim() ? (
+                              <div className={styles.detailBody}>
+                                <MarkdownContent content={log.aiAdvice} />
+                              </div>
+                            ) : null}
+                          </article>
+                        </div>
                       ) : null}
-                    </details>
+                    </div>
                     {renderDeleteButton(plantId, log)}
                   </div>
                 </li>
