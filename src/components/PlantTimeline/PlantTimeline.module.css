@@ -86,6 +86,9 @@
   height: 0;
   opacity: 0;
   overflow: clip;
+}
+
+.timelineDetailsAnimated::details-content {
   transition:
     height 240ms cubic-bezier(0.4, 0, 0.2, 1),
     opacity 180ms ease,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useLayoutEffect, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import {
   buildTimelineOpenState,
   timelineOpenStatesEqual,
@@ -9,6 +9,10 @@ import {
 
 export function useTimelineAccordion(plantId: string, logIds: readonly string[]) {
   const logIdsKey = logIds.join('\0');
+  const stableLogIds = useMemo(
+    () => (logIdsKey ? logIdsKey.split('\0') : []),
+    [logIdsKey],
+  );
 
   const [openById, setOpenById] = useState<Record<string, boolean>>(() =>
     buildTimelineOpenState(plantId, logIds),
@@ -16,13 +20,13 @@ export function useTimelineAccordion(plantId: string, logIds: readonly string[])
 
   useLayoutEffect(() => {
     setOpenById((prev) => {
-      const next = buildTimelineOpenState(plantId, logIds);
-      if (timelineOpenStatesEqual(prev, next, logIds)) {
+      const next = buildTimelineOpenState(plantId, stableLogIds);
+      if (timelineOpenStatesEqual(prev, next, stableLogIds)) {
         return prev;
       }
       return next;
     });
-  }, [plantId, logIdsKey, logIds]);
+  }, [plantId, stableLogIds]);
 
   const isOpen = useCallback(
     (logId: string) => openById[logId] ?? true,

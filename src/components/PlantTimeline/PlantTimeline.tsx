@@ -6,7 +6,7 @@ import {
   type PhotoGalleryItem,
 } from '@/components/PhotoGallery/PhotoGallery';
 import { PhotoSliderModal } from '@/components/PhotoSliderModal/PhotoSliderModal';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MarkdownContent } from '@/components/MarkdownContent/MarkdownContent';
 import { PlantLogDeleteButton } from '@/components/PlantLogDeleteButton/PlantLogDeleteButton';
 import { PanelTitle } from '@/components/PanelTitle/PanelTitle';
@@ -63,6 +63,11 @@ export function PlantTimeline({
 }: PlantTimelineProps) {
   const [sliderOpen, setSliderOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [animateDetails, setAnimateDetails] = useState(false);
+
+  useEffect(() => {
+    setAnimateDetails(true);
+  }, []);
 
   const sortedLogs = useMemo(
     () =>
@@ -143,7 +148,12 @@ export function PlantTimeline({
                 >
                   <div className={styles.entryRow}>
                     <details
-                      className={styles.timelineDetails}
+                      className={[
+                        styles.timelineDetails,
+                        animateDetails ? styles.timelineDetailsAnimated : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
                       open={open}
                       onToggle={(event) => {
                         setOpen(log.id, event.currentTarget.open);
