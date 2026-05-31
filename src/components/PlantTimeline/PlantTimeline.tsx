@@ -57,6 +57,10 @@ function renderDeleteButton(plantId: string, log: TimelineLog) {
   return <PlantLogDeleteButton plantId={plantId} logId={log.id} />;
 }
 
+function hasExpandableContent(log: TimelineLog): boolean {
+  return log.photoUrls.length > 0 || Boolean(log.aiAdvice?.trim());
+}
+
 export function PlantTimeline({
   plantId,
   plantName,
@@ -81,7 +85,7 @@ export function PlantTimeline({
     () =>
       Object.fromEntries(
         sortedLogs
-          .filter((log) => log.canToggleAccordion)
+          .filter((log) => log.canToggleAccordion && hasExpandableContent(log))
           .map((log) => [log.id, log.accordionOpen]),
       ),
     [sortedLogs],
@@ -89,7 +93,7 @@ export function PlantTimeline({
   const accordionResetKey = useMemo(
     () =>
       `${plantId}:${sortedLogs
-        .filter((log) => log.canToggleAccordion)
+        .filter((log) => log.canToggleAccordion && hasExpandableContent(log))
         .map((log) => log.id)
         .join('\0')}`,
     [plantId, sortedLogs],
@@ -145,9 +149,10 @@ export function PlantTimeline({
           <ol className={styles.timelineList}>
             {sortedLogs.map((log, index) => {
               const galleryItems = toGalleryItems(log);
-              const hasDetailContent =
+              const hasContent =
                 galleryItems.length > 0 || Boolean(log.aiAdvice?.trim());
-              const open = log.canToggleAccordion ? isOpen(log.id) : true;
+              const canExpand = log.canToggleAccordion && hasContent;
+              const open = canExpand ? isOpen(log.id) : true;
               const panelId = `${accordionId}-timeline-panel-${index}`;
 
               const summaryRow = (
@@ -180,7 +185,7 @@ export function PlantTimeline({
                         .filter(Boolean)
                         .join(' ')}
                     >
-                      {log.canToggleAccordion ? (
+                      {canExpand ? (
                         <button
                           type="button"
                           className={styles.timelineSummary}
@@ -193,7 +198,7 @@ export function PlantTimeline({
                       ) : (
                         <div className={styles.timelineSummary}>{summaryRow}</div>
                       )}
-                      {hasDetailContent ? (
+                      {hasContent ? (
                         <div id={panelId} hidden={!open}>
                           <article className={styles.detailCard} aria-live="polite">
                             {galleryItems.length > 0 ? (
