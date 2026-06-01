@@ -138,7 +138,12 @@ export function PlantTimeline({
               return (
                 <li
                   key={log.id}
-                  className={[styles.timelineItem, styles.timelineItemInteractive]
+                  className={[
+                    styles.timelineItem,
+                    canExpand
+                      ? styles.timelineItemInteractive
+                      : styles.timelineItemStatic,
+                  ]
                     .filter(Boolean)
                     .join(' ')}
                 >
@@ -146,7 +151,7 @@ export function PlantTimeline({
                     <div
                       className={[
                         styles.timelineDetails,
-                        open ? styles.timelineDetailsOpen : '',
+                        canExpand && open ? styles.timelineDetailsOpen : '',
                       ]
                         .filter(Boolean)
                         .join(' ')}
