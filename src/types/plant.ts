@@ -44,8 +44,6 @@ export interface PlantLog {
   visualSnapshot?: string;
   observedAt: Date;
   createdAt: Date;
-  /** 詳細ページ年表で開いて表示するか。未設定は false */
-  accordionOpen?: boolean;
 }
 
 export interface PlantDocument {
@@ -70,7 +68,6 @@ export interface PlantLogDocument {
   visualSnapshot?: string;
   observedAt: Timestamp;
   createdAt: Timestamp;
-  accordionOpen?: boolean;
 }
 
 export type PlantChatRole = 'user' | 'assistant';

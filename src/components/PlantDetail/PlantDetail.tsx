@@ -27,7 +27,6 @@ export function PlantDetail({ plant, logs }: PlantDetailProps) {
       observedAtIso: plant.createdAt.toISOString(),
       dateLabel: formatDateTime(plant.createdAt),
       canDelete: false,
-      accordionOpen: true,
       canToggleAccordion: false,
     },
     ...logs.map((log) => ({
@@ -40,7 +39,6 @@ export function PlantDetail({ plant, logs }: PlantDetailProps) {
       observedAtIso: log.observedAt.toISOString(),
       dateLabel: formatDateTime(log.observedAt),
       canDelete: true,
-      accordionOpen: log.accordionOpen ?? false,
       canToggleAccordion: true,
     })),
   ];

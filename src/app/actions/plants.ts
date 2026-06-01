@@ -14,7 +14,6 @@ import {
   getPlantLog,
   listPlantLogs,
   updatePlant,
-  updateTimelineAccordionOpenState,
 } from '@/lib/firestore/plants';
 import {
   uploadPhotosFromFormData,
@@ -288,20 +287,4 @@ export async function deletePlantAction(plantId: string): Promise<ActionResult> 
   }
 
   redirect('/');
-}
-
-export async function updateTimelineAccordionOpenStateAction(
-  plantId: string,
-  openById: Record<string, boolean>,
-): Promise<ActionResult> {
-  try {
-    await updateTimelineAccordionOpenState(plantId, openById);
-
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: toActionErrorMessage(error, '年表の開閉状態の保存に失敗しました。'),
-    };
-  }
 }
