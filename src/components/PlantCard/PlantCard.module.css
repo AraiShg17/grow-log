@@ -1,4 +1,7 @@
 .card {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
   opacity: 1;
   scale: 1;
   border-radius: var(--radius-lg);
@@ -17,7 +20,9 @@
 }
 
 .cardLink {
-  display: block;
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
   height: 100%;
 }
 
@@ -52,9 +57,9 @@
 }
 
 .body {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
   padding: var(--space-4);
 }
 
@@ -124,7 +129,7 @@
 }
 
 .meta {
-  margin: var(--space-2) 0 0;
+  margin: 0;
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }

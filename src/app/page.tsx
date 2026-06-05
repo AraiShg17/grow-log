@@ -1,10 +1,6 @@
-import { Link } from 'next-view-transitions';
-import { PlantCareQuickActions } from '@/components/PlantCareQuickActions/PlantCareQuickActions';
-import { PlantListBrowse } from '@/components/PlantListBrowse/PlantListBrowse';
-import { PageShell } from '@/components/PageShell/PageShell';
+import { PlantListPageClient } from '@/components/PlantListPageClient/PlantListPageClient';
 import { listPlants } from '@/lib/firestore/plants';
 import type { PlantListItem } from '@/types/plant';
-import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,21 +19,5 @@ export default async function HomePage() {
     lastFertilizedAt: p.lastFertilizedAt?.toISOString(),
   }));
 
-  return (
-    <PageShell
-      title="植物一覧"
-      actions={plants.length > 0 ? <PlantCareQuickActions plants={items} /> : null}
-    >
-      {plants.length === 0 ? (
-        <div className={styles.empty}>
-          <p>まだ植物が登録されていません。</p>
-          <Link href="/plants/new" className={styles.newLink}>
-            最初の植物を登録する
-          </Link>
-        </div>
-      ) : (
-        <PlantListBrowse plants={items} />
-      )}
-    </PageShell>
-  );
+  return <PlantListPageClient plants={items} />;
 }

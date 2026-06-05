@@ -24,6 +24,14 @@ export function AppHeader() {
             <MaterialIcon name={icons.add} size="sm" className={styles.navIcon} />
             植物を登録
           </Link>
+          <Link href="/gallery" className={styles.navLinkGallery}>
+            <MaterialIcon
+              name={icons.photoLibrary}
+              size="sm"
+              className={styles.navIcon}
+            />
+            <span className={styles.navLinkText}>ギャラリー</span>
+          </Link>
           <ThemeToggle />
         </nav>
       </div>

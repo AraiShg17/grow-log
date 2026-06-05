@@ -100,7 +100,6 @@
   backdrop-filter: blur(8px);
   color: var(--color-text);
   cursor: pointer;
-  flex-shrink: 0;
   box-shadow: 0 0.25rem 0.75rem color-mix(in oklab, #000 8%, transparent);
   transition:
     background-color 200ms ease,
@@ -129,31 +128,37 @@
   position: relative;
   flex: 1;
   min-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-4);
-  gap: var(--space-3);
+  width: 100%;
+  height: 100%;
   touch-action: pan-y pinch-zoom;
 }
 
 .imageWrap {
   position: relative;
-  flex: 1;
   width: 100%;
-  max-width: min(72rem, 100%);
   height: 100%;
   min-height: 12rem;
-  border-radius: var(--radius-md);
   overflow: hidden;
   background: color-mix(in oklab, var(--color-bg-elevated) 70%, transparent);
-  box-shadow:
-    0 1.25rem 3rem color-mix(in oklab, #000 12%, transparent),
-    0 0 0 1px var(--color-border);
 }
 
 .image {
   object-fit: contain;
+}
+
+.navButton {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  translate: 0 -50%;
+}
+
+.navButtonPrev {
+  left: var(--space-3);
+}
+
+.navButtonNext {
+  right: var(--space-3);
 }
 
 .aiBadge {
@@ -169,19 +174,10 @@
   box-shadow: 0 0.15rem 0.5rem color-mix(in oklab, #000 15%, transparent);
 }
 
-/* タッチ端末: スワイプ操作のため左右ナビを隠し、画像領域を広げる */
+/* タッチ端末: スワイプ操作のため左右ナビを隠す */
 @media (hover: none), (pointer: coarse) {
   .navButton {
     display: none;
-  }
-
-  .stage {
-    gap: 0;
-    padding-inline: var(--space-2);
-  }
-
-  .imageWrap {
-    max-width: 100%;
   }
 }
 

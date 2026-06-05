@@ -26,7 +26,7 @@ interface PhotoEntry {
   previewUrl: string;
 }
 
-type AiSelectionMode = 'single' | 'multi';
+type AiSelectionMode = 'single' | 'multi' | 'none';
 
 interface PhotoInputProps {
   required?: boolean;
@@ -37,6 +37,7 @@ interface PhotoInputProps {
   onPhotoCountChange?: (count: number) => void;
   onAiSelectionValidChange?: (valid: boolean) => void;
   onCompressingChange?: (compressing: boolean) => void;
+  resetSignal?: number;
 }
 
 function createEntryId(): string {
@@ -73,6 +74,7 @@ export function PhotoInput({
   onPhotoCountChange,
   onAiSelectionValidChange,
   onCompressingChange,
+  resetSignal,
 }: PhotoInputProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -82,6 +84,7 @@ export function PhotoInput({
   const [compressing, setCompressing] = useState(false);
 
   const isMultiAi = aiSelectionMode === 'multi';
+  const usesAiSelection = aiSelectionMode !== 'none';
 
   const syncInputFiles = useCallback((nextEntries: PhotoEntry[]) => {
     if (!inputRef.current) {
@@ -107,6 +110,22 @@ export function PhotoInput({
   }, [entries, syncInputFiles]);
 
   useEffect(() => {
+    if (resetSignal === undefined) {
+      return;
+    }
+
+    setEntries((prev) => {
+      for (const entry of prev) {
+        URL.revokeObjectURL(entry.previewUrl);
+      }
+      syncInputFiles([]);
+      return [];
+    });
+    setAiPhotoIndex(0);
+    setAiPhotoIndices([]);
+  }, [resetSignal, syncInputFiles]);
+
+  useEffect(() => {
     onPhotoCountChange?.(entries.length);
   }, [entries.length, onPhotoCountChange]);
 
@@ -118,7 +137,7 @@ export function PhotoInput({
     if (!onAiSelectionValidChange) {
       return;
     }
-    if (entries.length === 0) {
+    if (!usesAiSelection || entries.length === 0) {
       onAiSelectionValidChange(true);
       return;
     }
@@ -131,6 +150,7 @@ export function PhotoInput({
     maxAiSelections,
     minAiSelections,
     onAiSelectionValidChange,
+    usesAiSelection,
   ]);
 
   const addFiles = useCallback(
@@ -243,6 +263,9 @@ export function PhotoInput({
   }
 
   function toggleAiSelection(index: number) {
+    if (!usesAiSelection) {
+      return;
+    }
     if (!isMultiAi) {
       setAiPhotoIndex(index);
       return;
@@ -264,6 +287,9 @@ export function PhotoInput({
   }
 
   function isAiSelected(index: number): boolean {
+    if (!usesAiSelection) {
+      return false;
+    }
     return isMultiAi ? aiPhotoIndices.includes(index) : index === aiPhotoIndex;
   }
 
@@ -275,11 +301,13 @@ export function PhotoInput({
         : `画像を追加（任意・最大${maxPhotos}枚）`
       : `写真を追加（${entries.length}/${maxPhotos}枚）`;
 
-  const aiHint = isMultiAi
-    ? `AI分析に使う写真を${minAiSelections}〜${maxAiSelections}枚タップして選んでください`
-    : required
-      ? 'AI分析に使う写真をタップして選んでください'
-      : 'AI分析に使う写真をタップして選べます（写真を付けた場合のみAIが動きます）';
+  const aiHint = usesAiSelection
+    ? isMultiAi
+      ? `AI分析に使う写真を${minAiSelections}〜${maxAiSelections}枚タップして選んでください`
+      : required
+        ? 'AI分析に使う写真をタップして選んでください'
+        : 'AI分析に使う写真をタップして選べます（写真を付けた場合のみAIが動きます）'
+    : null;
 
   return (
     <div className={styles.root} role="group" aria-label="写真の選択">
@@ -292,9 +320,9 @@ export function PhotoInput({
             value={index}
           />
         ))
-      ) : (
+      ) : usesAiSelection ? (
         <input type="hidden" name="aiPhotoIndex" value={aiPhotoIndex} />
-      )}
+      ) : null}
 
       <input
         ref={inputRef}
@@ -310,35 +338,46 @@ export function PhotoInput({
 
       {entries.length > 0 ? (
         <>
-          <p className={styles.aiHint}>{aiHint}</p>
+          {aiHint ? <p className={styles.aiHint}>{aiHint}</p> : null}
           <ul className={styles.gallery} aria-label="選択した写真">
             {entries.map((entry, index) => {
               const isAi = isAiSelected(index);
+              const thumb = (
+                <Image
+                  src={entry.previewUrl}
+                  alt=""
+                  width={96}
+                  height={96}
+                  className={styles.thumbImage}
+                  unoptimized
+                />
+              );
               return (
                 <li key={entry.id} className={styles.thumbItem}>
-                  <button
-                    type="button"
-                    className={[styles.thumbButton, isAi ? styles.thumbButtonAi : '']
-                      .filter(Boolean)
-                      .join(' ')}
-                    onClick={() => toggleAiSelection(index)}
-                    aria-pressed={isAi}
-                    aria-label={
-                      isAi
-                        ? `写真${index + 1}：AI分析に使用（選択中）`
-                        : `写真${index + 1}：タップしてAI分析に使う`
-                    }
-                  >
-                    <Image
-                      src={entry.previewUrl}
-                      alt=""
-                      width={96}
-                      height={96}
-                      className={styles.thumbImage}
-                      unoptimized
-                    />
-                    {isAi ? <span className={styles.aiBadge}>AI</span> : null}
-                  </button>
+                  {usesAiSelection ? (
+                    <button
+                      type="button"
+                      className={[styles.thumbButton, isAi ? styles.thumbButtonAi : '']
+                        .filter(Boolean)
+                        .join(' ')}
+                      onClick={() => toggleAiSelection(index)}
+                      aria-pressed={isAi}
+                      aria-label={
+                        isAi
+                          ? `写真${index + 1}：AI分析に使用（選択中）`
+                          : `写真${index + 1}：タップしてAI分析に使う`
+                      }
+                    >
+                      {thumb}
+                      {isAi ? <span className={styles.aiBadge}>AI</span> : null}
+                    </button>
+                  ) : (
+                    <div
+                      className={[styles.thumbButton, styles.thumbPreview].join(' ')}
+                    >
+                      {thumb}
+                    </div>
+                  )}
                   <button
                     type="button"
                     className={styles.removeButton}

@@ -1,16 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { PlantCard } from '@/components/PlantCard/PlantCard';
 import { PlantListScrollRestore } from '@/components/PlantListScrollRestore/PlantListScrollRestore';
 import { plantListAnchorId } from '@/lib/navigation/plantListAnchor';
 import { PlantListFilters } from '@/components/PlantListFilters/PlantListFilters';
-import { filterPlants } from '@/lib/plants/filterPlants';
-import {
-  DEFAULT_PLANT_SORT,
-  sortPlants,
-  type PlantSortKey,
-} from '@/lib/plants/sortPlants';
+import { getDisplayedPlants } from '@/lib/plants/plantListViewParams';
+import { usePlantListView } from '@/components/PlantListView/PlantListViewProvider';
 import type { PlantListItem } from '@/types/plant';
 import pageStyles from '@/app/page.module.css';
 
@@ -19,17 +15,21 @@ interface PlantListBrowseProps {
 }
 
 export function PlantListBrowse({ plants }: PlantListBrowseProps) {
-  const [query, setQuery] = useState('');
-  const [sunlight, setSunlight] = useState('');
-  const [sort, setSort] = useState<PlantSortKey>(DEFAULT_PLANT_SORT);
+  const {
+    query,
+    sunlight,
+    sort,
+    filtersActive,
+    setQuery,
+    setSunlight,
+    setSort,
+    resetViewParams,
+  } = usePlantListView();
 
-  const displayed = useMemo(() => {
-    const filtered = filterPlants(plants, { query, sunlight });
-    return sortPlants(filtered, sort);
-  }, [plants, query, sunlight, sort]);
-
-  const filtersActive =
-    query.trim() !== '' || sunlight !== '' || sort !== DEFAULT_PLANT_SORT;
+  const displayed = useMemo(
+    () => getDisplayedPlants(plants, { query, sunlight, sort }),
+    [plants, query, sunlight, sort],
+  );
 
   return (
     <>
@@ -49,11 +49,7 @@ export function PlantListBrowse({ plants }: PlantListBrowseProps) {
             <button
               type="button"
               className={pageStyles.newLink}
-              onClick={() => {
-                setQuery('');
-                setSunlight('');
-                setSort(DEFAULT_PLANT_SORT);
-              }}
+              onClick={resetViewParams}
             >
               条件をクリア
             </button>

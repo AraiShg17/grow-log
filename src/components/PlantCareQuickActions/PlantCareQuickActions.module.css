@@ -22,6 +22,11 @@
     transform 200ms ease;
 }
 
+.iconButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .iconButtonWater {
   color: var(--color-care-water);
   border-color: var(--color-care-water);
@@ -175,9 +180,29 @@
   accent-color: var(--color-accent);
 }
 
+.thumbnail {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  box-shadow: 0 0 0 1px var(--color-border);
+}
+
+.thumbnailImage {
+  object-fit: cover;
+}
+
 .plantName {
+  min-width: 0;
   font-size: 0.9375rem;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .error {

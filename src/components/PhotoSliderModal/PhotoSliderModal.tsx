@@ -156,7 +156,7 @@ export function PhotoSliderModal({
         >
           <button
             type="button"
-            className={styles.navButton}
+            className={`${styles.navButton} ${styles.navButtonPrev}`}
             aria-label="前の写真"
             onClick={goPrev}
             disabled={photos.length <= 1}
@@ -179,7 +179,7 @@ export function PhotoSliderModal({
 
           <button
             type="button"
-            className={styles.navButton}
+            className={`${styles.navButton} ${styles.navButtonNext}`}
             aria-label="次の写真"
             onClick={goNext}
             disabled={photos.length <= 1}

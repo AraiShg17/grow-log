@@ -25,7 +25,7 @@ function extensionFromMime(mimeType: string): string {
 export async function uploadPlantPhotoBuffer(
   buffer: Buffer,
   mimeType: string,
-  folder: 'plants' | 'logs',
+  folder: 'plants' | 'logs' | 'gallery',
 ): Promise<string> {
   const bucketName = getGcsBucketName();
   const extension = extensionFromMime(mimeType);
@@ -46,7 +46,7 @@ export async function uploadPlantPhotoBuffer(
 
 export async function uploadPlantPhoto(
   file: File,
-  folder: 'plants' | 'logs',
+  folder: 'plants' | 'logs' | 'gallery',
 ): Promise<string> {
   const mimeType = file.type || 'image/jpeg';
   const buffer = Buffer.from(await file.arrayBuffer());

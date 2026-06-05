@@ -55,18 +55,26 @@ export function validateLogPhotosFormData(formData: FormData): string | null {
 
 export async function uploadPhotosFromFormData(
   formData: FormData,
-  folder: 'plants' | 'logs',
+  folder: 'plants' | 'logs' | 'gallery',
 ): Promise<PreparedPhotoUpload> {
   const maxPhotos = folder === 'logs' ? MAX_LOG_PHOTOS : MAX_PHOTOS_PER_ENTRY;
   const files = parsePhotoFilesFromFormData(formData, maxPhotos);
 
   const aiPhotoIndices =
-    folder === 'logs'
-      ? parseAiPhotoIndicesFromFormData(formData, files.length)
-      : [parseAiPhotoIndexFromFormData(formData, files.length)];
+    folder === 'gallery'
+      ? []
+      : folder === 'logs'
+        ? parseAiPhotoIndicesFromFormData(formData, files.length)
+        : [parseAiPhotoIndexFromFormData(formData, files.length)];
 
   const safeIndices =
-    aiPhotoIndices.length > 0 ? aiPhotoIndices : files.length > 0 ? [0] : [];
+    folder === 'gallery'
+      ? []
+      : aiPhotoIndices.length > 0
+        ? aiPhotoIndices
+        : files.length > 0
+          ? [0]
+          : [];
 
   const buffers = await Promise.all(
     files.map(async (file) => ({

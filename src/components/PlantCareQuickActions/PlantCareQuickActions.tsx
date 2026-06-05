@@ -4,7 +4,10 @@ import { bulkCreateCareLogsAction } from '@/app/actions/plants';
 import { MaterialIcon } from '@/components/MaterialIcon/MaterialIcon';
 import { icons } from '@/icons';
 import type { CareLogKind } from '@/lib/plants/careLogMemos';
+import { getDisplayedPlants } from '@/lib/plants/plantListViewParams';
+import { usePlantListView } from '@/components/PlantListView/PlantListViewProvider';
 import type { PlantListItem } from '@/types/plant';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import styles from './PlantCareQuickActions.module.css';
@@ -31,18 +34,19 @@ const DIALOG_COPY: Record<
 
 export function PlantCareQuickActions({ plants }: PlantCareQuickActionsProps) {
   const router = useRouter();
+  const { query, sunlight, sort } = usePlantListView();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [activeKind, setActiveKind] = useState<CareLogKind | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const sortedPlants = useMemo(
-    () => [...plants].sort((a, b) => a.name.localeCompare(b.name, 'ja')),
-    [plants],
+  const displayedPlants = useMemo(
+    () => getDisplayedPlants(plants, { query, sunlight, sort }),
+    [plants, query, sunlight, sort],
   );
 
-  const allIds = useMemo(() => sortedPlants.map((p) => p.id), [sortedPlants]);
+  const allIds = useMemo(() => displayedPlants.map((p) => p.id), [displayedPlants]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -114,6 +118,7 @@ export function PlantCareQuickActions({ plants }: PlantCareQuickActionsProps) {
             .join(' ')}
           aria-label="水やりを記録"
           aria-haspopup="dialog"
+          disabled={displayedPlants.length === 0}
           onClick={() => openDialog('water')}
         >
           <MaterialIcon name={icons.waterDrop} label="水やり" />
@@ -129,6 +134,7 @@ export function PlantCareQuickActions({ plants }: PlantCareQuickActionsProps) {
             .join(' ')}
           aria-label="肥料やりを記録"
           aria-haspopup="dialog"
+          disabled={displayedPlants.length === 0}
           onClick={() => openDialog('fertilize')}
         >
           <MaterialIcon name={icons.compost} label="肥料やり" />
@@ -177,18 +183,35 @@ export function PlantCareQuickActions({ plants }: PlantCareQuickActionsProps) {
               </div>
 
               <ul className={styles.plantList}>
-                {sortedPlants.map((plant) => (
-                  <li key={plant.id}>
-                    <label className={styles.plantOption}>
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(plant.id)}
-                        onChange={(e) => togglePlant(plant.id, e.target.checked)}
-                      />
-                      <span className={styles.plantName}>{plant.name}</span>
-                    </label>
-                  </li>
-                ))}
+                {displayedPlants.map((plant) => {
+                  const photoUrl = plant.latestPhotoUrl ?? plant.photoUrls[0] ?? '';
+
+                  return (
+                    <li key={plant.id}>
+                      <label className={styles.plantOption}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(plant.id)}
+                          onChange={(e) => togglePlant(plant.id, e.target.checked)}
+                        />
+                        <span className={styles.thumbnail} aria-hidden>
+                          {photoUrl ? (
+                            <Image
+                              src={photoUrl}
+                              alt=""
+                              fill
+                              sizes="40px"
+                              className={styles.thumbnailImage}
+                            />
+                          ) : (
+                            <MaterialIcon name={icons.pottedPlant} size="sm" />
+                          )}
+                        </span>
+                        <span className={styles.plantName}>{plant.name}</span>
+                      </label>
+                    </li>
+                  );
+                })}
               </ul>
 
               {error ? <p className={styles.error}>{error}</p> : null}

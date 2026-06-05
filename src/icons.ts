@@ -11,6 +11,7 @@ export const icons = {
   tempPreferencesEco: 'temp_preferences_eco',
   add: 'add',
   photoCamera: 'photo_camera',
+  photoLibrary: 'photo_library',
   darkMode: 'dark_mode',
   lightMode: 'light_mode',
   edit: 'edit',

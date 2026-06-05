@@ -92,6 +92,10 @@
     box-shadow 200ms ease;
 }
 
+.thumbPreview {
+  cursor: default;
+}
+
 .thumbButtonAi {
   border-color: var(--color-accent);
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-accent) 28%, transparent);
