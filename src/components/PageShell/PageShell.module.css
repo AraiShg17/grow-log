@@ -98,3 +98,13 @@
     background-color: var(--color-surface);
   }
 }
+
+@media (max-width: 767px) {
+  .sectionInner {
+    padding-inline: var(--space-3);
+  }
+
+  .pageHeader {
+    margin-bottom: var(--space-5);
+  }
+}

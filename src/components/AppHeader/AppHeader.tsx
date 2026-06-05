@@ -22,7 +22,7 @@ export function AppHeader() {
           </Link>
           <Link href="/plants/new" className={styles.navLinkPrimary}>
             <MaterialIcon name={icons.add} size="sm" className={styles.navIcon} />
-            植物を登録
+            植物登録
           </Link>
           <Link href="/gallery" className={styles.navLinkGallery}>
             <MaterialIcon
