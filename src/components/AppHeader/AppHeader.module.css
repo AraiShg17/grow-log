@@ -24,7 +24,7 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   font-weight: 700;
   letter-spacing: 0.02em;
   transition:
@@ -58,7 +58,7 @@
 .navLinkGallery {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   color: var(--color-text-muted);
@@ -74,8 +74,10 @@
 
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
   border-radius: 999px;
   background-image: linear-gradient(
     135deg in oklab,
@@ -89,6 +91,16 @@
     --interactive-gradient-to 200ms ease,
     filter 200ms ease,
     transform 200ms ease;
+}
+
+.navLinkSrOnly {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .navIcon {

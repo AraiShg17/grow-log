@@ -9,14 +9,28 @@ import styles from './GalleryPageHeader.module.css';
 interface GalleryPageHeaderProps {
   initialTotalCount: number;
   maxPhotos: number;
+  hasPhotos: boolean;
+  selectionMode: boolean;
+  selectedCount: number;
+  deletePending: boolean;
+  onStartSelection: () => void;
+  onCancelSelection: () => void;
+  onConfirmDelete: () => void;
 }
 
 export function GalleryPageHeader({
   initialTotalCount,
   maxPhotos,
+  hasPhotos,
+  selectionMode,
+  selectedCount,
+  deletePending,
+  onStartSelection,
+  onCancelSelection,
+  onConfirmDelete,
 }: GalleryPageHeaderProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [open, setOpen] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
   const limitReached = initialTotalCount >= maxPhotos;
 
   useEffect(() => {
@@ -25,39 +39,73 @@ export function GalleryPageHeader({
       return;
     }
 
-    if (open) {
+    if (uploadOpen) {
       dialog.showModal();
     } else if (dialog.open) {
       dialog.close();
     }
-  }, [open]);
+  }, [uploadOpen]);
 
-  function closeModal() {
-    setOpen(false);
+  function closeUploadModal() {
+    setUploadOpen(false);
   }
 
   return (
     <>
       <div className={styles.row}>
         <h1 className={styles.title}>ギャラリー</h1>
-        <button
-          type="button"
-          className={styles.uploadButton}
-          onClick={() => setOpen(true)}
-          disabled={limitReached}
-          aria-haspopup="dialog"
-        >
-          <MaterialIcon name={icons.photoCamera} size="sm" />
-          画像を投稿
-        </button>
+        <div className={styles.actions}>
+          {selectionMode ? (
+            <>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={onCancelSelection}
+                disabled={deletePending}
+              >
+                キャンセル
+              </button>
+              <button
+                type="button"
+                className={styles.dangerButton}
+                onClick={onConfirmDelete}
+                disabled={deletePending || selectedCount === 0}
+              >
+                {selectedCount > 0 ? `${selectedCount}枚を削除` : '削除'}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className={styles.uploadButton}
+                onClick={() => setUploadOpen(true)}
+                disabled={limitReached}
+                aria-haspopup="dialog"
+              >
+                <MaterialIcon name={icons.photoCamera} size="sm" />
+                画像を投稿
+              </button>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={onStartSelection}
+                disabled={!hasPhotos}
+              >
+                <MaterialIcon name={icons.delete} size="sm" />
+                削除
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <dialog
         ref={dialogRef}
         className={styles.dialog}
         aria-labelledby="gallery-upload-title"
-        onClose={closeModal}
-        onCancel={closeModal}
+        onClose={closeUploadModal}
+        onCancel={closeUploadModal}
       >
         <div className={styles.dialogInner}>
           <header className={styles.dialogHeader}>
@@ -67,7 +115,7 @@ export function GalleryPageHeader({
             <button
               type="button"
               className={styles.closeButton}
-              onClick={closeModal}
+              onClick={closeUploadModal}
               aria-label="閉じる"
             >
               <MaterialIcon name={icons.close} size="sm" />
@@ -78,7 +126,7 @@ export function GalleryPageHeader({
               variant="modal"
               initialTotalCount={initialTotalCount}
               maxPhotos={maxPhotos}
-              onComplete={closeModal}
+              onComplete={closeUploadModal}
             />
           </div>
         </div>

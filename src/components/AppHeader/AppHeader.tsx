@@ -20,9 +20,13 @@ export function AppHeader() {
           <Link href="/" className={styles.navLink}>
             植物一覧
           </Link>
-          <Link href="/plants/new" className={styles.navLinkPrimary}>
+          <Link
+            href="/plants/new"
+            className={styles.navLinkPrimary}
+            aria-label="植物登録"
+          >
             <MaterialIcon name={icons.add} size="sm" className={styles.navIcon} />
-            植物登録
+            <span className={styles.navLinkSrOnly}>植物登録</span>
           </Link>
           <Link href="/gallery" className={styles.navLinkGallery}>
             <MaterialIcon

@@ -2,7 +2,9 @@
 
 import Image from 'next/image';
 import { listGalleryPhotoPageAction } from '@/app/actions/gallery';
+import { MaterialIcon } from '@/components/MaterialIcon/MaterialIcon';
 import { PhotoSliderModal } from '@/components/PhotoSliderModal/PhotoSliderModal';
+import { icons } from '@/icons';
 import type { GalleryPhotoItem, GalleryPhotoPage } from '@/types/gallery';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import styles from './GalleryGrid.module.css';
@@ -10,9 +12,26 @@ import styles from './GalleryGrid.module.css';
 interface GalleryGridProps {
   initialPage: GalleryPhotoPage;
   maxPhotos: number;
+  selectionMode: boolean;
+  selectedIds: ReadonlySet<string>;
+  deleteError: string | null;
+  onToggleSelect: (photoId: string) => void;
+  onSelectAll: (photoIds: readonly string[]) => void;
+  onClearSelection: () => void;
+  onExitSelectionMode: () => void;
 }
 
-export function GalleryGrid({ initialPage, maxPhotos }: GalleryGridProps) {
+export function GalleryGrid({
+  initialPage,
+  maxPhotos,
+  selectionMode,
+  selectedIds,
+  deleteError,
+  onToggleSelect,
+  onSelectAll,
+  onClearSelection,
+  onExitSelectionMode,
+}: GalleryGridProps) {
   const [photos, setPhotos] = useState<GalleryPhotoItem[]>(initialPage.photos);
   const [totalCount, setTotalCount] = useState(initialPage.totalCount);
   const [nextCursor, setNextCursor] = useState(initialPage.nextCursor);
@@ -30,6 +49,12 @@ export function GalleryGrid({ initialPage, maxPhotos }: GalleryGridProps) {
     setError(null);
     loadingRef.current = false;
   }, [initialPage]);
+
+  useEffect(() => {
+    if (selectionMode) {
+      setSliderOpen(false);
+    }
+  }, [selectionMode]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -70,6 +95,16 @@ export function GalleryGrid({ initialPage, maxPhotos }: GalleryGridProps) {
     setSliderOpen(true);
   }
 
+  function handlePhotoClick(index: number, photoId: string) {
+    if (selectionMode) {
+      onToggleSelect(photoId);
+      return;
+    }
+    openPhoto(index);
+  }
+
+  const allPhotoIds = photos.map((photo) => photo.id);
+
   if (photos.length === 0) {
     return (
       <div className={styles.empty}>
@@ -88,28 +123,85 @@ export function GalleryGrid({ initialPage, maxPhotos }: GalleryGridProps) {
         <p>{photos.length}枚表示中</p>
       </div>
 
-      <ul className={styles.grid} aria-label="投稿写真一覧">
-        {photos.map((photo, index) => (
-          <li key={photo.id} className={styles.item}>
+      {selectionMode ? (
+        <div className={styles.selectionBar}>
+          <p className={styles.selectionHint}>削除する写真を選択してください</p>
+          <div className={styles.selectionActions}>
             <button
               type="button"
-              className={styles.photoButton}
-              onClick={() => openPhoto(index)}
-              aria-label={`ギャラリー写真 ${index + 1}枚目を拡大表示`}
+              className={styles.textButton}
+              onClick={() => onSelectAll(allPhotoIds)}
             >
-              <Image
-                src={photo.url}
-                alt={`ギャラリー写真 ${index + 1}`}
-                fill
-                sizes="(max-width: 768px) 33vw, 24rem"
-                className={styles.image}
-              />
-              <span className={styles.caption}>
-                <span className={styles.dateLabel}>{photo.dateLabel}</span>
-              </span>
+              すべて選択
             </button>
-          </li>
-        ))}
+            <button
+              type="button"
+              className={styles.textButton}
+              onClick={onClearSelection}
+            >
+              選択を解除
+            </button>
+            <button
+              type="button"
+              className={styles.textButton}
+              onClick={onExitSelectionMode}
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {deleteError ? <p className={styles.error}>{deleteError}</p> : null}
+
+      <ul
+        className={
+          selectionMode ? `${styles.grid} ${styles.gridSelecting}` : styles.grid
+        }
+        aria-label={selectionMode ? '削除する写真を選択' : '投稿写真一覧'}
+      >
+        {photos.map((photo, index) => {
+          const selected = selectedIds.has(photo.id);
+
+          return (
+            <li key={photo.id} className={styles.item}>
+              <button
+                type="button"
+                className={[
+                  styles.photoButton,
+                  selectionMode ? styles.photoButtonSelectable : '',
+                  selected ? styles.photoButtonSelected : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                onClick={() => handlePhotoClick(index, photo.id)}
+                aria-label={
+                  selectionMode
+                    ? `${photo.dateLabel} ${selected ? '選択済み' : '未選択'}`
+                    : `ギャラリー写真 ${index + 1}枚目を拡大表示`
+                }
+                aria-pressed={selectionMode ? selected : undefined}
+              >
+                <Image
+                  src={photo.url}
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 33vw, 24rem"
+                  className={styles.image}
+                />
+                {selectionMode ? (
+                  <span className={styles.selectMark} aria-hidden>
+                    {selected ? <MaterialIcon name={icons.check} size="sm" /> : null}
+                  </span>
+                ) : (
+                  <span className={styles.caption}>
+                    <span className={styles.dateLabel}>{photo.dateLabel}</span>
+                  </span>
+                )}
+              </button>
+            </li>
+          );
+        })}
       </ul>
 
       <div ref={sentinelRef} className={styles.sentinel} aria-hidden />

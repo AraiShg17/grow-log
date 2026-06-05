@@ -1,6 +1,7 @@
 import { FieldPath, FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { getDb } from '@/lib/firebase/admin';
 import { GALLERY_MAX_PHOTOS, GALLERY_PAGE_SIZE } from '@/lib/gallery/constants';
+import { deleteStorageObjectsByUrls } from '@/lib/storage/upload';
 import { formatDateTime } from '@/lib/utils/formatDate';
 import type {
   GalleryPageCursor,
@@ -102,4 +103,35 @@ export async function createGalleryPhotos(photoUrls: string[]): Promise<void> {
   }
 
   await batch.commit();
+}
+
+export async function deleteGalleryPhotos(
+  photoIds: readonly string[],
+): Promise<number> {
+  const uniqueIds = [...new Set(photoIds.filter((id) => id.trim() !== ''))];
+  if (uniqueIds.length === 0) {
+    return 0;
+  }
+
+  const db = getDb();
+  const refs = uniqueIds.map((id) => db.collection(GALLERY_PHOTOS_COLLECTION).doc(id));
+  const snapshots = await db.getAll(...refs);
+  const existing = snapshots.filter((snap) => snap.exists);
+
+  if (existing.length === 0) {
+    return 0;
+  }
+
+  const photoUrls = existing
+    .map((snap) => (snap.data() as GalleryPhotoDocument).photoUrl)
+    .filter(Boolean);
+
+  const batch = db.batch();
+  for (const snap of existing) {
+    batch.delete(snap.ref);
+  }
+  await batch.commit();
+  await deleteStorageObjectsByUrls(photoUrls);
+
+  return existing.length;
 }

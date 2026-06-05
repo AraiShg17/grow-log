@@ -46,12 +46,11 @@ export function ThemeToggle() {
         applyTheme(nextTheme);
       }}
     >
-      <span className={styles.viewport} aria-hidden="true">
-        <span className={styles.track} data-theme={theme}>
-          <MaterialIcon name={icons.lightMode} size="sm" className={styles.icon} />
-          <MaterialIcon name={icons.darkMode} size="sm" className={styles.icon} />
-        </span>
-      </span>
+      <MaterialIcon
+        name={theme === 'light' ? icons.lightMode : icons.darkMode}
+        size="sm"
+        className={styles.icon}
+      />
     </button>
   );
 }

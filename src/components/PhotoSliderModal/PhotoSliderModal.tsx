@@ -37,12 +37,31 @@ export function PhotoSliderModal({
     if (!dialog) {
       return;
     }
+
     if (open) {
-      dialog.showModal();
-    } else if (dialog.open) {
+      let frame2 = 0;
+      const frame1 = requestAnimationFrame(() => {
+        frame2 = requestAnimationFrame(() => {
+          if (!dialog.open) {
+            dialog.showModal();
+          }
+        });
+      });
+
+      return () => {
+        cancelAnimationFrame(frame1);
+        cancelAnimationFrame(frame2);
+      };
+    }
+
+    if (dialog.open) {
       dialog.close();
     }
   }, [open]);
+
+  const requestClose = useCallback(() => {
+    dialogRef.current?.close();
+  }, []);
 
   const goPrev = useCallback(() => {
     if (photos.length === 0) {
@@ -124,7 +143,7 @@ export function PhotoSliderModal({
       onClose={onClose}
       onCancel={(event) => {
         event.preventDefault();
-        onClose();
+        requestClose();
       }}
       aria-label={`${plantName}の写真スライダー`}
     >
@@ -140,7 +159,7 @@ export function PhotoSliderModal({
             type="button"
             className={styles.closeButton}
             aria-label="閉じる"
-            onClick={onClose}
+            onClick={requestClose}
           >
             <MaterialIcon name={icons.close} size="sm" />
           </button>

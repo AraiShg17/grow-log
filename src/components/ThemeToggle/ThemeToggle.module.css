@@ -22,24 +22,8 @@
   outline-offset: 3px;
 }
 
-.viewport {
-  display: block;
-  width: 1.5rem;
-  overflow: hidden;
-}
-
-.track {
-  display: flex;
-  width: max-content;
-  transition: transform 220ms ease;
-}
-
-.track[data-theme='dark'] {
-  transform: translateX(-1.5rem);
-}
-
 .icon {
-  flex: 0 0 1.5rem;
+  margin-inline: 0;
   color: var(--color-accent);
   transition: color 200ms ease;
 }

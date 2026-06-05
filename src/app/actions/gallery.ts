@@ -5,6 +5,7 @@ import { toActionErrorMessage } from '@/lib/errors/actionError';
 import {
   countGalleryPhotos,
   createGalleryPhotos,
+  deleteGalleryPhotos,
   listGalleryPhotoPage,
 } from '@/lib/firestore/gallery';
 import { GALLERY_MAX_PHOTOS } from '@/lib/gallery/constants';
@@ -62,4 +63,27 @@ export async function listGalleryPhotoPageAction(
   cursor: GalleryPageCursor | null,
 ): Promise<GalleryPhotoPage> {
   return listGalleryPhotoPage(cursor);
+}
+
+export async function deleteGalleryPhotosAction(
+  photoIds: string[],
+): Promise<ActionResult & { deletedCount?: number }> {
+  if (photoIds.length === 0) {
+    return { success: false, error: '削除する写真を選択してください。' };
+  }
+
+  try {
+    const deletedCount = await deleteGalleryPhotos(photoIds);
+    if (deletedCount === 0) {
+      return { success: false, error: '削除対象の写真が見つかりませんでした。' };
+    }
+
+    revalidatePath('/gallery');
+    return { success: true, deletedCount };
+  } catch (error) {
+    return {
+      success: false,
+      error: toActionErrorMessage(error, 'ギャラリー写真の削除に失敗しました。'),
+    };
+  }
 }

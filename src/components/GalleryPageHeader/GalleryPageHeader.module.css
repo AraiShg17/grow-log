@@ -11,15 +11,21 @@
   line-height: 1.15;
 }
 
-.uploadButton {
-  display: inline-flex;
+.actions {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
+}
+
+.uploadButton,
+.secondaryButton,
+.dangerButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
   border-radius: 999px;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface-strong);
-  color: var(--color-text);
   font: inherit;
   font-size: 0.875rem;
   font-weight: 600;
@@ -28,15 +34,42 @@
     background-color 200ms ease,
     border-color 200ms ease,
     color 200ms ease,
-    transform 200ms ease;
+    transform 200ms ease,
+    filter 200ms ease;
 }
 
-.uploadButton:focus-visible {
+.uploadButton {
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-strong);
+  color: var(--color-text);
+}
+
+.secondaryButton {
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-strong);
+  color: var(--color-text);
+}
+
+.dangerButton {
+  border: 1px solid color-mix(in oklab, var(--color-danger) 56%, var(--color-border));
+  background-color: color-mix(
+    in oklab,
+    var(--color-danger) 12%,
+    var(--color-surface-strong)
+  );
+  color: var(--color-danger);
+}
+
+.uploadButton:focus-visible,
+.secondaryButton:focus-visible,
+.dangerButton:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
 }
 
-.uploadButton:disabled {
+.uploadButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
@@ -107,6 +140,17 @@
     background-color: var(--color-surface);
     border-color: color-mix(in oklab, var(--color-accent) 56%, var(--color-border));
     color: var(--color-accent);
+  }
+
+  .secondaryButton:hover:not(:disabled) {
+    background-color: var(--color-surface);
+    border-color: color-mix(in oklab, var(--color-accent) 56%, var(--color-border));
+    color: var(--color-text);
+  }
+
+  .dangerButton:hover:not(:disabled) {
+    filter: brightness(1.04);
+    border-color: var(--color-danger);
   }
 }
 
