@@ -1,12 +1,11 @@
 'use client';
 
 import {
-  DEFAULT_PLANT_SORT,
   readPlantListViewParams,
   type PlantListViewParams,
 } from '@/lib/plants/plantListViewParams';
 import { replacePlantListViewUrl } from '@/lib/plants/plantListViewUrl';
-import type { PlantSortKey } from '@/lib/plants/sortPlants';
+import { DEFAULT_PLANT_SORT, type PlantSortKey } from '@/lib/plants/sortPlants';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
   createContext,

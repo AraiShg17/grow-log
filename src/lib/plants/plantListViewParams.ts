@@ -1,6 +1,6 @@
 import { DEFAULT_PLANT_SORT, type PlantSortKey } from '@/lib/plants/sortPlants';
-import { filterPlants } from '@/lib/plants/filterPlants';
-import { sortPlants } from '@/lib/plants/sortPlants';
+import { filterPlants, type PlantFilterRow } from '@/lib/plants/filterPlants';
+import { sortPlants, type PlantSortRow } from '@/lib/plants/sortPlants';
 
 export interface PlantListViewParams {
   query: string;
@@ -31,7 +31,7 @@ export function readPlantListViewParams(
   };
 }
 
-export function getDisplayedPlants<T extends { name: string; sunlightTag: string }>(
+export function getDisplayedPlants<T extends PlantFilterRow & PlantSortRow>(
   plants: readonly T[],
   params: PlantListViewParams,
 ): T[] {
