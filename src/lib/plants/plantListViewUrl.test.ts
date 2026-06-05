@@ -1,8 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import {
-  buildPlantListViewQuery,
-  replacePlantListViewUrl,
-} from './plantListViewUrl';
+import { buildPlantListViewQuery, replacePlantListViewUrl } from './plantListViewUrl';
 
 describe('plantListViewUrl', () => {
   it('buildPlantListViewQuery omits default sort', () => {

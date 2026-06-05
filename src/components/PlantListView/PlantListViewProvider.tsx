@@ -109,7 +109,9 @@ export function PlantListViewProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <PlantListViewContext.Provider value={value}>{children}</PlantListViewContext.Provider>
+    <PlantListViewContext.Provider value={value}>
+      {children}
+    </PlantListViewContext.Provider>
   );
 }
 
