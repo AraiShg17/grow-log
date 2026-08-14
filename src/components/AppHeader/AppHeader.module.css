@@ -55,7 +55,8 @@
     transform 200ms ease;
 }
 
-.navLinkGallery {
+.navLinkGallery,
+.navLinkArchive {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -110,6 +111,7 @@
 .brand:focus-visible,
 .navLink:focus-visible,
 .navLinkGallery:focus-visible,
+.navLinkArchive:focus-visible,
 .navLinkPrimary:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
@@ -125,7 +127,8 @@
   }
 
   .navLink:hover,
-  .navLinkGallery:hover {
+  .navLinkGallery:hover,
+  .navLinkArchive:hover {
     color: var(--color-text);
     background-color: var(--color-surface);
   }
@@ -142,12 +145,14 @@
   .brand:active,
   .navLink:active,
   .navLinkGallery:active,
+  .navLinkArchive:active,
   .navLinkPrimary:active {
     transform: scale(0.97);
   }
 
   .navLink:active,
-  .navLinkGallery:active {
+  .navLinkGallery:active,
+  .navLinkArchive:active {
     background-color: var(--color-surface);
     color: var(--color-text);
   }
@@ -173,7 +178,8 @@
     display: none;
   }
 
-  .navLinkGallery {
+  .navLinkGallery,
+  .navLinkArchive {
     width: 2.5rem;
     height: 2.5rem;
     justify-content: center;

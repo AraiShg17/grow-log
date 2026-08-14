@@ -1,6 +1,6 @@
 import { Link } from 'next-view-transitions';
+import { ArchiveNavLink } from '@/components/AppHeader/ArchiveNavLink';
 import { MaterialIcon } from '@/components/MaterialIcon/MaterialIcon';
-import { ThemeToggle } from '@/components/ThemeToggle/ThemeToggle';
 import { icons } from '@/icons';
 import styles from './AppHeader.module.css';
 
@@ -36,7 +36,7 @@ export function AppHeader() {
             />
             <span className={styles.navLinkText}>ギャラリー</span>
           </Link>
-          <ThemeToggle />
+          <ArchiveNavLink />
         </nav>
       </div>
     </header>

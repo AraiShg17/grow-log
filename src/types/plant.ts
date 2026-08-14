@@ -15,6 +15,9 @@ export interface Plant {
   careGuide: string;
   /** 育てるうえで推奨する置き場の明るさ（日向／半日向／日陰）。撮影時の環境ではない。タグがない旧データは undefined */
   sunlightTag?: SunlightTagId;
+  /** true の植物は通常一覧から外し、アーカイブ一覧に表示する */
+  archived: boolean;
+  archivedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   /** listPlants 取得時のみ。クイック記録の最新日 */
@@ -53,6 +56,9 @@ export interface PlantDocument {
   careGuide: string;
   /** 育てるうえで推奨する置き場の明るさ（撮影時の環境ではない） */
   sunlightTag?: SunlightTagId;
+  /** 旧データには存在しない。true のときだけアーカイブ扱い */
+  archived?: boolean;
+  archivedAt?: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   /** @deprecated 旧データ互換用。新規登録では保存しない */

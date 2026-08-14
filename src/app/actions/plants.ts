@@ -6,6 +6,7 @@ import { toActionErrorMessage } from '@/lib/errors/actionError';
 import { generatePlantRegistrationBundle } from '@/lib/openai/careGuide';
 import { generateLogAdvice } from '@/lib/openai/logAdvice';
 import {
+  archivePlant,
   createPlant,
   createPlantLog,
   deletePlantLog,
@@ -13,6 +14,7 @@ import {
   getPlant,
   getPlantLog,
   listPlantLogs,
+  restorePlant,
   updatePlant,
 } from '@/lib/firestore/plants';
 import {
@@ -226,12 +228,65 @@ export async function updatePlantAction(
   }
 }
 
+export async function archivePlantAction(plantId: string): Promise<ActionResult> {
+  const plant = await getPlant(plantId);
+  if (!plant) {
+    return { success: false, error: '植物が見つかりません。' };
+  }
+  if (plant.archived) {
+    return { success: true };
+  }
+
+  try {
+    await archivePlant(plantId);
+
+    revalidatePath('/');
+    revalidatePath('/archive');
+    revalidatePath(`/plants/${plantId}`);
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: toActionErrorMessage(error, '植物のアーカイブに失敗しました。'),
+    };
+  }
+}
+
+export async function restorePlantAction(plantId: string): Promise<ActionResult> {
+  const plant = await getPlant(plantId);
+  if (!plant) {
+    return { success: false, error: '植物が見つかりません。' };
+  }
+  if (!plant.archived) {
+    return { success: true };
+  }
+
+  try {
+    await restorePlant(plantId);
+
+    revalidatePath('/');
+    revalidatePath('/archive');
+    revalidatePath(`/plants/${plantId}`);
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: toActionErrorMessage(error, '植物の復元に失敗しました。'),
+    };
+  }
+}
+
 export async function deletePlantLogAction(
   plantId: string,
   logId: string,
   _prevState: ActionResult,
   _formData: FormData,
 ): Promise<ActionResult> {
+  void _prevState;
+  void _formData;
+
   const plant = await getPlant(plantId);
   if (!plant) {
     return { success: false, error: '植物が見つかりません。' };

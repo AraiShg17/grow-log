@@ -15,6 +15,7 @@ function toPlant(id: string, data: PlantDocument, latestPhotoUrl?: string): Plan
   const rawTag = data.sunlightTag;
   const sunlightTag =
     typeof rawTag === 'string' && isSunlightTagId(rawTag) ? rawTag : undefined;
+  const archived = data.archived === true;
 
   const photoUrls = normalizePhotoUrls(data.photoUrls);
   const aiPhotoIndex = clampAiPhotoIndex(data.aiPhotoIndex, photoUrls.length);
@@ -27,6 +28,8 @@ function toPlant(id: string, data: PlantDocument, latestPhotoUrl?: string): Plan
     latestPhotoUrl,
     careGuide: data.careGuide,
     sunlightTag,
+    archived,
+    archivedAt: archived ? data.archivedAt?.toDate() : undefined,
     createdAt: data.createdAt.toDate(),
     updatedAt: data.updatedAt.toDate(),
   };
@@ -57,14 +60,19 @@ function toPlantLog(id: string, data: PlantLogDocument): PlantLog {
   };
 }
 
-export async function listPlants(): Promise<Plant[]> {
+async function listPlantsByArchivedState(archived: boolean): Promise<Plant[]> {
   const snapshot = await getDb()
     .collection(PLANTS_COLLECTION)
     .orderBy('createdAt', 'desc')
     .get();
 
+  const targetDocs = snapshot.docs.filter((doc) => {
+    const data = doc.data() as PlantDocument;
+    return (data.archived === true) === archived;
+  });
+
   return Promise.all(
-    snapshot.docs.map(async (doc) => {
+    targetDocs.map(async (doc) => {
       const logsSnapshot = await doc.ref
         .collection('logs')
         .orderBy('observedAt', 'desc')
@@ -85,6 +93,14 @@ export async function listPlants(): Promise<Plant[]> {
       };
     }),
   );
+}
+
+export async function listPlants(): Promise<Plant[]> {
+  return listPlantsByArchivedState(false);
+}
+
+export async function listArchivedPlants(): Promise<Plant[]> {
+  return listPlantsByArchivedState(true);
 }
 
 export async function getPlant(plantId: string): Promise<Plant | null> {
@@ -109,6 +125,7 @@ export async function createPlant(input: {
     aiPhotoIndex: input.aiPhotoIndex,
     careGuide: input.careGuide,
     sunlightTag: input.sunlightTag,
+    archived: false,
     createdAt: now,
     updatedAt: now,
   });
@@ -124,6 +141,22 @@ export async function updatePlant(
 ): Promise<void> {
   await getDb().collection(PLANTS_COLLECTION).doc(plantId).update({
     name: input.name,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+}
+
+export async function archivePlant(plantId: string): Promise<void> {
+  await getDb().collection(PLANTS_COLLECTION).doc(plantId).update({
+    archived: true,
+    archivedAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+}
+
+export async function restorePlant(plantId: string): Promise<void> {
+  await getDb().collection(PLANTS_COLLECTION).doc(plantId).update({
+    archived: false,
+    archivedAt: FieldValue.delete(),
     updatedAt: FieldValue.serverTimestamp(),
   });
 }

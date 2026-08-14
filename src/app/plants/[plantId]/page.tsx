@@ -33,6 +33,7 @@ export default async function PlantDetailPage({ params }: PlantDetailPageProps) 
           plantId={plant.id}
           plantName={plant.name}
           sunlightTag={plant.sunlightTag}
+          archived={plant.archived}
         />
       }
     >

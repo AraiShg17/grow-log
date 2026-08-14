@@ -8,27 +8,29 @@ import styles from './ListBackLink.module.css';
 
 interface ListBackLinkProps {
   plantId: string;
+  href?: string;
   variant?: 'text' | 'icon';
   children?: string;
 }
 
 export function ListBackLink({
   plantId,
+  href,
   variant = 'text',
   children = '一覧へ戻る',
 }: ListBackLinkProps) {
-  const href = plantListAnchorHref(plantId);
+  const backHref = href ?? plantListAnchorHref(plantId);
 
   if (variant === 'icon') {
     return (
-      <Link href={href} className={styles.iconLink} aria-label="一覧へ戻る">
+      <Link href={backHref} className={styles.iconLink} aria-label={children}>
         <MaterialIcon name={icons.chevronLeft} size="sm" />
       </Link>
     );
   }
 
   return (
-    <Link href={href} className={styles.textLink}>
+    <Link href={backHref} className={styles.textLink}>
       {children}
     </Link>
   );

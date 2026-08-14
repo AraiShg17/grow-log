@@ -8,6 +8,7 @@ import { rememberPlantListAnchor } from '@/lib/navigation/plantListAnchor';
 import { getSunlightTagLabel } from '@/lib/plants/sunlightTags';
 import { formatCareDaysAgo, formatDate } from '@/lib/utils/formatDate';
 import type { PlantListItem } from '@/types/plant';
+import { usePathname } from 'next/navigation';
 import styles from './PlantCard.module.css';
 
 interface PlantCardProps {
@@ -15,6 +16,7 @@ interface PlantCardProps {
 }
 
 export function PlantCard({ plant }: PlantCardProps) {
+  const pathname = usePathname();
   const photoUrl = plant.latestPhotoUrl ?? plant.photoUrls[0] ?? '';
   const sunlightLabel = getSunlightTagLabel(plant.sunlightTag);
   const hasPhoto = Boolean(photoUrl);
@@ -24,7 +26,7 @@ export function PlantCard({ plant }: PlantCardProps) {
       <Link
         href={`/plants/${plant.id}`}
         className={styles.cardLink}
-        onClick={() => rememberPlantListAnchor(plant.id)}
+        onClick={() => rememberPlantListAnchor(plant.id, pathname)}
       >
         <div className={styles.imageWrap}>
           {hasPhoto ? (

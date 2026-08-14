@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import {
   consumePlantListAnchorFromSession,
@@ -7,6 +8,8 @@ import {
 } from '@/lib/navigation/plantListAnchor';
 
 export function PlantListScrollRestore() {
+  const pathname = usePathname();
+
   useEffect(() => {
     const scrollToAnchor = (anchorId: string) => {
       requestAnimationFrame(() => {
@@ -23,13 +26,13 @@ export function PlantListScrollRestore() {
       return;
     }
 
-    const plantId = consumePlantListAnchorFromSession();
-    if (plantId) {
-      const anchorId = plantListAnchorId(plantId);
-      window.history.replaceState(null, '', `/#${anchorId}`);
+    const stored = consumePlantListAnchorFromSession();
+    if (stored && stored.pathname === pathname) {
+      const anchorId = plantListAnchorId(stored.plantId);
+      window.history.replaceState(null, '', `${pathname}#${anchorId}`);
       scrollToAnchor(anchorId);
     }
-  }, []);
+  }, [pathname]);
 
   return null;
 }

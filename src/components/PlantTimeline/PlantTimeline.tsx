@@ -36,6 +36,7 @@ interface PlantTimelineProps {
   logs: TimelineLog[];
   allPhotos: readonly PlantPhotoItem[];
   addLogHref: string;
+  listPath?: string;
 }
 
 function toGalleryItems(log: TimelineLog): PhotoGalleryItem[] {
@@ -60,6 +61,7 @@ export function PlantTimeline({
   logs,
   allPhotos,
   addLogHref,
+  listPath = '/',
 }: PlantTimelineProps) {
   const [sliderOpen, setSliderOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -93,7 +95,7 @@ export function PlantTimeline({
         <Link
           href={addLogHref}
           className={styles.addLink}
-          onClick={() => rememberPlantListAnchor(plantId)}
+          onClick={() => rememberPlantListAnchor(plantId, listPath)}
         >
           観察記録を追加
         </Link>
@@ -105,7 +107,7 @@ export function PlantTimeline({
           <Link
             href={addLogHref}
             className={styles.addLink}
-            onClick={() => rememberPlantListAnchor(plantId)}
+            onClick={() => rememberPlantListAnchor(plantId, listPath)}
           >
             最初の観察記録を追加する
           </Link>

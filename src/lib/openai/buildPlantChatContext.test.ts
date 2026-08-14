@@ -9,6 +9,7 @@ const plant: Plant = {
   aiPhotoIndex: 0,
   careGuide: '## まとめ\n水は控えめ',
   sunlightTag: 'partial_sun',
+  archived: false,
   createdAt: new Date('2026-01-01T00:00:00Z'),
   updatedAt: new Date('2026-02-01T00:00:00Z'),
 };

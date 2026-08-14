@@ -12,6 +12,7 @@ function plant(p: Partial<Plant> & Pick<Plant, 'id' | 'name'>): Plant {
     ...p,
     photoUrls,
     aiPhotoIndex: p.aiPhotoIndex ?? 0,
+    archived: p.archived ?? false,
   };
 }
 

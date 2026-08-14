@@ -43,6 +43,7 @@ export function PlantDetail({ plant, logs }: PlantDetailProps) {
     })),
   ];
   const addLogHref = `/plants/${plant.id}/logs/new`;
+  const listPath = plant.archived ? '/archive' : '/';
   const allPhotos = collectPlantPhotos(plant, logs);
 
   return (
@@ -54,6 +55,7 @@ export function PlantDetail({ plant, logs }: PlantDetailProps) {
           logs={timelineLogs}
           allPhotos={allPhotos}
           addLogHref={addLogHref}
+          listPath={listPath}
         />
 
         <section className={styles.carePanel} aria-labelledby="care-guide-heading">

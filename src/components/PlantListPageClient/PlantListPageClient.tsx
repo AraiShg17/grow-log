@@ -10,20 +10,34 @@ import styles from '@/app/page.module.css';
 
 interface PlantListPageClientProps {
   plants: PlantListItem[];
+  title?: string;
+  emptyMessage?: string;
+  emptyActionHref?: string;
+  emptyActionLabel?: string;
+  showCareActions?: boolean;
 }
 
-export function PlantListPageClient({ plants }: PlantListPageClientProps) {
+export function PlantListPageClient({
+  plants,
+  title = '植物一覧',
+  emptyMessage = 'まだ植物が登録されていません。',
+  emptyActionHref = '/plants/new',
+  emptyActionLabel = '最初の植物を登録する',
+  showCareActions = true,
+}: PlantListPageClientProps) {
+  const actions =
+    showCareActions && plants.length > 0 ? (
+      <PlantCareQuickActions plants={plants} />
+    ) : null;
+
   return (
     <PlantListViewProvider>
-      <PageShell
-        title="植物一覧"
-        actions={plants.length > 0 ? <PlantCareQuickActions plants={plants} /> : null}
-      >
+      <PageShell title={title} actions={actions}>
         {plants.length === 0 ? (
           <div className={styles.empty}>
-            <p>まだ植物が登録されていません。</p>
-            <Link href="/plants/new" className={styles.newLink}>
-              最初の植物を登録する
+            <p>{emptyMessage}</p>
+            <Link href={emptyActionHref} className={styles.newLink}>
+              {emptyActionLabel}
             </Link>
           </div>
         ) : (
