@@ -71,7 +71,7 @@ GitHub (master push)
 - **写真**: Cloud Storage
 - **データ**: Firestore 専用 DB `grow-log-db`（`(default)` は使わない）
 - **写真**: Cloud Storage 専用バケット `home-items-app-grow-log-photos`
-- **AI**: OpenAI API（画像入力対応モデル。MVP は `gpt-4o-mini` 等、必要に応じて上位モデルへ）
+- **AI**: OpenAI API（画像入力対応モデル `gpt-6.1-sol`）
 
 ## デザイン方針
 

@@ -82,7 +82,7 @@ npm run test:coverage
 ### OpenAI
 
 - **Provider**: OpenAI API（Vertex AI は使わない）
-- **環境変数**: `OPENAI_API_KEY`（本番: Secret `OPEN_AI_API_KEY` → `projects/714015956955/secrets/OPEN_AI_API_KEY`）, `OPENAI_MODEL`（例: `gpt-4o-mini`）
+- **環境変数**: `OPENAI_API_KEY`（本番: Secret `OPEN_AI_API_KEY` → `projects/714015956955/secrets/OPEN_AI_API_KEY`）, `OPENAI_MODEL`（既定: `gpt-6.1-sol`）
 - 画像入力・写真解析は OpenAI 側で実施
 
 ### Cloud Run（想定）

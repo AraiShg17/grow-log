@@ -53,7 +53,7 @@ npm run dev
 - `FIRESTORE_DATABASE_ID`（専用 DB: `grow-log-db`）
 - `GCS_BUCKET_NAME`（専用バケット: `home-items-app-grow-log-photos`）
 - `OPENAI_API_KEY`（ローカル。本番は Secret Manager `OPEN_AI_API_KEY` を Cloud Run で `OPENAI_API_KEY` にマッピング）
-- `OPENAI_MODEL`（任意。未設定時はコード上のデフォルトを使用）
+- `OPENAI_MODEL`（任意。未設定時は `gpt-6.1-sol`）
 
 ローカルでは `gcloud auth application-default login` で ADC を使うか、`FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` を設定してください。
 

@@ -104,7 +104,7 @@ gcloud builds triggers create github \
 | `_SERVICE_NAME`          | `grow-log-web`                   |
 | `_ARTIFACT_REPO`         | `cloud-run-source-deploy`        |
 | `_IMAGE_NAME`            | `grow-log`                       |
-| `_OPENAI_MODEL`          | `gpt-5.4-mini`                   |
+| `_OPENAI_MODEL`          | `gpt-6.1-sol`                    |
 
 ## 7. Cloud Build サービスアカウント権限
 

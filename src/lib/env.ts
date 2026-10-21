@@ -27,5 +27,5 @@ export function getOpenAiApiKey(): string {
 }
 
 export function getOpenAiModel(): string {
-  return process.env.OPENAI_MODEL ?? 'gpt-5.4-mini';
+  return process.env.OPENAI_MODEL ?? 'gpt-6.1-sol';
 }

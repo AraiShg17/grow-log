@@ -32,7 +32,7 @@ FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
 
 OPENAI_API_KEY=sk-your-key
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-6.1-sol
 ```
 
 本番の Secret Manager 名は `OPEN_AI_API_KEY`（`projects/714015956955/secrets/OPEN_AI_API_KEY`）。Cloud Run では `OPENAI_API_KEY` として注入されます。
