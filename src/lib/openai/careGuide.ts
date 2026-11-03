@@ -2,8 +2,7 @@ import { getModel, getOpenAiClient } from '@/lib/openai/client';
 import {
   buildFertilizerProductClarityRules,
   buildHonestHealthAssessmentRules,
-  buildPhotoPlantVerificationRules,
-  buildRegistrationMismatchMarkdown,
+  buildRegisteredPlantContextRules,
 } from '@/lib/openai/plantPhotoPrompts';
 import { isSunlightTagId, type SunlightTagId } from '@/lib/plants/sunlightTags';
 
@@ -12,30 +11,28 @@ function bufferToDataUrl(buffer: Buffer, mimeType: string): string {
 }
 
 function buildCareGuideMarkdownRules(name: string): string {
-  const verification = buildPhotoPlantVerificationRules('入力された植物名', name);
+  const registeredNameRules = buildRegisteredPlantContextRules(
+    '入力された植物名',
+    name,
+  );
   const honestRules = buildHonestHealthAssessmentRules({ includeMemoEmpathy: false });
-  const mismatchExample = buildRegistrationMismatchMarkdown(name);
 
   return `ユーザーが入力した植物名: 「${name}」
 
-${verification}
+${registeredNameRules}
 
-照合に失敗した場合: careGuideMarkdown には次の内容**のみ**を入れ、sunlightTag は "partial_sun" にしてください（種類の推定や一般論は書かない）。
-
-${mismatchExample}
-
-照合に成功した場合のみ:
 ${honestRules}
 
 ${buildFertilizerProductClarityRules()}
-- 写真は葉の形・質感・全体の様子から種類の**補助推定**に使う（部屋の明るさだけで日照タグを決めない）。
+- 植物の種類は入力名「${name}」を正とする。写真による種類の再判定はしない。
+- 写真は葉の形・質感・全体の様子など、入力名に補足できる特徴を見るために使う（部屋の明るさだけで日照タグを決めない）。
 - この回答は登録時の「共通育成ガイド」です。個体の健康診断や今日すぐやる対応は書かない。
-- 種類に確信が低いときは「種類: 〇〇（推定）」のように書く。照合が通ったことの説明は不要。
+- 入力名が品種名・流通名で詳細な系統が不明な場合も、入力名を維持したまま、分かる範囲の一般的な育て方を書く。
 
 careGuideMarkdown は次の Markdown 構造**のみ**にしてください。見出し構造を必ず守ってください。
 
 ## まとめ
-（3〜5行以内。箇条書き3〜5項目。1行目に「種類: 〇〇」または「種類: 〇〇（推定）」。照合と写真に基づく推定であること）
+（3〜5行以内。箇条書き3〜5項目。1行目は必ず「種類: ${name}」）
 
 ## 詳細
 ### 水やり
@@ -59,10 +56,10 @@ function buildSunlightTagJudgementRules(name: string): string {
 sunlightTag は**「この植物を育てるうえで、ユーザーが選ぶべき置き場のカテゴリ」**を表します。
 **撮影時点の部屋の明るさや、写真に写っている窓・影から「いまの環境」をタグ付けするものではありません。** 現状の環境タグではないことを必ず守ってください。
 
-【決め方】（照合成功時のみ）
-1. **植物名「${name}」**と写真の両方が一致していると確信できる場合に、想定される種類・近縁群を特定してください。
-2. **写真**は、葉形・茎・成長姿・質感など**種類の同定を補うため**に使ってください。背景の明るさだけでタグを決めないでください。
-3. 同定した種類について、観葉植物・園芸の一般的知識から**この植物が健やかに育つのに適した光環境（日向寄り／半日向／日陰寄り）**を選び、次のいずれか 1 つだけ sunlightTag に出力してください:
+【決め方】
+1. 登録名「${name}」を正しい植物名として扱ってください。
+2. 登録名についての一般的な園芸知識を主な根拠とし、写真は葉形・茎・成長姿・質感などの補足にだけ使ってください。背景の明るさだけでタグを決めないでください。
+3. 「${name}」が健やかに育つのに適した光環境（日向寄り／半日向／日陰寄り）を選び、次のいずれか 1 つだけ sunlightTag に出力してください:
    - "full_sun" … 日向で育てるのが適する（強い光・直射を比較的多く浴びる置き場向き）
    - "partial_sun" … 半日向で育てるのが適する（明るい散射中心、短時間の直射も可など）
    - "shade" … 日陰寄り・耐陰性が高く、直射を避け弱めの光で育てるのが適する
@@ -79,7 +76,7 @@ const jsonShapeInstruction = `
   - "partial_sun" … 半日向
   - "shade" … 日陰
 
-照合成功かつ種類が推定できたうえで迷ったら "partial_sun" を選んでください。照合失敗時は上記どおり "partial_sun" のみ（推定に基づくタグ付けはしない）。`;
+登録名から適切なカテゴリを絞れない場合は "partial_sun" を選んでください。`;
 
 export interface PlantRegistrationBundle {
   careGuide: string;
@@ -136,7 +133,7 @@ export async function generatePlantRegistrationBundle(input: {
       {
         role: 'system',
         content:
-          'あなたは観葉植物・多肉植物の育成アドバイザーです。作業順序は必ず (1) 写真と入力名の照合（内部） → (2) 照合成功時のみ育成ガイドを作成。照合失敗時だけ「判断できない／一致しない」を書く。照合成功時は一致したことの報告は書かず、育成ガイドに直入る。種類の推定は写真と入力名に基づき、確信が低いときは「推定」を使う。健康診断は書かない。必ず「## まとめ」と「## 詳細」を使う。sunlightTag は照合成功かつ種類が推定できたときだけ、置き場の推奨として選ぶ。JSON オブジェクトだけを返す。',
+          'あなたは観葉植物・多肉植物の育成アドバイザーです。ユーザーが入力した植物名を正しい種類として必ず採用し、写真で登録名の正誤を再判定しないでください。写真が不鮮明でも、登録名を前提に育成ガイドを作成し、必要ならより分かりやすい写真の撮り方を案内してください。個体の健康診断は書かないでください。必ず「## まとめ」と「## 詳細」を使い、JSON オブジェクトだけを返してください。',
       },
       {
         role: 'user',
